@@ -72,9 +72,8 @@ func main() {
 	identityRepo := repository.NewIdentityRepository(db)
 	passkeyRepo := repository.NewPasskeyRepository(db)
 	tokenRepo := repository.NewTokenRepository(db)
-	// TODO: Implement Guild repository (renamed from Circle)
-	// circleRepo := repository.NewCircleRepository(db)
-	// memberRepo := repository.NewMemberRepository(db) // TODO: Wire up when guild service is implemented
+	guildRepo := repository.NewGuildRepository(db)
+	memberRepo := repository.NewMemberRepository(db)
 	personRepo := repository.NewPersonRepository(db)
 	activityRepo := repository.NewActivityRepository(db)
 	timerRepo := repository.NewTimerRepository(db)
@@ -148,14 +147,11 @@ func main() {
 		TokenService: tokenService,
 	})
 
-	// TODO: Implement Guild service (renamed from Circle)
-	// circleService := service.NewCircleService(service.CircleServiceConfig{
-	// 	CircleRepo:   circleRepo,
-	// 	MemberRepo:   memberRepo,
-	// 	PersonRepo:   personRepo,
-	// 	ActivityRepo: activityRepo,
-	// 	TimerRepo:    timerRepo,
-	// })
+	guildService := service.NewGuildService(service.GuildServiceConfig{
+		GuildRepo:  guildRepo,
+		MemberRepo: memberRepo,
+		UserRepo:   userRepo,
+	})
 	_ = personRepo
 	_ = activityRepo
 	_ = timerRepo
@@ -198,18 +194,18 @@ func main() {
 	roleCatalogService := service.NewRoleCatalogService(service.RoleCatalogServiceConfig{
 		CatalogRepo:   roleCatalogRepo,
 		RideshareRepo: rideshareRoleRepo,
-		GuildRepo:     nil, // TODO: Add when guild repository is implemented
+		GuildRepo:     guildRepo,
 	})
 
 	voteService := service.NewVoteService(service.VoteServiceConfig{
 		VoteRepo:  voteRepo,
-		GuildRepo: nil, // TODO: Add when guild repository is implemented
+		GuildRepo: guildRepo,
 	})
 
 	adventureService := service.NewAdventureService(service.AdventureServiceConfig{
 		AdventureRepo: adventureRepo,
 		AdmissionRepo: adventureAdmissionRepo,
-		GuildRepo:     nil, // TODO: Add when guild repository is implemented
+		GuildRepo:     guildRepo,
 	})
 
 	eventRoleService := service.NewEventRoleService(eventRoleRepo, interestService)
@@ -306,11 +302,11 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOAuthHandler(oauthService)
 	passkeyHandler := handler.NewPasskeyHandler(passkeyService)
-	// TODO: Implement Guild handler (renamed from Circle)
-	// circleHandler := handler.NewCircleHandler(circleService)
-	// personHandler := handler.NewPersonHandler(circleService, eventHub)
-	// activityHandler := handler.NewActivityHandler(circleService, eventHub)
-	// timerHandler := handler.NewTimerHandler(circleService, eventHub)
+	guildHandler := handler.NewGuildHandler(guildService)
+	// TODO: Implement Person, Activity, Timer handlers
+	// personHandler := handler.NewPersonHandler(guildService, eventHub)
+	// activityHandler := handler.NewActivityHandler(guildService, eventHub)
+	// timerHandler := handler.NewTimerHandler(guildService, eventHub)
 	eventsHandler := handler.NewEventsHandler(eventHub)
 	profileHandler := handler.NewProfileHandler(profileService)
 	interestHandler := handler.NewInterestHandler(interestService)
@@ -366,25 +362,15 @@ func main() {
 	mux.Handle("POST /v1/auth/passkey/register/finish", authMiddleware(http.HandlerFunc(passkeyHandler.RegisterFinish)))
 	mux.Handle("DELETE /v1/auth/passkey/", authMiddleware(http.HandlerFunc(passkeyHandler.Delete)))
 
-	// TODO: Guild access middleware (checks membership) - needs Guild service
-	// circleAccess := middleware.GuildAccess(circleService)
-	//
-	// // Wrap handler with auth + guild access + path params extraction
-	// withGuild := func(h http.HandlerFunc) http.Handler {
-	// 	return authMiddleware(
-	// 		circleAccess(
-	// 			middleware.ExtractPathParams(
-	// 				http.HandlerFunc(h),
-	// 			),
-	// 		),
-	// 	)
-	// }
-
-	// TODO: Guilds endpoints (need Guild handler)
-	// mux.Handle("GET /v1/guilds", authMiddleware(http.HandlerFunc(circleHandler.List)))
-	// mux.Handle("POST /v1/guilds", authMiddleware(http.HandlerFunc(circleHandler.Create)))
-	// mux.Handle("GET /v1/guilds/{guildId}", withGuild(circleHandler.Get))
-	// ... etc
+	// Guild endpoints
+	mux.Handle("GET /v1/guilds", authMiddleware(http.HandlerFunc(guildHandler.List)))
+	mux.Handle("POST /v1/guilds", authMiddleware(http.HandlerFunc(guildHandler.Create)))
+	mux.Handle("GET /v1/guilds/{guildId}", authMiddleware(http.HandlerFunc(guildHandler.Get)))
+	mux.Handle("PATCH /v1/guilds/{guildId}", authMiddleware(http.HandlerFunc(guildHandler.Update)))
+	mux.Handle("DELETE /v1/guilds/{guildId}", authMiddleware(http.HandlerFunc(guildHandler.Delete)))
+	mux.Handle("POST /v1/guilds/{guildId}/join", authMiddleware(http.HandlerFunc(guildHandler.Join)))
+	mux.Handle("POST /v1/guilds/{guildId}/leave", authMiddleware(http.HandlerFunc(guildHandler.Leave)))
+	mux.Handle("GET /v1/guilds/{guildId}/members", authMiddleware(http.HandlerFunc(guildHandler.GetMembers)))
 
 	// SSE events endpoint - simplified without guild access for now
 	mux.Handle("GET /v1/events/stream", authMiddleware(http.HandlerFunc(eventsHandler.Stream)))

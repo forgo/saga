@@ -234,6 +234,21 @@ func (m *mockGuildRepo) CountMembers(ctx context.Context, guildID string) (int, 
 func (m *mockGuildRepo) GetMembers(ctx context.Context, guildID string) ([]*model.Member, error) {
 	return nil, nil
 }
+func (m *mockGuildRepo) AddMemberWithRole(ctx context.Context, memberID, guildID string, role model.GuildRole, pendingApproval bool) error {
+	return nil
+}
+func (m *mockGuildRepo) GetMemberRole(ctx context.Context, userID, guildID string) (model.GuildRole, error) {
+	return model.GuildRoleMember, nil
+}
+func (m *mockGuildRepo) IsGuildAdmin(ctx context.Context, userID, guildID string) (bool, error) {
+	return true, nil
+}
+func (m *mockGuildRepo) IsGuildModerator(ctx context.Context, userID, guildID string) (bool, error) {
+	return true, nil
+}
+func (m *mockGuildRepo) UpdateMemberRole(ctx context.Context, userID, guildID string, role model.GuildRole) error {
+	return nil
+}
 
 type mockMemberRepo struct{}
 

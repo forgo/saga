@@ -193,11 +193,11 @@ func (f *Factory) CreateGuild(t *testing.T, admin *model.User, opts ...func(*Gui
 	}
 	memberID := parseIDFromResult(t, memberResults)
 
-	// Link member to guild via responsible_for relation
+	// Link member to guild via responsible_for relation with admin role
 	relateQuery := `
 		LET $m = type::record($member_id);
 		LET $g = type::record($guild_id);
-		RELATE $m->responsible_for->$g;
+		RELATE $m->responsible_for->$g SET role = "admin";
 	`
 	if err := f.db.Execute(ctx(), relateQuery, map[string]interface{}{
 		"member_id": memberID,
@@ -216,8 +216,18 @@ func (f *Factory) CreatePublicGuild(t *testing.T, admin *model.User) *model.Guil
 	})
 }
 
-// AddMemberToGuild adds a user as a member of a guild
+// AddMemberToGuild adds a user as a member of a guild with default "member" role
 func (f *Factory) AddMemberToGuild(t *testing.T, user *model.User, guild *model.Guild) {
+	f.addMemberToGuildWithRole(t, user, guild, "member")
+}
+
+// AddMemberToGuildAsAdmin adds a user as an admin of a guild
+func (f *Factory) AddMemberToGuildAsAdmin(t *testing.T, user *model.User, guild *model.Guild) {
+	f.addMemberToGuildWithRole(t, user, guild, "admin")
+}
+
+// addMemberToGuildWithRole adds a user to a guild with a specific role
+func (f *Factory) addMemberToGuildWithRole(t *testing.T, user *model.User, guild *model.Guild, role string) {
 	t.Helper()
 
 	memberQuery := `
@@ -242,11 +252,12 @@ func (f *Factory) AddMemberToGuild(t *testing.T, user *model.User, guild *model.
 	relateQuery := `
 		LET $m = type::record($member_id);
 		LET $g = type::record($guild_id);
-		RELATE $m->responsible_for->$g;
+		RELATE $m->responsible_for->$g SET role = $role;
 	`
 	if err := f.db.Execute(ctx(), relateQuery, map[string]interface{}{
 		"member_id": memberID,
 		"guild_id":  guild.ID,
+		"role":      role,
 	}); err != nil {
 		t.Fatalf("fixtures: failed to link member to guild: %v", err)
 	}

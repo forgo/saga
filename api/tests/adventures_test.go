@@ -586,7 +586,7 @@ func TestAdventure_UnfreezeAdventure(t *testing.T) {
 	organizer := f.CreateUser(t)
 	newOrganizer := f.CreateUser(t)
 	guild := f.CreateGuild(t, organizer)
-	f.AddMemberToGuild(t, newOrganizer, guild)
+	f.AddMemberToGuildAsAdmin(t, newOrganizer, guild)
 
 	orgType := "guild"
 	adventure, _ := adventureService.Create(ctx, organizer.ID, &model.CreateAdventureRequest{

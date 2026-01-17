@@ -1035,13 +1035,6 @@ func getInt(data map[string]interface{}, key string) int {
 	return 0
 }
 
-func getFloat(data map[string]interface{}, key string) float64 {
-	if v, ok := data[key].(float64); ok {
-		return v
-	}
-	return 0
-}
-
 func getTime(data map[string]interface{}, key string) time.Time {
 	if v, ok := data[key].(string); ok {
 		t, _ := time.Parse(time.RFC3339Nano, v)

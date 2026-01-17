@@ -30,11 +30,41 @@ const (
 	GuildVisibilityPublic  = "public"
 )
 
+// GuildRole represents a member's role within a guild
+type GuildRole string
+
+const (
+	GuildRoleMember    GuildRole = "member"    // Default - can participate
+	GuildRoleModerator GuildRole = "moderator" // Can manage content
+	GuildRoleAdmin     GuildRole = "admin"     // Full guild management
+)
+
+// IsAdmin returns true if the role has admin privileges
+func (r GuildRole) IsAdmin() bool {
+	return r == GuildRoleAdmin
+}
+
+// IsModerator returns true if the role has moderator privileges (includes admin)
+func (r GuildRole) IsModerator() bool {
+	return r == GuildRoleModerator || r == GuildRoleAdmin
+}
+
+// IsValid returns true if the role is a valid guild role
+func (r GuildRole) IsValid() bool {
+	switch r {
+	case GuildRoleMember, GuildRoleModerator, GuildRoleAdmin:
+		return true
+	default:
+		return false
+	}
+}
+
 // GuildMembership represents a member's relationship to a guild
 type GuildMembership struct {
-	MemberID        string `json:"member_id"`
-	GuildID         string `json:"guild_id"`
-	PendingApproval bool   `json:"pending_approval"`
+	MemberID        string    `json:"member_id"`
+	GuildID         string    `json:"guild_id"`
+	Role            GuildRole `json:"role"`
+	PendingApproval bool      `json:"pending_approval"`
 }
 
 // GuildData is a complete guild with all related data
@@ -177,6 +207,11 @@ type CreateTimerRequest struct {
 type UpdateTimerRequest struct {
 	Enabled *bool `json:"enabled,omitempty"`
 	Push    *bool `json:"push,omitempty"`
+}
+
+// UpdateMemberRoleRequest represents a request to change a member's role
+type UpdateMemberRoleRequest struct {
+	Role GuildRole `json:"role"`
 }
 
 // Backward compatibility type aliases (deprecated, will be removed)

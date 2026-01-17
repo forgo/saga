@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/forgo/saga/api/internal/database"
 	"github.com/forgo/saga/api/internal/model"
@@ -302,26 +301,3 @@ func convertDeviceTokenID(id interface{}) string {
 	return fmt.Sprintf("%v", id)
 }
 
-// nilIfEmpty is a helper for device repository (duplicated to avoid circular imports)
-func nilIfEmptyDevice(s string) interface{} {
-	if s == "" {
-		return nil
-	}
-	return s
-}
-
-// Helper to check for time values
-func parseOptionalTime(v interface{}) *time.Time {
-	if v == nil {
-		return nil
-	}
-	if t, ok := v.(time.Time); ok {
-		return &t
-	}
-	if str, ok := v.(string); ok {
-		if t, err := time.Parse(time.RFC3339, str); err == nil {
-			return &t
-		}
-	}
-	return nil
-}

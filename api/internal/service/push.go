@@ -49,7 +49,6 @@ type DeviceTokenRepository interface {
 type PushService struct {
 	deviceRepo DeviceTokenRepository
 	enabled    bool
-	fcmClient  interface{} // Placeholder for FCM client - will be *messaging.Client when Firebase is added
 }
 
 // PushServiceConfig holds configuration for the push service

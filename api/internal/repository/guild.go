@@ -282,6 +282,39 @@ func extractMemberIDFromResult(result interface{}) string {
 	return ""
 }
 
+// extractRoleFromResult extracts role from query result
+func extractRoleFromResult(result interface{}) string {
+	if result == nil {
+		return ""
+	}
+
+	// Handle direct record format
+	if data, ok := result.(map[string]interface{}); ok {
+		// Check if this is a wrapped response
+		if _, hasStatus := data["status"]; hasStatus {
+			if status, ok := data["status"].(string); ok && status == "OK" {
+				if resultData, ok := data["result"].([]interface{}); ok {
+					if len(resultData) == 0 {
+						return ""
+					}
+					if record, ok := resultData[0].(map[string]interface{}); ok {
+						if role, ok := record["role"].(string); ok {
+							return role
+						}
+					}
+				}
+			}
+		} else {
+			// Direct record format
+			if role, ok := data["role"].(string); ok {
+				return role
+			}
+		}
+	}
+
+	return ""
+}
+
 // CountMembers counts members in a guild
 func (r *GuildRepository) CountMembers(ctx context.Context, guildID string) (int, error) {
 	query := `SELECT count() AS count FROM responsible_for WHERE out = type::record($guild_id) GROUP ALL`
@@ -309,6 +342,107 @@ func (r *GuildRepository) GetMembers(ctx context.Context, guildID string) ([]*mo
 	}
 
 	return parseMembersFromRelationResult(results)
+}
+
+// GetMemberRole retrieves a user's role in a guild
+func (r *GuildRepository) GetMemberRole(ctx context.Context, userID, guildID string) (model.GuildRole, error) {
+	// First get the member for this user
+	memberQuery := `SELECT id FROM member WHERE user = type::record($user_id) LIMIT 1`
+	memberResult, err := r.db.QueryOne(ctx, memberQuery, map[string]interface{}{"user_id": userID})
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return "", database.ErrNotFound
+		}
+		return "", err
+	}
+
+	memberID := extractMemberIDFromResult(memberResult)
+	if memberID == "" {
+		return "", database.ErrNotFound
+	}
+
+	// Get the role from the relationship
+	query := `SELECT role FROM responsible_for WHERE in = type::record($member_id) AND out = type::record($guild_id) LIMIT 1`
+	vars := map[string]interface{}{
+		"member_id": memberID,
+		"guild_id":  guildID,
+	}
+
+	result, err := r.db.QueryOne(ctx, query, vars)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return "", database.ErrNotFound
+		}
+		return "", err
+	}
+
+	role := extractRoleFromResult(result)
+	if role == "" {
+		return model.GuildRoleMember, nil // Default to member
+	}
+	return model.GuildRole(role), nil
+}
+
+// IsGuildAdmin checks if a user has admin privileges in a guild
+func (r *GuildRepository) IsGuildAdmin(ctx context.Context, userID, guildID string) (bool, error) {
+	role, err := r.GetMemberRole(ctx, userID, guildID)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return role.IsAdmin(), nil
+}
+
+// IsGuildModerator checks if a user has moderator privileges in a guild (includes admin)
+func (r *GuildRepository) IsGuildModerator(ctx context.Context, userID, guildID string) (bool, error) {
+	role, err := r.GetMemberRole(ctx, userID, guildID)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return role.IsModerator(), nil
+}
+
+// UpdateMemberRole updates a user's role in a guild
+func (r *GuildRepository) UpdateMemberRole(ctx context.Context, userID, guildID string, role model.GuildRole) error {
+	// First get the member for this user
+	memberQuery := `SELECT id FROM member WHERE user = type::record($user_id) LIMIT 1`
+	memberResult, err := r.db.QueryOne(ctx, memberQuery, map[string]interface{}{"user_id": userID})
+	if err != nil {
+		return err
+	}
+
+	memberID := extractMemberIDFromResult(memberResult)
+	if memberID == "" {
+		return database.ErrNotFound
+	}
+
+	// Update the role
+	query := `UPDATE responsible_for SET role = $role WHERE in = type::record($member_id) AND out = type::record($guild_id)`
+	vars := map[string]interface{}{
+		"member_id": memberID,
+		"guild_id":  guildID,
+		"role":      string(role),
+	}
+
+	return r.db.Execute(ctx, query, vars)
+}
+
+// AddMemberWithRole adds a member to a guild with a specific role
+func (r *GuildRepository) AddMemberWithRole(ctx context.Context, memberID, guildID string, role model.GuildRole, pendingApproval bool) error {
+	query := `RELATE (SELECT * FROM type::record($member_id))->responsible_for->(SELECT * FROM type::record($guild_id)) SET pending_approval = $pending_approval, role = $role`
+	vars := map[string]interface{}{
+		"member_id":        memberID,
+		"guild_id":         guildID,
+		"pending_approval": pendingApproval,
+		"role":             string(role),
+	}
+
+	return r.db.Execute(ctx, query, vars)
 }
 
 // GetMemberForUserInGuild gets the member record for a user in a specific guild

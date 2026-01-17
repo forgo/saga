@@ -44,7 +44,8 @@ CREATE circle:demo SET
     updated_on = time::now();
 
 RELATE member:demo->responsible_for->circle:demo SET
-    pending_approval = false;
+    pending_approval = false,
+    role = "admin";
 
 -- ============================================================================
 -- ACTIVITIES (general-purpose interaction types)
@@ -226,7 +227,8 @@ CREATE circle:second SET
     updated_on = time::now();
 
 RELATE member:second->responsible_for->circle:second SET
-    pending_approval = false;
+    pending_approval = false,
+    role = "admin";
 
 -- Activities for second circle
 CREATE activity:hungout2 SET

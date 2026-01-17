@@ -14,6 +14,7 @@ type NudgeService struct {
 	availabilityRepo  AvailabilityRepository
 	poolRepo          PoolRepository
 	eventHub          *EventHub
+	pushService       *PushService
 	configs           map[model.NudgeType]model.NudgeConfig
 }
 
@@ -22,6 +23,7 @@ type NudgeServiceConfig struct {
 	AvailabilityRepo AvailabilityRepository
 	PoolRepo         PoolRepository
 	EventHub         *EventHub
+	PushService      *PushService
 }
 
 // NewNudgeService creates a new nudge service
@@ -30,6 +32,7 @@ func NewNudgeService(cfg NudgeServiceConfig) *NudgeService {
 		availabilityRepo: cfg.AvailabilityRepo,
 		poolRepo:         cfg.PoolRepo,
 		eventHub:         cfg.EventHub,
+		pushService:      cfg.PushService,
 		configs:          model.DefaultNudgeConfigs,
 	}
 }
@@ -295,10 +298,43 @@ func (s *NudgeService) sendNudge(ctx context.Context, nudge *model.Nudge) {
 	case model.NudgeChannelSSE:
 		s.sendSSENudge(nudge)
 	case model.NudgeChannelPush:
-		// TODO: Implement push notification delivery
-		// For now, fall back to SSE
-		s.sendSSENudge(nudge)
+		// Try push notification first
+		if s.pushService != nil && s.pushService.IsEnabled() {
+			notification := &PushNotification{
+				Title: nudge.Title,
+				Body:  nudge.Message,
+				Data:  s.convertNudgeDataToStrings(nudge),
+			}
+			if _, err := s.pushService.SendToUser(ctx, nudge.UserID, notification); err != nil {
+				// Fall back to SSE on push failure
+				log.Printf("[NudgeService] Push failed for user %s, falling back to SSE: %v", nudge.UserID, err)
+				s.sendSSENudge(nudge)
+			}
+		} else {
+			// Push not available, fall back to SSE
+			s.sendSSENudge(nudge)
+		}
 	}
+}
+
+// convertNudgeDataToStrings converts nudge data to string map for push payload
+func (s *NudgeService) convertNudgeDataToStrings(nudge *model.Nudge) map[string]string {
+	result := make(map[string]string)
+	result["nudge_type"] = string(nudge.Type)
+	result["sent_at"] = nudge.SentAt.Format(time.RFC3339)
+
+	// Data is a value type, check individual fields
+	if nudge.Data.MatchID != nil {
+		result["match_id"] = *nudge.Data.MatchID
+	}
+	if nudge.Data.AvailabilityID != nil {
+		result["availability_id"] = *nudge.Data.AvailabilityID
+	}
+	if nudge.Data.PartnerUserID != nil {
+		result["partner_user_id"] = *nudge.Data.PartnerUserID
+	}
+
+	return result
 }
 
 // sendSSENudge sends nudge via server-sent events

@@ -10,27 +10,9 @@ import (
 type EventType string
 
 const (
-	// Timer events
-	EventTimerCreated  EventType = "timer.created"
-	EventTimerReset    EventType = "timer.reset"
-	EventTimerUpdated  EventType = "timer.updated"
-	EventTimerDeleted  EventType = "timer.deleted"
-	EventTimerWarn     EventType = "timer.warn"
-	EventTimerCritical EventType = "timer.critical"
-
-	// Person events (formerly Baby)
-	EventPersonCreated EventType = "person.created"
-	EventPersonUpdated EventType = "person.updated"
-	EventPersonDeleted EventType = "person.deleted"
-
-	// Activity events
-	EventActivityCreated EventType = "activity.created"
-	EventActivityUpdated EventType = "activity.updated"
-	EventActivityDeleted EventType = "activity.deleted"
-
-	// Circle events (formerly Family)
-	EventMemberJoined EventType = "circle.member_joined"
-	EventMemberLeft   EventType = "circle.member_left"
+	// Guild events
+	EventMemberJoined EventType = "guild.member_joined"
+	EventMemberLeft   EventType = "guild.member_left"
 
 	// System events
 	EventHeartbeat EventType = "heartbeat"

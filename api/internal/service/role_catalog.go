@@ -67,14 +67,14 @@ func (s *RoleCatalogService) CreateGuildCatalog(ctx context.Context, guildID str
 		return nil, model.NewValidationError(errors)
 	}
 
-	// Check if user is guild member (TODO: restrict to admin role when available)
+	// Check if user is guild admin
 	if s.guildRepo != nil {
-		isMember, err := s.guildRepo.IsMember(ctx, userID, guildID)
+		isAdmin, err := s.guildRepo.IsGuildAdmin(ctx, userID, guildID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to check membership: %w", err)
+			return nil, fmt.Errorf("failed to check admin status: %w", err)
 		}
-		if !isMember {
-			return nil, model.NewForbiddenError("must be guild member to create catalogs")
+		if !isAdmin {
+			return nil, model.NewForbiddenError("must be guild admin to create catalogs")
 		}
 	}
 
@@ -340,16 +340,16 @@ func (s *RoleCatalogService) checkCatalogPermission(ctx context.Context, catalog
 		return nil
 	}
 
-	// Guild catalogs - must be member (TODO: restrict to admin role when available)
+	// Guild catalogs - must be admin
 	if s.guildRepo != nil {
 		// Extract guild ID from scope_id (format: "guild:<id>")
 		guildID := catalog.ScopeID[6:] // Remove "guild:" prefix
-		isMember, err := s.guildRepo.IsMember(ctx, userID, guildID)
+		isAdmin, err := s.guildRepo.IsGuildAdmin(ctx, userID, guildID)
 		if err != nil {
-			return fmt.Errorf("failed to check membership: %w", err)
+			return fmt.Errorf("failed to check admin status: %w", err)
 		}
-		if !isMember {
-			return model.NewForbiddenError("must be guild member")
+		if !isAdmin {
+			return model.NewForbiddenError("must be guild admin")
 		}
 	}
 

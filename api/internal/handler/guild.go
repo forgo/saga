@@ -209,6 +209,89 @@ func (h *GuildHandler) GetMembers(w http.ResponseWriter, r *http.Request) {
 	WriteData(w, http.StatusOK, guildData.Members, nil)
 }
 
+// GetMemberRole handles GET /v1/guilds/{guildId}/members/{userId}/role - get member's role
+func (h *GuildHandler) GetMemberRole(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		WriteError(w, model.NewUnauthorizedError("authentication required"))
+		return
+	}
+
+	guildID := r.PathValue("guildId")
+	if guildID == "" {
+		WriteError(w, model.NewBadRequestError("guild ID required"))
+		return
+	}
+
+	targetUserID := r.PathValue("userId")
+	if targetUserID == "" {
+		WriteError(w, model.NewBadRequestError("user ID required"))
+		return
+	}
+
+	// Check that requester is a member
+	isMember, err := h.svc.IsMember(ctx, userID, guildID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+	if !isMember {
+		WriteError(w, model.NewNotFoundError("guild not found"))
+		return
+	}
+
+	role, err := h.svc.GetMemberRole(ctx, targetUserID, guildID)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	WriteData(w, http.StatusOK, map[string]string{"role": string(role)}, nil)
+}
+
+// UpdateMemberRole handles PATCH /v1/guilds/{guildId}/members/{userId}/role - update member's role
+func (h *GuildHandler) UpdateMemberRole(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		WriteError(w, model.NewUnauthorizedError("authentication required"))
+		return
+	}
+
+	guildID := r.PathValue("guildId")
+	if guildID == "" {
+		WriteError(w, model.NewBadRequestError("guild ID required"))
+		return
+	}
+
+	targetUserID := r.PathValue("userId")
+	if targetUserID == "" {
+		WriteError(w, model.NewBadRequestError("user ID required"))
+		return
+	}
+
+	var req model.UpdateMemberRoleRequest
+	if err := DecodeJSON(r, &req); err != nil {
+		WriteError(w, model.NewBadRequestError("invalid request body"))
+		return
+	}
+
+	if !req.Role.IsValid() {
+		WriteError(w, model.NewValidationError([]model.FieldError{
+			{Field: "role", Message: "invalid role (must be member, moderator, or admin)"},
+		}))
+		return
+	}
+
+	if err := h.svc.UpdateMemberRole(ctx, userID, targetUserID, guildID, req.Role); err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	WriteData(w, http.StatusOK, map[string]string{"role": string(req.Role)}, nil)
+}
+
 // handleError converts service errors to HTTP responses
 func (h *GuildHandler) handleError(w http.ResponseWriter, err error) {
 	switch {

@@ -811,85 +811,6 @@ func (f *Factory) CreateBlock(t *testing.T, blocker, blocked *model.User) {
 }
 
 // ============================================================================
-// Activity & Timer Fixtures
-// ============================================================================
-
-// CreateActivity creates an activity in a guild
-func (f *Factory) CreateActivity(t *testing.T, guild *model.Guild, name string) *model.Activity {
-	t.Helper()
-
-	query := `
-		CREATE activity CONTENT {
-			guild_id: $guild_id,
-			name: $name,
-			icon: "coffee",
-			warn: 604800,
-			critical: 1209600,
-			created_on: time::now(),
-			updated_on: time::now()
-		}
-	`
-	results, err := f.db.Query(ctx(), query, map[string]interface{}{
-		"guild_id": guild.ID,
-		"name":     name,
-	})
-	if err != nil {
-		t.Fatalf("fixtures: failed to create activity: %v", err)
-	}
-
-	return parseActivityResult(t, results)
-}
-
-// CreatePerson creates a person in a guild
-func (f *Factory) CreatePerson(t *testing.T, guild *model.Guild, name string) *model.Person {
-	t.Helper()
-
-	query := `
-		CREATE person CONTENT {
-			guild_id: $guild_id,
-			name: $name,
-			created_on: time::now(),
-			updated_on: time::now()
-		}
-	`
-	results, err := f.db.Query(ctx(), query, map[string]interface{}{
-		"guild_id": guild.ID,
-		"name":     name,
-	})
-	if err != nil {
-		t.Fatalf("fixtures: failed to create person: %v", err)
-	}
-
-	return parsePersonResult(t, results)
-}
-
-// CreateTimer creates a timer for a person and activity
-func (f *Factory) CreateTimer(t *testing.T, person *model.Person, activity *model.Activity) *model.Timer {
-	t.Helper()
-
-	query := `
-		CREATE timer CONTENT {
-			person_id: $person_id,
-			activity_id: $activity_id,
-			reset_date: time::now(),
-			enabled: true,
-			push: false,
-			created_on: time::now(),
-			updated_on: time::now()
-		}
-	`
-	results, err := f.db.Query(ctx(), query, map[string]interface{}{
-		"person_id":   person.ID,
-		"activity_id": activity.ID,
-	})
-	if err != nil {
-		t.Fatalf("fixtures: failed to create timer: %v", err)
-	}
-
-	return parseTimerResult(t, results)
-}
-
-// ============================================================================
 // Result Parsing Helpers
 // ============================================================================
 
@@ -993,48 +914,6 @@ func parseBallotResult(t *testing.T, results []interface{}) *model.VoteBallot {
 		VoterUserID: getString(data, "voter_user_id"),
 		IsAbstain:   getBool(data, "is_abstain"),
 		CreatedOn:   getTime(data, "created_on"),
-	}
-}
-
-func parseActivityResult(t *testing.T, results []interface{}) *model.Activity {
-	t.Helper()
-	data := extractFirstResult(t, results)
-	return &model.Activity{
-		ID:        getString(data, "id"),
-		GuildID:   getString(data, "guild_id"),
-		Name:      getString(data, "name"),
-		Icon:      getString(data, "icon"),
-		Warn:      getFloat(data, "warn"),
-		Critical:  getFloat(data, "critical"),
-		CreatedOn: getTime(data, "created_on"),
-		UpdatedOn: getTime(data, "updated_on"),
-	}
-}
-
-func parsePersonResult(t *testing.T, results []interface{}) *model.Person {
-	t.Helper()
-	data := extractFirstResult(t, results)
-	return &model.Person{
-		ID:        getString(data, "id"),
-		GuildID:   getString(data, "guild_id"),
-		Name:      getString(data, "name"),
-		CreatedOn: getTime(data, "created_on"),
-		UpdatedOn: getTime(data, "updated_on"),
-	}
-}
-
-func parseTimerResult(t *testing.T, results []interface{}) *model.Timer {
-	t.Helper()
-	data := extractFirstResult(t, results)
-	return &model.Timer{
-		ID:         getString(data, "id"),
-		PersonID:   getString(data, "person_id"),
-		ActivityID: getString(data, "activity_id"),
-		ResetDate:  getTime(data, "reset_date"),
-		Enabled:    getBool(data, "enabled"),
-		Push:       getBool(data, "push"),
-		CreatedOn:  getTime(data, "created_on"),
-		UpdatedOn:  getTime(data, "updated_on"),
 	}
 }
 

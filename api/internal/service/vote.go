@@ -86,15 +86,15 @@ func (s *VoteService) Create(ctx context.Context, userID string, req *model.Crea
 		return nil, model.NewBadRequestError("closes_at must be after opens_at")
 	}
 
-	// Check permissions for guild votes (TODO: restrict to admin role when available)
+	// Check permissions for guild votes - must be guild admin
 	if req.ScopeType == string(model.VoteScopeGuild) && req.ScopeID != nil {
 		if s.guildRepo != nil {
-			isMember, err := s.guildRepo.IsMember(ctx, userID, *req.ScopeID)
+			isAdmin, err := s.guildRepo.IsGuildAdmin(ctx, userID, *req.ScopeID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to check membership: %w", err)
+				return nil, fmt.Errorf("failed to check admin status: %w", err)
 			}
-			if !isMember {
-				return nil, model.NewForbiddenError("must be guild member to create votes")
+			if !isAdmin {
+				return nil, model.NewForbiddenError("must be guild admin to create votes")
 			}
 		}
 	}

@@ -391,15 +391,15 @@ func (s *AdventureService) UnfreezeAdventure(ctx context.Context, adventureID st
 		return nil, model.NewBadRequestError("adventure is not frozen")
 	}
 
-	// Must be guild member for guild adventures (TODO: check admin role when available)
+	// Must be guild admin for guild adventures
 	if adventure.IsGuildOrganized() && s.guildRepo != nil {
 		guildID := adventure.OrganizerID[6:]
-		isMember, err := s.guildRepo.IsMember(ctx, userID, guildID)
+		isAdmin, err := s.guildRepo.IsGuildAdmin(ctx, userID, guildID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to check membership: %w", err)
+			return nil, fmt.Errorf("failed to check admin status: %w", err)
 		}
-		if !isMember {
-			return nil, model.NewForbiddenError("must be guild member to unfreeze")
+		if !isAdmin {
+			return nil, model.NewForbiddenError("must be guild admin to unfreeze")
 		}
 	}
 
@@ -431,14 +431,14 @@ func (s *AdventureService) checkOrganizerPermission(ctx context.Context, adventu
 		return nil
 	}
 
-	// For guild adventures, guild members have permission (TODO: restrict to admin role when available)
+	// For guild adventures, guild admins have permission
 	if adventure.IsGuildOrganized() && s.guildRepo != nil {
 		guildID := adventure.OrganizerID[6:] // Remove "guild:" prefix
-		isMember, err := s.guildRepo.IsMember(ctx, userID, guildID)
+		isAdmin, err := s.guildRepo.IsGuildAdmin(ctx, userID, guildID)
 		if err != nil {
-			return fmt.Errorf("failed to check membership: %w", err)
+			return fmt.Errorf("failed to check admin status: %w", err)
 		}
-		if isMember {
+		if isAdmin {
 			return nil
 		}
 	}

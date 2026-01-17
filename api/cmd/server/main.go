@@ -33,6 +33,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Validate configuration
+	if err := cfg.Validate(); err != nil {
+		slog.Error("invalid configuration", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
 	// Initialize database connection
 	db := database.NewSurrealDB(database.Config{
 		Host:      cfg.Database.Host,
@@ -74,9 +80,6 @@ func main() {
 	tokenRepo := repository.NewTokenRepository(db)
 	guildRepo := repository.NewGuildRepository(db)
 	memberRepo := repository.NewMemberRepository(db)
-	personRepo := repository.NewPersonRepository(db)
-	activityRepo := repository.NewActivityRepository(db)
-	timerRepo := repository.NewTimerRepository(db)
 	profileRepo := repository.NewProfileRepository(db)
 	interestRepo := repository.NewInterestRepository(db)
 	questionnaireRepo := repository.NewQuestionnaireRepository(db)
@@ -96,6 +99,7 @@ func main() {
 	// commuteRepo := repository.NewCommuteRepository(db)
 	poolRepo := repository.NewPoolRepository(db)
 	moderationRepo := repository.NewModerationRepository(db)
+	deviceTokenRepo := repository.NewDeviceTokenRepository(db)
 
 	// Initialize services
 	tokenService := service.NewTokenService(service.TokenServiceConfig{
@@ -113,16 +117,16 @@ func main() {
 	oauthService := service.NewOAuthService(service.OAuthServiceConfig{
 		Config: service.OAuthConfig{
 			Google: service.GoogleOAuthConfig{
-				ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-				ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-				RedirectURI:  os.Getenv("GOOGLE_REDIRECT_URI"),
+				ClientID:     cfg.OAuth.Google.ClientID,
+				ClientSecret: cfg.OAuth.Google.ClientSecret,
+				RedirectURI:  cfg.OAuth.Google.RedirectURI,
 			},
 			Apple: service.AppleOAuthConfig{
-				ClientID:    os.Getenv("APPLE_CLIENT_ID"),
-				TeamID:      os.Getenv("APPLE_TEAM_ID"),
-				KeyID:       os.Getenv("APPLE_KEY_ID"),
-				PrivateKey:  os.Getenv("APPLE_PRIVATE_KEY"),
-				RedirectURI: os.Getenv("APPLE_REDIRECT_URI"),
+				ClientID:    cfg.OAuth.Apple.ClientID,
+				TeamID:      cfg.OAuth.Apple.TeamID,
+				KeyID:       cfg.OAuth.Apple.KeyID,
+				PrivateKey:  cfg.OAuth.Apple.PrivateKey,
+				RedirectURI: cfg.OAuth.Apple.RedirectURI,
 			},
 		},
 		AuthService:  authService,
@@ -133,12 +137,12 @@ func main() {
 
 	passkeyService := service.NewPasskeyService(service.PasskeyServiceConfig{
 		Config: service.PasskeyConfig{
-			RPID:            os.Getenv("PASSKEY_RP_ID"),
-			RPName:          "Saga",
-			RPOrigins:       cfg.Server.AllowedOrigins,
-			Timeout:         60 * time.Second,
-			RequireUV:       false,
-			AttestationType: "none",
+			RPID:            cfg.Passkey.RPID,
+			RPName:          cfg.Passkey.RPName,
+			RPOrigins:       cfg.Passkey.RPOrigins,
+			Timeout:         cfg.Passkey.Timeout,
+			RequireUV:       cfg.Passkey.RequireUV,
+			AttestationType: cfg.Passkey.AttestationType,
 		},
 		PasskeyRepo:  passkeyRepo,
 		UserRepo:     userRepo,
@@ -150,9 +154,6 @@ func main() {
 		MemberRepo: memberRepo,
 		UserRepo:   userRepo,
 	})
-	_ = personRepo
-	_ = activityRepo
-	_ = timerRepo
 
 	profileService := service.NewProfileService(service.ProfileServiceConfig{
 		ProfileRepo: profileRepo,
@@ -249,25 +250,28 @@ func main() {
 	// Initialize moderation service
 	moderationService := service.NewModerationService(moderationRepo, eventHub)
 
-	// Initialize threshold monitor for timer alerts
-	thresholdMonitor := service.NewThresholdMonitor(service.ThresholdMonitorConfig{
-		Checker:  timerRepo,
-		EventHub: eventHub,
-		Interval: 30 * time.Second,
-		Cooldown: 5 * time.Minute,
-	})
-	thresholdMonitor.Start()
-	defer thresholdMonitor.Stop()
-
 	poolMatcher := jobs.NewPoolMatcher(poolService, 1*time.Hour)
 	poolMatcher.Start()
 	defer poolMatcher.Stop()
+
+	// Initialize push notification service
+	pushService, err := service.NewPushService(service.PushServiceConfig{
+		DeviceRepo:         deviceTokenRepo,
+		Enabled:            cfg.Push.Enabled,
+		FCMCredentialsPath: cfg.Push.FCMCredentialsPath,
+	})
+	if err != nil {
+		slog.Error("Failed to initialize push service", "error", err)
+		// Continue without push - it's optional
+		pushService = nil
+	}
 
 	// Initialize nudge service and processor
 	nudgeService := service.NewNudgeService(service.NudgeServiceConfig{
 		AvailabilityRepo: availabilityRepo,
 		PoolRepo:         poolRepo,
 		EventHub:         eventHub,
+		PushService:      pushService,
 	})
 	nudgeProcessor := jobs.NewNudgeProcessor(nudgeService, 15*time.Minute)
 	nudgeProcessor.Start()
@@ -311,6 +315,7 @@ func main() {
 	poolHandler := handler.NewPoolHandler(poolService, guildService)
 	discoveryHandler := handler.NewDiscoveryHandler(discoveryService)
 	moderationHandler := handler.NewModerationHandler(moderationService, userRepo)
+	deviceHandler := handler.NewDeviceHandler(deviceTokenRepo)
 
 	// Create router and register routes
 	mux := http.NewServeMux()
@@ -350,6 +355,8 @@ func main() {
 	mux.Handle("POST /v1/guilds/{guildId}/join", authMiddleware(http.HandlerFunc(guildHandler.Join)))
 	mux.Handle("POST /v1/guilds/{guildId}/leave", authMiddleware(http.HandlerFunc(guildHandler.Leave)))
 	mux.Handle("GET /v1/guilds/{guildId}/members", authMiddleware(http.HandlerFunc(guildHandler.GetMembers)))
+	mux.Handle("GET /v1/guilds/{guildId}/members/{userId}/role", authMiddleware(http.HandlerFunc(guildHandler.GetMemberRole)))
+	mux.Handle("PATCH /v1/guilds/{guildId}/members/{userId}/role", authMiddleware(http.HandlerFunc(guildHandler.UpdateMemberRole)))
 
 	// SSE events endpoint - simplified without guild access for now
 	mux.Handle("GET /v1/events/stream", authMiddleware(http.HandlerFunc(eventsHandler.Stream)))
@@ -360,6 +367,11 @@ func main() {
 	mux.Handle("PATCH /v1/profile", authMiddleware(http.HandlerFunc(profileHandler.Update)))
 	mux.Handle("GET /v1/users/{userId}/profile", authMiddleware(http.HandlerFunc(profileHandler.GetUser)))
 	mux.Handle("GET /v1/profiles/nearby", authMiddleware(http.HandlerFunc(profileHandler.GetNearby)))
+
+	// Device token endpoints (for push notifications)
+	mux.Handle("POST /v1/devices", authMiddleware(http.HandlerFunc(deviceHandler.Register)))
+	mux.Handle("GET /v1/devices", authMiddleware(http.HandlerFunc(deviceHandler.List)))
+	mux.Handle("DELETE /v1/devices/{deviceId}", authMiddleware(http.HandlerFunc(deviceHandler.Delete)))
 
 	// Discovery endpoints (global people matching)
 	mux.Handle("GET /v1/discover/people", authMiddleware(http.HandlerFunc(discoveryHandler.DiscoverPeople)))

@@ -69,81 +69,17 @@ type GuildMembership struct {
 
 // GuildData is a complete guild with all related data
 type GuildData struct {
-	Guild      Guild      `json:"guild"`
-	Members    []Member   `json:"members"`
-	People     []Person   `json:"people"`
-	Activities []Activity `json:"activities"`
-}
-
-// Person represents a person you track interactions with
-type Person struct {
-	ID        string     `json:"id"`
-	GuildID   string     `json:"guild_id"`
-	Name      string     `json:"name"`
-	Nickname  string     `json:"nickname,omitempty"`
-	Avatar    string     `json:"avatar,omitempty"`
-	Birthday  *time.Time `json:"birthday,omitempty"`
-	Notes     string     `json:"notes,omitempty"`
-	CreatedOn time.Time  `json:"created_on"`
-	UpdatedOn time.Time  `json:"updated_on"`
-}
-
-// Activity represents a trackable activity (hung out, called, played games, etc.)
-type Activity struct {
-	ID        string    `json:"id"`
-	GuildID   string    `json:"guild_id"`
-	Name      string    `json:"name"`
-	Icon      string    `json:"icon"`
-	Warn      float64   `json:"warn"`     // Seconds until warning
-	Critical  float64   `json:"critical"` // Seconds until critical
-	CreatedOn time.Time `json:"created_on"`
-	UpdatedOn time.Time `json:"updated_on"`
-}
-
-// Timer represents a timer for tracking an activity for a person
-type Timer struct {
-	ID         string    `json:"id"`
-	PersonID   string    `json:"person_id"`
-	ActivityID string    `json:"activity_id"`
-	ResetDate  time.Time `json:"reset_date"`
-	Enabled    bool      `json:"enabled"`
-	Push       bool      `json:"push"` // Push notifications enabled
-	CreatedOn  time.Time `json:"created_on"`
-	UpdatedOn  time.Time `json:"updated_on"`
-}
-
-// TimerWithActivity includes the timer with its associated activity
-type TimerWithActivity struct {
-	Timer    Timer    `json:"timer"`
-	Activity Activity `json:"activity"`
-}
-
-// PersonWithTimers includes a person with all their timers
-type PersonWithTimers struct {
-	Person Person              `json:"person"`
-	Timers []TimerWithActivity `json:"timers"`
+	Guild   Guild    `json:"guild"`
+	Members []Member `json:"members"`
 }
 
 // Business constraints
 const (
-	MaxMembersPerGuild    = 20
-	MaxPeoplePerGuild     = 50
-	MaxActivitiesPerGuild = 50
-	MaxTimersPerPerson    = 50
-	MaxGuildsPerUser      = 10
+	MaxMembersPerGuild = 20
+	MaxGuildsPerUser   = 10
 
-	MaxGuildNameLength      = 100
-	MaxGuildDescLength      = 500
-	MaxPersonNameLength     = 100
-	MaxPersonNicknameLength = 50
-	MaxPersonNotesLength    = 1000
-	MaxActivityNameLength   = 50
-	MaxActivityIconLength   = 50
-
-	MinWarnSeconds     = 60       // 1 minute
-	MaxWarnSeconds     = 2592000  // 30 days
-	MinCriticalSeconds = 60       // 1 minute
-	MaxCriticalSeconds = 7776000  // 90 days
+	MaxGuildNameLength = 100
+	MaxGuildDescLength = 500
 )
 
 // CreateGuildRequest represents a request to create a guild

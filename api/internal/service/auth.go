@@ -2,23 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/forgo/saga/api/internal/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	ErrInvalidCredentials     = errors.New("invalid email or password")
-	ErrEmailAlreadyExists     = errors.New("email already registered")
-	ErrUserNotFound           = errors.New("user not found")
-	ErrPasswordRequired       = errors.New("password is required")
-	ErrPasswordTooShort       = errors.New("password must be at least 8 characters")
-	ErrPasswordTooLong        = errors.New("password must be at most 128 characters")
-	ErrInvalidEmail           = errors.New("invalid email format")
-	ErrAccountLinkingRequired = errors.New("account linking required")
-)
+// Error definitions moved to errors.go
 
 const (
 	// bcrypt cost factor (10-14 recommended for production)

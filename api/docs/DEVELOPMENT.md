@@ -1,185 +1,191 @@
 # Development Status
 
-This document tracks the current implementation status of Saga features, known issues, and areas needing work. Updated: January 2025.
+This document tracks the current implementation status of Saga features and development workflows. Updated: January 2025.
 
 ## Feature Status Overview
 
-| Feature | Status | Test Coverage | Notes |
-|---------|--------|---------------|-------|
-| Authentication | ✅ Complete | 13 tests | JWT, OAuth, Passkeys |
-| Guilds | ✅ Complete | 13 tests | Create, join, leave, merge |
-| Trust Ratings | ✅ Complete | 16 tests | Anchor-based trust system |
-| Voting | ✅ Complete | 20 tests | FPTP, RCV, Approval, Multi-select |
-| Adventures | ✅ Complete | 15 tests | Multi-day coordination |
-| Resonance | ✅ Complete | 9 tests | XP-style rewards |
-| Event Verification | ✅ Complete | 6 tests | Attendance confirmation |
-| Discovery | ✅ Complete | 6 tests | Profile matching |
-| Activities | ✅ Complete | 7 tests | Activity type management |
-| People | ✅ Complete | 5 tests | Contact management |
-| Timers | ✅ Complete | 5 tests | Activity tracking |
-| Role Catalogs | ✅ Complete | 8 tests | Role templates |
-| Moderation | ✅ Complete | 13 tests | Blocking, reporting |
-| Visibility | ✅ Complete | 6 tests | Access control cascade |
-| Location Privacy | ✅ Complete | 10 tests | Coordinate protection |
-| Matching Pools | ⚠️ Partial | 10 tests | Model tests only |
-| Compatibility | ✅ Complete | 30 tests | OkCupid-style scoring |
-| Forums | ✅ Complete | 25 tests | Discussion threads |
-
-**Total: 306 tests passing**
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Authentication | ✅ Complete | JWT, OAuth (Google/Apple), Passkeys (WebAuthn) |
+| Guilds | ✅ Complete | Create, join, leave, roles, alliances |
+| Events | ✅ Complete | CRUD, RSVPs, roles, attendance verification |
+| Adventures | ✅ Complete | Multi-day coordination, admission control |
+| Discovery | ✅ Complete | People/event discovery with geo & compatibility |
+| Profiles | ✅ Complete | Privacy controls, location privacy buckets |
+| Availability | ✅ Complete | Hangout scheduling with 5 hangout types |
+| Questionnaire | ✅ Complete | OkCupid-style compatibility matching |
+| Interests | ✅ Complete | Teach/learn matching |
+| Trust | ✅ Complete | Trust grants, IRL verification |
+| Trust Ratings | ✅ Complete | Anchor-based trust with endorsements |
+| Reviews | ✅ Complete | Context-based peer reviews |
+| Resonance | ✅ Complete | XP-style gamification with daily caps |
+| Moderation | ✅ Complete | Reports, blocks, actions, admin tools |
+| Matching Pools | ✅ Complete | Donut-style random matching |
+| Role Catalogs | ✅ Complete | Reusable role templates |
+| Voting | ✅ Complete | FPTP, RCV, Approval, Multi-select |
+| Devices | ✅ Complete | Push notification token management |
 
 ## Implementation Layers
 
-### Fully Wired (Handler → Service → Repository)
+All features follow the layered architecture:
 
-These features have complete request-response flow:
-
-- ✅ Authentication (auth, passkey, oauth)
-- ✅ Profile management
-- ✅ Interest system
-- ✅ Availability
-- ✅ Discovery
-- ✅ Trust ratings
-- ✅ Reviews
-- ✅ Questionnaire/compatibility
-- ✅ Moderation (blocks, reports)
-
-### Partially Wired
-
-These have handlers and services but incomplete wiring in `main.go`:
-
-| Feature | Handler | Service | Repository | Wired |
-|---------|---------|---------|------------|-------|
-| Guild | ✅ | ⚠️ | ⚠️ | ❌ |
-| Event | ✅ | ⚠️ | ✅ | ❌ |
-| Adventure | ✅ | ✅ | ✅ | ❌ |
-| Pool | ✅ | ⚠️ | ✅ | ❌ |
-| Rideshare | ❌ | ❌ | ⚠️ | ❌ |
-
-### Known TODOs in `cmd/server/main.go`
-
-```go
-// Line ~75: Guild repository not implemented
-// TODO: Implement Guild repository (renamed from Circle)
-
-// Line ~151: Guild service incomplete
-// TODO: Implement Guild service (renamed from Circle)
-
-// Line ~217: EventService broken
-// TODO: Fix EventRepository interface - missing GetByCircle method
-
-// Line ~226: PoolService broken
-// TODO: Fix PoolService - references CircleRepo which no longer exists
-
-// Line ~331: Multiple incomplete handlers
-// TODO: Implement Rideshare handler
-// TODO: Fix pool handler
-// TODO: Implement Adventure handler
+```
+Handler → Service → Repository → Database
 ```
 
-## Naming Migration Status
+### Layer Files
 
-The codebase underwent a naming migration:
+| Layer | Count | Location |
+|-------|-------|----------|
+| Handlers | 25+ | `internal/handler/` |
+| Services | 24+ | `internal/service/` |
+| Repositories | 24+ | `internal/repository/` |
+| Models | 22+ | `internal/model/` |
+| Middleware | 6 | `internal/middleware/` |
 
-| Old Name | New Name | Migration Status |
-|----------|----------|------------------|
-| Circle | Guild | ⚠️ In Progress |
-| Baby | Person | ✅ Complete |
-| Parent | User | ✅ Complete |
-| Family | Guild | ⚠️ In Progress |
-| Trip | Adventure | ⚠️ In Progress |
+### Key Services
 
-### Files Still Using Old Names
-
-Some repository interfaces still reference old names:
-- `CircleRepository` → should be `GuildRepository`
-- `GetByCircle` → should be `GetByGuild`
+- **AuthService** - Email/password, OAuth, session management
+- **PasskeyService** - WebAuthn registration and authentication
+- **OAuthService** - Google/Apple sign-in with PKCE
+- **GuildService** - Guild membership and administration
+- **EventService** - Event creation, RSVPs, completion verification
+- **DiscoveryService** - Profile and event discovery with geo-filtering
+- **CompatibilityService** - OkCupid-style scoring
+- **ResonanceService** - Gamification scoring with daily caps
+- **TrustService** - Trust grants and IRL verification
+- **ModerationService** - Reports, blocks, admin actions
 
 ## Database Schema Status
 
-### Tables Implemented
+### Tables Implemented (35+)
 
 ```
-user, identity, passkey, token
-guild, member
-person, activity, timer
-trust_rating, endorsement, trust_history
-review
-vote, vote_option, ballot
-adventure, admission
-event, event_role, event_role_assignment
-pool, pool_member, pool_match
-profile, availability, interest
-answer, question
-block, report
-resonance_ledger
-forum, forum_post
+Auth:        user, identity, passkey, refresh_token
+Profile:     user_profile, answer, user_bias_profile
+Guild:       guild, member, guild_alliance, guild_moderation_settings
+Events:      event, event_role, event_role_assignment, unified_rsvp
+Adventures:  adventure, destination, adventure_activity, adventure_admission
+Rideshares:  rideshare, rideshare_segment, rideshare_seat
+Discovery:   availability, discovery_daily_count
+Trust:       trust_relation, irl_verification, trust_rating, trust_endorsement
+Reviews:     review
+Resonance:   resonance_ledger, resonance_score, resonance_daily_cap
+Moderation:  report, moderation_action, block, user_flag
+Pools:       matching_pool, pool_member, match_result
+Roles:       role_catalog, rideshare_role, rideshare_role_assignment
+Voting:      vote, vote_option, vote_ballot
+Interests:   interest, has_interest
+Forums:      forum, forum_post
 ```
 
-### Triggers & Computed Fields
+### Database Features
 
-All triggers are implemented in `migrations/001_initial_schema.surql`:
-- Trust aggregate updates
-- Member count tracking
-- Vote counting
-- Resonance ledger immutability
+- **43 Triggers** - Validation, auto-updates, cascades
+- **11 Functions** - Location privacy, access control
+- **165+ Indexes** - Query optimization
 
 ## API Routes Status
 
-### Active Routes (in `main.go`)
+### All Routes Active
 
+**Auth:**
 ```
-Auth:
-  POST   /v1/auth/register
-  POST   /v1/auth/login
-  POST   /v1/auth/logout
-  POST   /v1/auth/refresh
-  POST   /v1/auth/passkey/*
-  GET    /v1/auth/oauth/*
-
-Profile:
-  GET    /v1/profile
-  PUT    /v1/profile
-  GET    /v1/profile/progress
-
-Discovery:
-  GET    /v1/discover
-  POST   /v1/discover/{id}/view
-
-Trust:
-  POST   /v1/trust-ratings
-  GET    /v1/trust-ratings/received
-  GET    /v1/trust-ratings/given
-
-Moderation:
-  POST   /v1/blocks
-  DELETE /v1/blocks/{id}
-  POST   /v1/reports
-
-SSE:
-  GET    /v1/events/stream
+POST   /v1/auth/register
+POST   /v1/auth/login
+POST   /v1/auth/logout
+POST   /v1/auth/refresh
+POST   /v1/auth/passkey/register/start
+POST   /v1/auth/passkey/register/finish
+POST   /v1/auth/passkey/login/start
+POST   /v1/auth/passkey/login/finish
+GET    /v1/auth/oauth/google
+GET    /v1/auth/oauth/apple
 ```
 
-### Routes Defined But Not Wired
-
-These routes are in the router but handlers may not be connected:
-
+**Profile & Discovery:**
 ```
-Guilds:     /v1/guilds/*
-Events:     /v1/events/* (partially)
-Adventures: /v1/adventures/*
-Pools:      /v1/pools/*
-Votes:      /v1/votes/*
+GET    /v1/me/profile
+PUT    /v1/me/profile
+GET    /v1/discover/people
+GET    /v1/discover/events
+GET    /v1/discover/interest/{interestId}
+GET    /v1/users/{userId}/profile
 ```
+
+**Guilds:**
+```
+GET    /v1/guilds
+POST   /v1/guilds
+GET    /v1/guilds/{guildId}
+PATCH  /v1/guilds/{guildId}
+DELETE /v1/guilds/{guildId}
+POST   /v1/guilds/{guildId}/join
+POST   /v1/guilds/{guildId}/leave
+GET    /v1/guilds/{guildId}/members
+```
+
+**Events:**
+```
+POST   /v1/guilds/{guildId}/events
+GET    /v1/guilds/{guildId}/events
+GET    /v1/events/{eventId}
+PATCH  /v1/events/{eventId}
+DELETE /v1/events/{eventId}
+POST   /v1/events/{eventId}/rsvp
+POST   /v1/events/{eventId}/confirm
+POST   /v1/events/{eventId}/feedback
+```
+
+**Availability & Hangouts:**
+```
+GET    /v1/availability
+POST   /v1/availability
+GET    /v1/availability/nearby
+POST   /v1/availability/{availabilityId}/request
+POST   /v1/hangout-requests/{requestId}/respond
+GET    /v1/me/hangouts
+```
+
+**Trust & Reviews:**
+```
+POST   /v1/trust
+GET    /v1/me/trust
+POST   /v1/trust/irl/request
+POST   /v1/trust/irl/{requestId}/confirm
+POST   /v1/reviews
+GET    /v1/users/{userId}/reputation
+```
+
+**Moderation:**
+```
+POST   /v1/reports
+POST   /v1/blocks
+DELETE /v1/blocks/{userId}
+GET    /v1/me/moderation-status
+```
+
+**And more:** Resonance, Pools, Interests, Questionnaire, Votes, Devices
 
 ## Testing Infrastructure
 
-### Test Utilities Location
+### Test Files
+
+Service-level tests are located alongside their implementations:
 
 ```
-api/internal/testing/
-├── testdb/testdb.go      # SurrealDB in-memory setup
-├── fixtures/fixtures.go  # Test data factories
-└── helpers/helpers.go    # JWT, HTTP, assertions
+internal/service/
+├── auth.go
+├── auth_test.go          # 17 authentication tests
+├── oauth.go
+├── oauth_test.go         # OAuth flow tests
+├── passkey.go
+├── passkey_test.go       # WebAuthn tests
+├── guild.go
+├── guild_test.go         # Guild operation tests
+├── event.go
+├── event_test.go         # Event lifecycle tests
+└── ...
 ```
 
 ### Running Tests
@@ -191,11 +197,14 @@ make test
 # With coverage report
 make test-coverage
 
-# Specific domain
-go test -v ./tests/... -run TestAuth
+# Specific service
+go test -v ./internal/service/... -run TestAuth
 
 # With race detection
 go test -race ./...
+
+# Build verification
+make build
 ```
 
 ### Test Database
@@ -238,12 +247,37 @@ Tests use SurrealDB in-memory mode:
    r.Post("/v1/widgets", widgetHandler.Create)
    ```
 
-6. **Tests** (`tests/`)
+6. **Tests** (`internal/service/`)
    ```go
-   func TestWidget_Create(t *testing.T) { ... }
+   func TestWidgetService_Create(t *testing.T) { ... }
    ```
 
 7. **OpenAPI** (`openapi/paths/widgets.yaml`)
+
+### Error Handling
+
+The codebase uses centralized error handling:
+
+**Service errors** (`internal/service/errors.go`):
+```go
+var (
+    ErrUserNotFound      = errors.New("user not found")
+    ErrEmailAlreadyExists = errors.New("email already registered")
+    // ... ~70 service-specific errors
+)
+```
+
+**Handler error mapping** (`internal/handler/error_mapper.go`):
+```go
+// Automatically maps service errors to HTTP status codes
+func MapServiceError(err error, defaultMsg string) *model.ProblemDetails {
+    switch {
+    case errors.Is(err, service.ErrUserNotFound):
+        return model.NewNotFoundError("user", err.Error())
+    // ... handles 401, 403, 404, 409, 422 mapping
+    }
+}
+```
 
 ### Debugging SurrealDB Queries
 
@@ -257,6 +291,33 @@ Common issues:
 - Record ID format: `user:abc123` not `abc123`
 - Record casting: `<record<user>>$user_id`
 - NULL vs NONE: Use SET-style queries for optional fields
+
+## OpenAPI Documentation
+
+The API is fully documented in OpenAPI 3.1.0 format:
+
+```
+openapi/
+├── openapi.yaml              # Main spec with all path references
+├── components/
+│   └── schemas/_index.yaml   # 100+ schema definitions
+└── paths/
+    ├── auth.yaml             # Authentication endpoints
+    ├── guilds.yaml           # Guild management
+    ├── events.yaml           # Event lifecycle
+    ├── discovery.yaml        # People/event discovery
+    ├── availability.yaml     # Hangout scheduling
+    ├── profiles.yaml         # User profiles
+    ├── interests.yaml        # Interest management
+    ├── questionnaire.yaml    # Compatibility questions
+    ├── trust.yaml            # Trust grants/IRL
+    ├── reviews.yaml          # Peer reviews
+    ├── resonance.yaml        # Gamification
+    ├── moderation.yaml       # Reports/blocks
+    ├── pools.yaml            # Random matching
+    ├── devices.yaml          # Push notifications
+    └── ...                   # 20+ path files
+```
 
 ## Performance Considerations
 

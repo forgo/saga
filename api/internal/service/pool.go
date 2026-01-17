@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"math"
 	"sort"
 	"time"
@@ -10,20 +9,7 @@ import (
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrPoolNotFound           = errors.New("pool not found")
-	ErrPoolLimitReached       = errors.New("maximum pools per guild reached")
-	ErrMemberPoolLimitReached = errors.New("maximum members per pool reached")
-	ErrAlreadyPoolMember      = errors.New("already a member of this pool")
-	ErrNotPoolMember          = errors.New("not a member of this pool")
-	ErrPoolNotInGuild         = errors.New("pool does not belong to this guild")
-	ErrInvalidMatchSize       = errors.New("match size must be between 2 and 6")
-	ErrInvalidFrequency       = errors.New("invalid frequency")
-	ErrMatchNotFound          = errors.New("match not found")
-	ErrNotMatchMember         = errors.New("not a member of this match")
-	ErrExclusionLimitReached  = errors.New("maximum exclusions reached")
-	ErrNotEnoughMembers       = errors.New("not enough active members to create matches")
-)
+// Error definitions moved to errors.go
 
 // PoolRepository defines the interface for pool storage
 type PoolRepository interface {

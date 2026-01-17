@@ -20,8 +20,6 @@ api/data/
 # Swift/Xcode build artifacts
 ios/Saga/.build/
 ios/Saga/.swiftpm/
-ios/BabySync/.build/
-ios/BabySync/.swiftpm/
 *.xcuserdata
 *.xcworkspace/xcuserdata/
 DerivedData/

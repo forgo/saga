@@ -30,7 +30,9 @@ graph TB
             R1["/v1/auth/*"]
             R2["/v1/guilds/*"]
             R3["/v1/events/*"]
-            R4["/v1/stream"]
+            R4["/v1/discover/*"]
+            R5["/v1/profile/*"]
+            R6["/v1/events/stream"]
         end
 
         subgraph MW["Middleware"]
@@ -40,25 +42,31 @@ graph TB
             M1 --> M2 --> M3
         end
 
-        subgraph Handlers
+        subgraph Handlers["Handlers (26)"]
             H1[AuthHandler]
-            H2[EventHandler]
-            H3[ProfileHandler]
-            H4[DiscoveryHandler]
+            H2[GuildHandler]
+            H3[EventHandler]
+            H4[ProfileHandler]
+            H5[DiscoveryHandler]
+            H6[ModerationHandler]
         end
 
-        subgraph Services
+        subgraph Services["Services (24+)"]
             S1[AuthService]
-            S2[EventService]
-            S3[ResonanceService]
-            S4[CompatibilityService]
+            S2[GuildService]
+            S3[EventService]
+            S4[ResonanceService]
+            S5[CompatibilityService]
+            S6[ModerationService]
         end
 
-        subgraph Repositories
+        subgraph Repositories["Repositories (28)"]
             RP1[UserRepo]
-            RP2[EventRepo]
-            RP3[RSVPRepo]
-            RP4[ResonanceRepo]
+            RP2[GuildRepo]
+            RP3[EventRepo]
+            RP4[ProfileRepo]
+            RP5[ResonanceRepo]
+            RP6[ModerationRepo]
         end
 
         subgraph DBLayer["Database Interface"]
@@ -67,9 +75,9 @@ graph TB
     end
 
     subgraph Database["SurrealDB"]
-        T1[(Tables 35+)]
-        T2[Triggers 43]
-        T3[Functions 11]
+        T1[(Tables 81)]
+        T2[Triggers 106]
+        T3[Functions 28]
     end
 
     C1 & C2 & C3 & C4 --> Router
@@ -99,22 +107,30 @@ api/
 │   │   ├── database.go          # Database interface & error types
 │   │   ├── surrealdb.go         # SurrealDB implementation
 │   │   └── transaction.go       # Transaction utilities (TxBuilder, AtomicBatch)
-│   ├── handler/                 # HTTP handlers (19 files)
+│   ├── handler/                 # HTTP handlers (26 files)
 │   │   ├── auth.go              # Login, register, logout
+│   │   ├── oauth.go             # Google/Apple OAuth
+│   │   ├── passkey.go           # WebAuthn passkeys
+│   │   ├── guild.go             # Guild management
+│   │   ├── event.go             # Event CRUD
 │   │   ├── discovery.go         # People/event discovery
-│   │   ├── events.go            # Event CRUD, RSVPs
 │   │   ├── profile.go           # User profile management
+│   │   ├── moderation.go        # Reports, blocks
 │   │   └── ...
-│   ├── middleware/              # HTTP middleware (6 files)
+│   ├── middleware/              # HTTP middleware (5 files)
 │   │   ├── auth.go              # JWT validation
 │   │   ├── ratelimit.go         # Per-user rate limiting
-│   │   └── guild_access.go      # Guild membership checks
-│   ├── model/                   # Domain models (22 files)
+│   │   ├── guild_access.go      # Guild membership checks
+│   │   ├── idempotency.go       # Request deduplication
+│   │   └── middleware.go        # Logging, recovery, CORS
+│   ├── model/                   # Domain models (24 files)
 │   │   ├── user.go              # User entity
 │   │   ├── event.go             # Event entity
+│   │   ├── profile.go           # User profiles, location privacy
 │   │   ├── rsvp.go              # Unified RSVP (polymorphic)
-│   │   └── resonance.go         # Gamification scoring
-│   ├── repository/              # Data access (24 files)
+│   │   ├── resonance.go         # Gamification scoring
+│   │   └── ...
+│   ├── repository/              # Data access (27 files)
 │   │   ├── user.go              # User CRUD
 │   │   ├── event.go             # Event queries
 │   │   ├── helpers.go           # Shared parsing utilities
@@ -128,10 +144,16 @@ api/
 │   │   └── nexus.go             # Monthly guild activity scoring
 │   └── validation/              # Input validation
 ├── migrations/
-│   ├── 001_initial_schema.surql # Base schema (1200+ lines)
-│   ├── 002_schema_hardening.surql # Performance & safety improvements
-│   ├── 003_bug_fixes.surql      # Bug fixes
-│   └── seed.surql               # Development seed data
+│   ├── 001_initial_schema.surql      # Base schema (1200+ lines)
+│   ├── 002_schema_hardening.surql    # Performance & safety improvements
+│   ├── 003_bug_fixes.surql           # Bug fixes
+│   ├── 004_security_hardening.surql  # Access control functions
+│   ├── 005_performance_indexes.surql # Query optimization
+│   ├── 006_data_model_cleanup.surql  # Schema refinements
+│   ├── 007_features_v2.surql         # Feature additions
+│   ├── 008_guild_roles.surql         # Role system
+│   ├── 009_device_tokens.surql       # Push notification tokens
+│   └── seed.surql                    # Development seed data
 ├── openapi/                     # API specification
 │   ├── openapi.yaml             # Main spec
 │   └── paths/                   # Endpoint definitions
@@ -153,11 +175,14 @@ api/
 func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
     // 1. Parse request body
     var req model.CreateEventRequest
-    json.NewDecoder(r.Body).Decode(&req)
+    if err := DecodeJSON(r, &req); err != nil {
+        WriteError(w, model.NewBadRequestError("invalid request body"))
+        return
+    }
 
     // 2. Validate
     if errors := req.Validate(); len(errors) > 0 {
-        respondValidationError(w, errors)
+        WriteError(w, model.NewValidationError(errors))
         return
     }
 
@@ -166,9 +191,13 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
     // 4. Call service
     event, err := h.eventService.Create(r.Context(), userID, &req)
+    if err != nil {
+        WriteError(w, MapServiceError(err, "failed to create event"))
+        return
+    }
 
     // 5. Respond
-    respondJSON(w, http.StatusCreated, event)
+    WriteData(w, http.StatusCreated, event, nil)
 }
 ```
 
@@ -285,13 +314,13 @@ The API uses Server-Sent Events for real-time updates:
      │                               │
      │  (connection kept open)       │
      │                               │
-     │  event: rsvp_updated          │
-     │  data: {"event_id": "...",    │
-     │         "attendee_count": 5}  │
+     │  event: guild.member_joined   │
+     │  data: {"guild_id": "...",    │
+     │         "user_id": "..."}     │
      │<──────────────────────────────│
      │                               │
-     │  event: event_cancelled       │
-     │  data: {...}                  │
+     │  event: heartbeat             │
+     │  data: {}                     │
      │<──────────────────────────────│
      │                               │
 ```
@@ -300,9 +329,9 @@ The API uses Server-Sent Events for real-time updates:
 
 | Event Type | Payload | Trigger |
 |------------|---------|---------|
-| `rsvp_updated` | Event ID, counts | RSVP create/update |
-| `event_cancelled` | Event details | Event status change |
-| `guild_member_joined` | Member info | New guild member |
+| `guild.member_joined` | Guild ID, user info | Member joins guild |
+| `guild.member_left` | Guild ID, user ID | Member leaves guild |
+| `heartbeat` | Empty | 30-second keepalive |
 | `nudge` | Nudge details | Background job |
 
 ## Database Architecture
@@ -317,7 +346,7 @@ Saga uses **SurrealDB**, a multi-model database supporting:
 
 1. **Batch-based transactions** - SurrealDB transactions batch queries, not connection-level isolation. See [DATABASE.md](./DATABASE.md).
 
-2. **Triggers for automation** - 43 triggers handle:
+2. **Triggers for automation** - 106 triggers handle:
    - Validation constraints (limits, enums)
    - Timestamp auto-updates
    - Denormalized count maintenance
@@ -340,9 +369,12 @@ Environment variables (see `.env.example`):
 | `DB_PORT` | SurrealDB port | 8000 |
 | `DB_NAMESPACE` | SurrealDB namespace | saga |
 | `DB_DATABASE` | SurrealDB database | main |
+| `DB_USER` | SurrealDB username | - |
+| `DB_PASSWORD` | SurrealDB password | - |
 | `JWT_PRIVATE_KEY_PATH` | Path to JWT signing key | - |
-| `JWT_ACCESS_TOKEN_EXPIRY` | Access token TTL | 15m |
-| `JWT_REFRESH_TOKEN_EXPIRY` | Refresh token TTL | 7d |
+| `JWT_PUBLIC_KEY_PATH` | Path to JWT public key | - |
+| `JWT_EXPIRATION_MINS` | Access token TTL in minutes | 15 |
+| `JWT_ISSUER` | JWT issuer claim | saga |
 
 ## Next Steps
 

@@ -2,22 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrRoleNotFound           = errors.New("role not found")
-	ErrAssignmentNotFound     = errors.New("assignment not found")
-	ErrRoleFull               = errors.New("role is full")
-	ErrAlreadyAssignedToRole  = errors.New("already assigned to this role")
-	ErrCannotDeleteDefault    = errors.New("cannot delete default role")
-	ErrMaxRolesReached        = errors.New("maximum roles reached")
-	ErrCannotAssignOthers     = errors.New("cannot assign roles to others")
-	ErrMaxRolesPerUserReached = errors.New("maximum roles per user reached")
-	// Note: ErrNotEventHost is defined in event.go
-)
+// Error definitions moved to errors.go
 
 // MaxRolesPerUser limits how many roles a single user can take at one event
 const MaxRolesPerUser = 10

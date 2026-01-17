@@ -7,15 +7,7 @@ import (
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Questionnaire service errors
-var (
-	ErrQuestionNotFound      = errors.New("question not found")
-	ErrAnswerNotFound        = errors.New("answer not found")
-	ErrInvalidOption         = errors.New("invalid option selected")
-	ErrInvalidImportance     = errors.New("invalid importance level")
-	ErrDealBreakerNotAllowed = errors.New("this question cannot be a dealbreaker")
-	ErrInvalidAlignmentWeight = errors.New("alignment weight must be between 0 and 1")
-)
+// Error definitions moved to errors.go
 
 // QuestionnaireRepository defines the interface for questionnaire storage
 type QuestionnaireRepository interface {

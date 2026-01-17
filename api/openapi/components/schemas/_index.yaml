@@ -1333,3 +1333,1761 @@ AdventureAdmission:
       type: string
       format: date-time
       nullable: true
+
+# ============================================================================
+# Error Response Aliases (for readability in path files)
+# ============================================================================
+
+UnauthorizedError:
+  $ref: '#/ProblemDetails'
+
+NotFoundError:
+  $ref: '#/ProblemDetails'
+
+ValidationError:
+  $ref: '#/ProblemDetails'
+
+# ============================================================================
+# Discovery schemas
+# ============================================================================
+
+DiscoveryResponse:
+  type: object
+  properties:
+    data:
+      type: array
+      items:
+        $ref: '#/DiscoveryResult'
+    pagination:
+      $ref: '#/PaginationInfo'
+
+DiscoveryResult:
+  type: object
+  properties:
+    user_id:
+      type: string
+    username:
+      type: string
+    display_name:
+      type: string
+    bio:
+      type: string
+      nullable: true
+    distance_km:
+      type: number
+      nullable: true
+    compatibility_score:
+      type: number
+      nullable: true
+      description: 0-100 score based on questionnaire answers
+    shared_interests:
+      type: array
+      items:
+        type: string
+    mutual_guilds:
+      type: array
+      items:
+        type: string
+
+TeachLearnMatch:
+  type: object
+  properties:
+    user_id:
+      type: string
+    username:
+      type: string
+    display_name:
+      type: string
+    interest:
+      $ref: '#/Interest'
+    their_level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    your_level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    distance_km:
+      type: number
+      nullable: true
+
+# ============================================================================
+# Event schemas
+# ============================================================================
+
+Event:
+  type: object
+  required: [id, guild_id, host_id, title, start_time, status, created_on]
+  properties:
+    id:
+      type: string
+      example: event:abc123
+    guild_id:
+      type: string
+    host_id:
+      type: string
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    location_lat:
+      type: number
+      nullable: true
+    location_lng:
+      type: number
+      nullable: true
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+      nullable: true
+    capacity:
+      type: integer
+      nullable: true
+      description: null means unlimited
+    rsvp_count:
+      type: integer
+      default: 0
+    status:
+      type: string
+      enum: [draft, published, cancelled, completed]
+    visibility:
+      type: string
+      enum: [public, guild, private]
+      default: guild
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+CreateEventRequest:
+  type: object
+  required: [guild_id, title, start_time]
+  properties:
+    guild_id:
+      type: string
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    location:
+      type: string
+    location_lat:
+      type: number
+    location_lng:
+      type: number
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+    capacity:
+      type: integer
+      minimum: 1
+    visibility:
+      type: string
+      enum: [public, guild, private]
+      default: guild
+
+UpdateEventRequest:
+  type: object
+  properties:
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    location:
+      type: string
+    location_lat:
+      type: number
+    location_lng:
+      type: number
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+    capacity:
+      type: integer
+      minimum: 1
+    status:
+      type: string
+      enum: [draft, published, cancelled]
+    visibility:
+      type: string
+      enum: [public, guild, private]
+
+RSVP:
+  type: object
+  required: [id, event_id, user_id, status, created_on]
+  properties:
+    id:
+      type: string
+    event_id:
+      type: string
+    user_id:
+      type: string
+    status:
+      type: string
+      enum: [going, maybe, not_going]
+    note:
+      type: string
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+CreateRSVPRequest:
+  type: object
+  required: [status]
+  properties:
+    status:
+      type: string
+      enum: [going, maybe, not_going]
+    note:
+      type: string
+
+UpdateRSVPRequest:
+  type: object
+  properties:
+    status:
+      type: string
+      enum: [going, maybe, not_going]
+    note:
+      type: string
+
+EventWithAttendees:
+  type: object
+  properties:
+    event:
+      $ref: '#/Event'
+    rsvps:
+      type: array
+      items:
+        $ref: '#/RSVP'
+    roles:
+      type: array
+      items:
+        $ref: '#/EventRole'
+    my_rsvp:
+      $ref: '#/RSVP'
+    can_manage:
+      type: boolean
+
+EventFeedbackRequest:
+  type: object
+  required: [attended]
+  properties:
+    attended:
+      type: boolean
+    rating:
+      type: integer
+      minimum: 1
+      maximum: 5
+    comment:
+      type: string
+
+AttendanceStats:
+  type: object
+  properties:
+    event_id:
+      type: string
+    total_rsvps:
+      type: integer
+    going_count:
+      type: integer
+    maybe_count:
+      type: integer
+    attended_count:
+      type: integer
+    no_show_count:
+      type: integer
+
+EventSummary:
+  type: object
+  properties:
+    upcoming_count:
+      type: integer
+    hosted_count:
+      type: integer
+    attended_count:
+      type: integer
+    average_rating:
+      type: number
+
+# ============================================================================
+# Event Role schemas (extending existing EventRole)
+# ============================================================================
+
+CreateEventRoleRequest:
+  type: object
+  required: [name]
+  properties:
+    catalog_role_id:
+      type: string
+    name:
+      type: string
+      maxLength: 50
+    description:
+      type: string
+    max_slots:
+      type: integer
+      minimum: 1
+      default: 1
+
+UpdateEventRoleRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      maxLength: 50
+    description:
+      type: string
+    max_slots:
+      type: integer
+      minimum: 1
+
+EventRoleAssignment:
+  type: object
+  required: [id, event_id, role_id, user_id, status, assigned_on]
+  properties:
+    id:
+      type: string
+    event_id:
+      type: string
+    role_id:
+      type: string
+    user_id:
+      type: string
+    note:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [assigned, confirmed, declined]
+    assigned_on:
+      type: string
+      format: date-time
+
+AssignEventRoleRequest:
+  type: object
+  properties:
+    user_id:
+      type: string
+      description: If not provided, assigns to current user
+    note:
+      type: string
+
+EventRoleWithAssignments:
+  type: object
+  properties:
+    role:
+      $ref: '#/EventRole'
+    assignments:
+      type: array
+      items:
+        $ref: '#/EventRoleAssignment'
+    is_full:
+      type: boolean
+    spots_left:
+      type: integer
+
+RoleSuggestion:
+  type: object
+  properties:
+    role:
+      $ref: '#/RoleCatalog'
+    reason:
+      type: string
+    usage_count:
+      type: integer
+
+# ============================================================================
+# Availability schemas
+# ============================================================================
+
+Availability:
+  type: object
+  required: [id, user_id, hangout_type, start_time, end_time, status, created_on]
+  properties:
+    id:
+      type: string
+      example: availability:abc123
+    user_id:
+      type: string
+    hangout_type:
+      type: string
+      enum: [talk_it_out, here_to_listen, concrete_activity, mutual_interest, meet_anyone]
+    title:
+      type: string
+      nullable: true
+    description:
+      type: string
+      nullable: true
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+    location:
+      type: string
+      nullable: true
+    location_lat:
+      type: number
+      nullable: true
+    location_lng:
+      type: number
+      nullable: true
+    radius_km:
+      type: number
+      nullable: true
+    status:
+      type: string
+      enum: [active, matched, expired, cancelled]
+    created_on:
+      type: string
+      format: date-time
+
+CreateAvailabilityRequest:
+  type: object
+  required: [hangout_type, start_time, end_time]
+  properties:
+    hangout_type:
+      type: string
+      enum: [talk_it_out, here_to_listen, concrete_activity, mutual_interest, meet_anyone]
+    title:
+      type: string
+    description:
+      type: string
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+    location:
+      type: string
+    location_lat:
+      type: number
+    location_lng:
+      type: number
+    radius_km:
+      type: number
+      default: 10
+
+UpdateAvailabilityRequest:
+  type: object
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    start_time:
+      type: string
+      format: date-time
+    end_time:
+      type: string
+      format: date-time
+    location:
+      type: string
+    location_lat:
+      type: number
+    location_lng:
+      type: number
+    radius_km:
+      type: number
+    status:
+      type: string
+      enum: [active, cancelled]
+
+NearbyAvailability:
+  type: object
+  properties:
+    availability:
+      $ref: '#/Availability'
+    user:
+      $ref: '#/PublicProfile'
+    distance_km:
+      type: number
+    compatibility_score:
+      type: number
+      nullable: true
+
+HangoutRequest:
+  type: object
+  required: [id, availability_id, requester_id, status, created_on]
+  properties:
+    id:
+      type: string
+    availability_id:
+      type: string
+    requester_id:
+      type: string
+    message:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [pending, accepted, declined, cancelled]
+    created_on:
+      type: string
+      format: date-time
+    responded_on:
+      type: string
+      format: date-time
+      nullable: true
+
+CreateHangoutRequestRequest:
+  type: object
+  properties:
+    message:
+      type: string
+      maxLength: 500
+
+RespondHangoutRequest:
+  type: object
+  required: [accept]
+  properties:
+    accept:
+      type: boolean
+    message:
+      type: string
+
+Hangout:
+  type: object
+  required: [id, availability_id, participants, status, created_on]
+  properties:
+    id:
+      type: string
+    availability_id:
+      type: string
+    participants:
+      type: array
+      items:
+        type: string
+    scheduled_time:
+      type: string
+      format: date-time
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [scheduled, completed, cancelled, no_show]
+    created_on:
+      type: string
+      format: date-time
+
+HangoutRequestDisplay:
+  type: object
+  properties:
+    request:
+      $ref: '#/HangoutRequest'
+    requester:
+      $ref: '#/PublicProfile'
+    availability:
+      $ref: '#/Availability'
+
+# ============================================================================
+# Profile schemas
+# ============================================================================
+
+Profile:
+  type: object
+  required: [id, user_id, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    display_name:
+      type: string
+      nullable: true
+    bio:
+      type: string
+      nullable: true
+      maxLength: 500
+    avatar_url:
+      type: string
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    location_lat:
+      type: number
+      nullable: true
+    location_lng:
+      type: number
+      nullable: true
+    visibility:
+      type: string
+      enum: [public, guilds_only, private]
+      default: guilds_only
+    show_distance:
+      type: boolean
+      default: true
+    show_online:
+      type: boolean
+      default: true
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+UpdateProfileRequest:
+  type: object
+  properties:
+    display_name:
+      type: string
+    bio:
+      type: string
+      maxLength: 500
+    avatar_url:
+      type: string
+    location:
+      type: string
+    location_lat:
+      type: number
+    location_lng:
+      type: number
+    visibility:
+      type: string
+      enum: [public, guilds_only, private]
+    show_distance:
+      type: boolean
+    show_online:
+      type: boolean
+
+PublicProfile:
+  type: object
+  description: Privacy-filtered profile for other users to see
+  properties:
+    user_id:
+      type: string
+    display_name:
+      type: string
+    bio:
+      type: string
+      nullable: true
+    avatar_url:
+      type: string
+      nullable: true
+    distance_km:
+      type: number
+      nullable: true
+      description: Only shown if show_distance is true
+    is_online:
+      type: boolean
+      nullable: true
+      description: Only shown if show_online is true
+    mutual_guilds:
+      type: array
+      items:
+        type: string
+
+NearbyProfile:
+  type: object
+  properties:
+    profile:
+      $ref: '#/PublicProfile'
+    distance_km:
+      type: number
+    compatibility_score:
+      type: number
+      nullable: true
+
+# ============================================================================
+# Questionnaire schemas
+# ============================================================================
+
+QuestionCategory:
+  type: object
+  required: [id, name, sort_order]
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+      nullable: true
+    sort_order:
+      type: integer
+
+Question:
+  type: object
+  required: [id, category_id, question_text, question_type, is_active]
+  properties:
+    id:
+      type: string
+    category_id:
+      type: string
+    question_text:
+      type: string
+    question_type:
+      type: string
+      enum: [multiple_choice, scale, open_ended]
+    options:
+      type: array
+      items:
+        type: string
+      nullable: true
+      description: For multiple_choice questions
+    scale_min:
+      type: integer
+      nullable: true
+    scale_max:
+      type: integer
+      nullable: true
+    weight:
+      type: number
+      default: 1.0
+      description: Impact on compatibility score
+    is_active:
+      type: boolean
+    sort_order:
+      type: integer
+
+Answer:
+  type: object
+  required: [id, user_id, question_id, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    question_id:
+      type: string
+    answer_value:
+      type: string
+      description: The user's answer
+    importance:
+      type: string
+      enum: [irrelevant, somewhat, important, very_important]
+      default: somewhat
+    acceptable_answers:
+      type: array
+      items:
+        type: string
+      description: Answers user finds acceptable in others
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+AnswerQuestionRequest:
+  type: object
+  required: [answer_value]
+  properties:
+    answer_value:
+      type: string
+    importance:
+      type: string
+      enum: [irrelevant, somewhat, important, very_important]
+      default: somewhat
+    acceptable_answers:
+      type: array
+      items:
+        type: string
+
+QuestionWithAnswer:
+  type: object
+  properties:
+    question:
+      $ref: '#/Question'
+    answer:
+      $ref: '#/Answer'
+    is_answered:
+      type: boolean
+
+CompatibilityMatch:
+  type: object
+  properties:
+    user_id:
+      type: string
+    display_name:
+      type: string
+    overall_score:
+      type: number
+      description: 0-100 compatibility percentage
+    category_scores:
+      type: object
+      additionalProperties:
+        type: number
+    shared_answers:
+      type: integer
+    conflicting_answers:
+      type: integer
+
+BiasCategory:
+  type: object
+  properties:
+    category:
+      type: string
+    bias_direction:
+      type: string
+      enum: [liberal, conservative, neutral]
+    strength:
+      type: number
+      description: 0-1 indicating how strong the bias is
+
+BiasProfile:
+  type: object
+  properties:
+    user_id:
+      type: string
+    categories:
+      type: array
+      items:
+        $ref: '#/BiasCategory'
+    answer_count:
+      type: integer
+
+# ============================================================================
+# Interest schemas
+# ============================================================================
+
+Interest:
+  type: object
+  required: [id, name, category, is_active]
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    category:
+      type: string
+    description:
+      type: string
+      nullable: true
+    icon:
+      type: string
+      nullable: true
+    is_active:
+      type: boolean
+
+UserInterest:
+  type: object
+  required: [id, user_id, interest_id, level, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    interest_id:
+      type: string
+    interest:
+      $ref: '#/Interest'
+    level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    want_to_teach:
+      type: boolean
+      default: false
+    want_to_learn:
+      type: boolean
+      default: false
+    notes:
+      type: string
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+AddInterestRequest:
+  type: object
+  required: [interest_id, level]
+  properties:
+    interest_id:
+      type: string
+    level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    want_to_teach:
+      type: boolean
+      default: false
+    want_to_learn:
+      type: boolean
+      default: false
+    notes:
+      type: string
+
+UpdateInterestRequest:
+  type: object
+  properties:
+    level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    want_to_teach:
+      type: boolean
+    want_to_learn:
+      type: boolean
+    notes:
+      type: string
+
+InterestCategory:
+  type: object
+  properties:
+    category:
+      type: string
+    interests:
+      type: array
+      items:
+        $ref: '#/Interest'
+
+TeachMatch:
+  type: object
+  properties:
+    user:
+      $ref: '#/PublicProfile'
+    interest:
+      $ref: '#/Interest'
+    their_level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    distance_km:
+      type: number
+      nullable: true
+
+LearnMatch:
+  type: object
+  properties:
+    user:
+      $ref: '#/PublicProfile'
+    interest:
+      $ref: '#/Interest'
+    their_level:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+    distance_km:
+      type: number
+      nullable: true
+
+# ============================================================================
+# Review schemas
+# ============================================================================
+
+Review:
+  type: object
+  required: [id, reviewer_id, reviewee_id, context_type, context_id, rating, created_on]
+  properties:
+    id:
+      type: string
+    reviewer_id:
+      type: string
+    reviewee_id:
+      type: string
+    context_type:
+      type: string
+      enum: [event, hangout, teaching, rideshare]
+    context_id:
+      type: string
+    rating:
+      type: integer
+      minimum: 1
+      maximum: 5
+    comment:
+      type: string
+      nullable: true
+      maxLength: 500
+    tags:
+      type: array
+      items:
+        type: string
+      description: Predefined positive/negative tags
+    is_public:
+      type: boolean
+      default: true
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+CreateReviewRequest:
+  type: object
+  required: [reviewee_id, context_type, context_id, rating]
+  properties:
+    reviewee_id:
+      type: string
+    context_type:
+      type: string
+      enum: [event, hangout, teaching, rideshare]
+    context_id:
+      type: string
+    rating:
+      type: integer
+      minimum: 1
+      maximum: 5
+    comment:
+      type: string
+      maxLength: 500
+    tags:
+      type: array
+      items:
+        type: string
+    is_public:
+      type: boolean
+      default: true
+
+ReputationSummary:
+  type: object
+  properties:
+    user_id:
+      type: string
+    average_rating:
+      type: number
+    total_reviews:
+      type: integer
+    rating_distribution:
+      type: object
+      properties:
+        one_star:
+          type: integer
+        two_star:
+          type: integer
+        three_star:
+          type: integer
+        four_star:
+          type: integer
+        five_star:
+          type: integer
+    top_tags:
+      type: array
+      items:
+        type: object
+        properties:
+          tag:
+            type: string
+          count:
+            type: integer
+    context_breakdown:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          average:
+            type: number
+          count:
+            type: integer
+
+PendingReview:
+  type: object
+  properties:
+    context_type:
+      type: string
+    context_id:
+      type: string
+    reviewee_id:
+      type: string
+    reviewee_name:
+      type: string
+    event_title:
+      type: string
+      nullable: true
+    completed_on:
+      type: string
+      format: date-time
+
+# ============================================================================
+# Trust schemas
+# ============================================================================
+
+TrustGrant:
+  type: object
+  required: [id, grantor_id, grantee_id, trust_level, created_on]
+  properties:
+    id:
+      type: string
+    grantor_id:
+      type: string
+    grantee_id:
+      type: string
+    trust_level:
+      type: string
+      enum: [basic, elevated, full]
+    permissions:
+      type: array
+      items:
+        type: string
+        enum: [view_location, view_schedule, contact_directly, see_commute]
+    notes:
+      type: string
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+CreateTrustRequest:
+  type: object
+  required: [grantee_id, trust_level]
+  properties:
+    grantee_id:
+      type: string
+    trust_level:
+      type: string
+      enum: [basic, elevated, full]
+    permissions:
+      type: array
+      items:
+        type: string
+        enum: [view_location, view_schedule, contact_directly, see_commute]
+    notes:
+      type: string
+
+UpdateTrustRequest:
+  type: object
+  properties:
+    trust_level:
+      type: string
+      enum: [basic, elevated, full]
+    permissions:
+      type: array
+      items:
+        type: string
+        enum: [view_location, view_schedule, contact_directly, see_commute]
+    notes:
+      type: string
+
+TrustSummary:
+  type: object
+  properties:
+    user_id:
+      type: string
+    trusted_by_count:
+      type: integer
+    trusts_count:
+      type: integer
+    mutual_trust_count:
+      type: integer
+    irl_confirmed_count:
+      type: integer
+
+IRLConfirmation:
+  type: object
+  required: [id, requester_id, target_id, context, status, created_on]
+  properties:
+    id:
+      type: string
+    requester_id:
+      type: string
+    target_id:
+      type: string
+    context:
+      type: string
+      enum: [event, hangout, spontaneous]
+    context_id:
+      type: string
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [pending, confirmed, rejected, expired]
+    created_on:
+      type: string
+      format: date-time
+    confirmed_on:
+      type: string
+      format: date-time
+      nullable: true
+
+RequestIRLRequest:
+  type: object
+  required: [target_id, context]
+  properties:
+    target_id:
+      type: string
+    context:
+      type: string
+      enum: [event, hangout, spontaneous]
+    context_id:
+      type: string
+    location:
+      type: string
+
+AcceptIRLRequest:
+  type: object
+  properties:
+    confirm:
+      type: boolean
+      default: true
+
+# ============================================================================
+# Pool schemas
+# ============================================================================
+
+Pool:
+  type: object
+  required: [id, guild_id, name, match_size, match_frequency, status, created_on]
+  properties:
+    id:
+      type: string
+    guild_id:
+      type: string
+    name:
+      type: string
+      maxLength: 100
+    description:
+      type: string
+      nullable: true
+    match_size:
+      type: integer
+      minimum: 2
+      maximum: 10
+      default: 2
+    match_frequency:
+      type: string
+      enum: [daily, weekly, biweekly, monthly]
+      default: weekly
+    next_match_at:
+      type: string
+      format: date-time
+      nullable: true
+    status:
+      type: string
+      enum: [active, paused, archived]
+    member_count:
+      type: integer
+      default: 0
+    created_by:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+
+CreatePoolRequest:
+  type: object
+  required: [name]
+  properties:
+    name:
+      type: string
+      maxLength: 100
+    description:
+      type: string
+    match_size:
+      type: integer
+      minimum: 2
+      maximum: 10
+      default: 2
+    match_frequency:
+      type: string
+      enum: [daily, weekly, biweekly, monthly]
+      default: weekly
+
+UpdatePoolRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      maxLength: 100
+    description:
+      type: string
+    match_size:
+      type: integer
+      minimum: 2
+      maximum: 10
+    match_frequency:
+      type: string
+      enum: [daily, weekly, biweekly, monthly]
+    status:
+      type: string
+      enum: [active, paused, archived]
+
+PoolMember:
+  type: object
+  required: [id, pool_id, user_id, status, joined_on]
+  properties:
+    id:
+      type: string
+    pool_id:
+      type: string
+    user_id:
+      type: string
+    user:
+      $ref: '#/PublicProfile'
+    status:
+      type: string
+      enum: [active, paused, removed]
+    preferences:
+      type: object
+      properties:
+        skip_next:
+          type: boolean
+        preferred_times:
+          type: array
+          items:
+            type: string
+    joined_on:
+      type: string
+      format: date-time
+
+JoinPoolRequest:
+  type: object
+  properties:
+    preferences:
+      type: object
+      properties:
+        preferred_times:
+          type: array
+          items:
+            type: string
+
+PoolWithMembers:
+  type: object
+  properties:
+    pool:
+      $ref: '#/Pool'
+    members:
+      type: array
+      items:
+        $ref: '#/PoolMember'
+    my_membership:
+      $ref: '#/PoolMember'
+
+UpdateMembershipRequest:
+  type: object
+  properties:
+    status:
+      type: string
+      enum: [active, paused]
+    preferences:
+      type: object
+      properties:
+        skip_next:
+          type: boolean
+        preferred_times:
+          type: array
+          items:
+            type: string
+
+PoolMatch:
+  type: object
+  required: [id, pool_id, participants, status, matched_on]
+  properties:
+    id:
+      type: string
+    pool_id:
+      type: string
+    participants:
+      type: array
+      items:
+        $ref: '#/PublicProfile'
+    scheduled_time:
+      type: string
+      format: date-time
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [pending, scheduled, completed, cancelled, no_show]
+    matched_on:
+      type: string
+      format: date-time
+
+UpdateMatchRequest:
+  type: object
+  properties:
+    scheduled_time:
+      type: string
+      format: date-time
+    location:
+      type: string
+    status:
+      type: string
+      enum: [scheduled, completed, cancelled, no_show]
+
+PoolStats:
+  type: object
+  properties:
+    pool_id:
+      type: string
+    total_members:
+      type: integer
+    active_members:
+      type: integer
+    total_matches:
+      type: integer
+    completed_matches:
+      type: integer
+    completion_rate:
+      type: number
+    average_scheduling_time_hours:
+      type: number
+
+# ============================================================================
+# Moderation schemas
+# ============================================================================
+
+Report:
+  type: object
+  required: [id, reporter_id, reported_user_id, category, status, created_on]
+  properties:
+    id:
+      type: string
+    reporter_id:
+      type: string
+    reported_user_id:
+      type: string
+    category:
+      type: string
+      enum: [harassment, spam, inappropriate_content, fake_profile, safety_concern, other]
+    description:
+      type: string
+      nullable: true
+      maxLength: 1000
+    evidence_urls:
+      type: array
+      items:
+        type: string
+    status:
+      type: string
+      enum: [pending, reviewing, resolved, dismissed]
+    resolution:
+      type: string
+      nullable: true
+    resolved_by:
+      type: string
+      nullable: true
+    resolved_on:
+      type: string
+      format: date-time
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+
+CreateReportRequest:
+  type: object
+  required: [reported_user_id, category]
+  properties:
+    reported_user_id:
+      type: string
+    category:
+      type: string
+      enum: [harassment, spam, inappropriate_content, fake_profile, safety_concern, other]
+    description:
+      type: string
+      maxLength: 1000
+    evidence_urls:
+      type: array
+      items:
+        type: string
+
+ReviewReportRequest:
+  type: object
+  required: [resolution]
+  properties:
+    resolution:
+      type: string
+      enum: [valid, invalid, needs_more_info]
+    notes:
+      type: string
+    action_taken:
+      type: string
+
+ModerationAction:
+  type: object
+  required: [id, user_id, action_type, reason, created_by, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    action_type:
+      type: string
+      enum: [warning, temporary_ban, permanent_ban, content_removal, feature_restriction]
+    reason:
+      type: string
+    report_id:
+      type: string
+      nullable: true
+    expires_at:
+      type: string
+      format: date-time
+      nullable: true
+    is_active:
+      type: boolean
+    created_by:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+    lifted_on:
+      type: string
+      format: date-time
+      nullable: true
+    lifted_by:
+      type: string
+      nullable: true
+
+CreateModerationActionRequest:
+  type: object
+  required: [user_id, action_type, reason]
+  properties:
+    user_id:
+      type: string
+    action_type:
+      type: string
+      enum: [warning, temporary_ban, permanent_ban, content_removal, feature_restriction]
+    reason:
+      type: string
+    report_id:
+      type: string
+    duration_hours:
+      type: integer
+      description: For temporary bans
+
+LiftActionRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+
+Block:
+  type: object
+  required: [id, blocker_id, blocked_id, created_on]
+  properties:
+    id:
+      type: string
+    blocker_id:
+      type: string
+    blocked_id:
+      type: string
+    reason:
+      type: string
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+
+CreateBlockRequest:
+  type: object
+  required: [blocked_user_id]
+  properties:
+    blocked_user_id:
+      type: string
+    reason:
+      type: string
+
+UserModerationStatus:
+  type: object
+  properties:
+    user_id:
+      type: string
+    is_banned:
+      type: boolean
+    ban_expires_at:
+      type: string
+      format: date-time
+      nullable: true
+    active_warnings:
+      type: integer
+    restrictions:
+      type: array
+      items:
+        type: string
+
+ModerationStats:
+  type: object
+  properties:
+    total_reports:
+      type: integer
+    pending_reports:
+      type: integer
+    resolved_this_week:
+      type: integer
+    active_bans:
+      type: integer
+    warnings_issued_this_week:
+      type: integer
+    category_breakdown:
+      type: object
+      additionalProperties:
+        type: integer
+
+# ============================================================================
+# Resonance schemas
+# ============================================================================
+
+ResonanceDisplay:
+  type: object
+  properties:
+    user_id:
+      type: string
+    total_score:
+      type: integer
+    level:
+      type: integer
+    level_name:
+      type: string
+    progress_to_next:
+      type: number
+      description: 0-1 percentage to next level
+    breakdown:
+      type: object
+      description: Only shown for own profile
+      properties:
+        events_hosted:
+          type: integer
+        events_attended:
+          type: integer
+        reviews_given:
+          type: integer
+        trust_received:
+          type: integer
+        hangouts_completed:
+          type: integer
+        teaching_sessions:
+          type: integer
+    streak_days:
+      type: integer
+    last_activity:
+      type: string
+      format: date-time
+
+ResonanceLedgerEntry:
+  type: object
+  required: [id, user_id, action_type, points, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    action_type:
+      type: string
+      enum: [event_hosted, event_attended, review_given, review_received, trust_granted, hangout_completed, teaching_session, daily_login, streak_bonus]
+    points:
+      type: integer
+    description:
+      type: string
+      nullable: true
+    reference_id:
+      type: string
+      nullable: true
+      description: ID of related event/review/etc
+    created_on:
+      type: string
+      format: date-time
+
+ResonanceExplainer:
+  type: object
+  properties:
+    levels:
+      type: array
+      items:
+        type: object
+        properties:
+          level:
+            type: integer
+          name:
+            type: string
+          min_points:
+            type: integer
+          perks:
+            type: array
+            items:
+              type: string
+    point_values:
+      type: object
+      additionalProperties:
+        type: integer
+      description: Points earned for each action type
+    daily_caps:
+      type: object
+      additionalProperties:
+        type: integer
+      description: Maximum points earnable per action type per day
+
+# ============================================================================
+# Device schemas
+# ============================================================================
+
+Device:
+  type: object
+  required: [id, user_id, device_type, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    device_type:
+      type: string
+      enum: [ios, android, web]
+    device_name:
+      type: string
+      nullable: true
+    last_active:
+      type: string
+      format: date-time
+    created_on:
+      type: string
+      format: date-time
+
+DeviceToken:
+  type: object
+  required: [id, user_id, token, platform, created_on]
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+    token:
+      type: string
+    platform:
+      type: string
+      enum: [apns, fcm]
+    device_name:
+      type: string
+      nullable: true
+    is_active:
+      type: boolean
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+RegisterDeviceRequest:
+  type: object
+  required: [token, platform]
+  properties:
+    token:
+      type: string
+    platform:
+      type: string
+      enum: [apns, fcm]
+    device_name:
+      type: string

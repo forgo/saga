@@ -5,18 +5,13 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
 	"github.com/forgo/saga/api/pkg/jwt"
 )
 
-var (
-	ErrInvalidRefreshToken = errors.New("invalid refresh token")
-	ErrRefreshTokenExpired = errors.New("refresh token expired")
-	ErrRefreshTokenRevoked = errors.New("refresh token revoked")
-)
+// Error definitions moved to errors.go
 
 // RefreshToken represents a stored refresh token
 type RefreshToken struct {

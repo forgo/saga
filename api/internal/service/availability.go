@@ -2,23 +2,12 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Availability service errors
-var (
-	ErrAvailabilityNotFound   = errors.New("availability not found")
-	ErrHangoutRequestNotFound = errors.New("hangout request not found")
-	ErrHangoutNotFound        = errors.New("hangout not found")
-	ErrInvalidHangoutType     = errors.New("invalid hangout type")
-	ErrInvalidTimeRange       = errors.New("end time must be after start time")
-	ErrNoteTooShort           = errors.New("note must be at least 20 characters")
-	ErrAlreadyRequested       = errors.New("already requested this hangout")
-	ErrCannotRequestOwn       = errors.New("cannot request your own availability")
-)
+// Error definitions moved to errors.go
 
 // AvailabilityRepository defines the interface for availability storage
 type AvailabilityRepository interface {
@@ -74,11 +63,11 @@ func (s *AvailabilityService) CreateAvailability(ctx context.Context, userID str
 	// Parse times
 	startTime, err := time.Parse(time.RFC3339, req.StartTime)
 	if err != nil {
-		return nil, errors.New("invalid start_time format")
+		return nil, ErrInvalidStartTimeFormat
 	}
 	endTime, err := time.Parse(time.RFC3339, req.EndTime)
 	if err != nil {
-		return nil, errors.New("invalid end_time format")
+		return nil, ErrInvalidEndTimeFormat
 	}
 
 	// Validate time range
@@ -194,7 +183,7 @@ func (s *AvailabilityService) UpdateAvailability(ctx context.Context, userID, id
 	if req.EndTime != nil {
 		endTime, err := time.Parse(time.RFC3339, *req.EndTime)
 		if err != nil {
-			return nil, errors.New("invalid end_time format")
+			return nil, ErrInvalidEndTimeFormat
 		}
 		updates["end_time"] = endTime
 	}

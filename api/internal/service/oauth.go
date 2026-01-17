@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,14 +15,7 @@ import (
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrInvalidAuthCode    = errors.New("invalid authorization code")
-	ErrPKCEVerifyFailed   = errors.New("PKCE verification failed")
-	ErrProviderError      = errors.New("OAuth provider error")
-	ErrInvalidIDToken     = errors.New("invalid ID token")
-	ErrEmailNotVerified   = errors.New("email not verified by provider")
-	ErrAccountLinkPending = errors.New("account linking required")
-)
+// Error definitions moved to errors.go
 
 // OAuthProvider represents supported OAuth providers
 type OAuthProvider string

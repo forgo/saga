@@ -2,20 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Profile service errors
-var (
-	ErrProfileNotFound    = errors.New("profile not found")
-	ErrProfileExists      = errors.New("profile already exists")
-	ErrInvalidVisibility  = errors.New("invalid visibility setting")
-	ErrBioTooLong         = errors.New("bio exceeds maximum length")
-	ErrTaglineTooLong     = errors.New("tagline exceeds maximum length")
-	ErrTooManyLanguages   = errors.New("too many languages")
-)
+// Error definitions moved to errors.go
 
 // ProfileRepository defines the interface for profile storage
 type ProfileRepository interface {
@@ -133,7 +124,7 @@ func (s *ProfileService) GetOrCreateProfile(ctx context.Context, userID string) 
 	// Create default profile
 	profile = &model.UserProfile{
 		UserID:     userID,
-		Visibility: model.VisibilityCircles,
+		Visibility: model.VisibilityGuilds,
 		Languages:  []string{},
 	}
 
@@ -218,8 +209,8 @@ func (s *ProfileService) GetPublicProfile(ctx context.Context, viewerID, targetU
 		return nil, ErrProfileNotFound
 	}
 
-	// SECURITY: Check guild membership if visibility is "guilds" (formerly "circles")
-	if profile.Visibility == model.VisibilityCircles {
+	// SECURITY: Check guild membership if visibility is "guilds"
+	if profile.Visibility == model.VisibilityGuilds {
 		if !s.sharesGuild(ctx, viewerID, targetUserID) {
 			return nil, ErrProfileNotFound
 		}
@@ -318,7 +309,7 @@ func (s *ProfileService) GetLocationInternal(ctx context.Context, userID string)
 // Helper functions
 
 func isValidVisibility(v string) bool {
-	return v == model.VisibilityCircles ||
+	return v == model.VisibilityGuilds ||
 		v == model.VisibilityPublic ||
 		v == model.VisibilityPrivate
 }

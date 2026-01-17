@@ -1,0 +1,153 @@
+# Discovery endpoints for finding compatible people and events
+
+discover-people:
+  get:
+    summary: Discover compatible people
+    operationId: discoverPeople
+    tags: [discovery]
+    parameters:
+      - name: lat
+        in: query
+        schema:
+          type: number
+          format: float
+        description: Center latitude for geo-filtering
+      - name: lng
+        in: query
+        schema:
+          type: number
+          format: float
+        description: Center longitude for geo-filtering
+      - name: radius
+        in: query
+        schema:
+          type: number
+          format: float
+          default: 25
+        description: Search radius in km
+      - name: hangout_type
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [talk_it_out, here_to_listen, concrete_activity, mutual_interest, meet_anyone]
+        description: Filter by hangout types (can repeat)
+      - name: interest_id
+        in: query
+        schema:
+          type: string
+        description: Filter by specific interest
+      - name: min_compatibility
+        in: query
+        schema:
+          type: number
+          minimum: 0
+          maximum: 100
+        description: Minimum compatibility score
+      - name: require_shared_answer
+        in: query
+        schema:
+          type: boolean
+        description: Require at least one shared questionnaire answer
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of compatible people
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/DiscoveryResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+discover-by-interest:
+  get:
+    summary: Discover people by specific interest
+    operationId: discoverByInterest
+    tags: [discovery]
+    parameters:
+      - name: interestId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+    responses:
+      '200':
+        description: List of people with this interest
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                results:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/DiscoveryResult'
+                total_count:
+                  type: integer
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+discover-teach-learn:
+  get:
+    summary: Find teach/learn matches
+    operationId: discoverTeachLearn
+    tags: [discovery]
+    description: Find people who want to teach what you want to learn, and vice versa
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+    responses:
+      '200':
+        description: List of teach/learn matches
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                results:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/TeachLearnMatch'
+                total_count:
+                  type: integer
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+hangout-types:
+  get:
+    summary: Get available hangout types
+    operationId: getHangoutTypes
+    tags: [discovery]
+    security: []
+    responses:
+      '200':
+        description: List of hangout types
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hangout_types:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/HangoutTypeInfo'

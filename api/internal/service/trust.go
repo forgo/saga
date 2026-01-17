@@ -2,21 +2,12 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrTrustNotFound      = errors.New("trust relation not found")
-	ErrIRLNotFound        = errors.New("IRL verification not found")
-	ErrCannotTrustSelf    = errors.New("cannot trust yourself")
-	ErrAlreadyTrusted     = errors.New("already trusted")
-	ErrTrustNotEstablished = errors.New("trust not established")
-	ErrIRLRequired        = errors.New("IRL verification required")
-	ErrInvalidContext     = errors.New("invalid IRL context")
-)
+// Error definitions moved to errors.go
 
 // TrustRepositoryInterface defines the repository interface
 type TrustRepositoryInterface interface {

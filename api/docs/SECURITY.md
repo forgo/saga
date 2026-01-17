@@ -238,29 +238,29 @@ type PublicProfile struct {
 Instead of exposing exact distances, we use fuzzy buckets:
 
 ```go
+// internal/model/profile.go
 type DistanceBucket string
 
 const (
-    DistanceNearby  DistanceBucket = "nearby"  // < 500m
-    Distance2km     DistanceBucket = "2km"     // < 2km
-    Distance5km     DistanceBucket = "5km"     // < 5km
-    Distance10km    DistanceBucket = "10km"    // < 10km
-    Distance25km    DistanceBucket = "25km"    // < 25km
-    DistanceFar     DistanceBucket = "far"     // 25km+
-    DistanceUnknown DistanceBucket = "unknown"
+    DistanceNearby   DistanceBucket = "nearby" // < 1 km
+    Distance2km      DistanceBucket = "~2km"   // 1-2 km
+    Distance5km      DistanceBucket = "~5km"   // 2-5 km
+    Distance10km     DistanceBucket = "~10km"  // 5-10 km
+    Distance20kmPlus DistanceBucket = ">20km"  // > 20 km
 )
 
 func GetDistanceBucket(distanceKm float64) DistanceBucket {
     switch {
-    case distanceKm < 0.5:  return DistanceNearby
-    case distanceKm < 2:    return Distance2km
-    case distanceKm < 5:    return Distance5km
-    case distanceKm < 10:   return Distance10km
-    case distanceKm < 25:   return Distance25km
-    default:                return DistanceFar
+    case distanceKm < 1:  return DistanceNearby
+    case distanceKm < 2:  return Distance2km
+    case distanceKm < 5:  return Distance5km
+    case distanceKm < 10: return Distance10km
+    default:              return Distance20kmPlus
     }
 }
 ```
+
+**Note:** The database function `fn::distance_bucket` uses the same thresholds (in meters) to ensure consistency between Go code and database queries.
 
 ### Safe Profile Query
 

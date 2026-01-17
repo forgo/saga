@@ -184,10 +184,10 @@ func CreateUserWithProfile(ctx context.Context, db database.Database, user *mode
 **How namespacing works:**
 ```
 Original:  $email, $username, $bio
-After:     $1_email, $1_username, $2_bio
+After:     $v1_email, $v1_username, $v2_bio
 ```
 
-This prevents collisions when combining queries from different sources.
+Note the `v` prefix before the number - this is required by SurrealDB variable naming rules. This prevents collisions when combining queries from different sources.
 
 ### Pattern 3: UnitOfWork (Service Layer)
 
@@ -469,7 +469,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*model.User, e
         if errors.Is(err, database.ErrNotFound) {
             return nil, nil  // Not found returns nil, nil (not an error)
         }
-        return err
+        return nil, fmt.Errorf("getting user %s: %w", id, err)
     }
     return parseUserResult(result)
 }

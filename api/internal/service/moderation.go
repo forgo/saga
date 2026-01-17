@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
@@ -38,22 +37,7 @@ type ModerationRepository interface {
 	GetModerationStats(ctx context.Context) (*model.ModerationStats, error)
 }
 
-// ModerationService errors
-var (
-	ErrReportNotFound       = errors.New("report not found")
-	ErrActionNotFound       = errors.New("moderation action not found")
-	ErrCannotReportSelf     = errors.New("cannot report yourself")
-	ErrCannotBlockSelf      = errors.New("cannot block yourself")
-	ErrAlreadyBlocked       = errors.New("user already blocked")
-	ErrNotBlocked           = errors.New("user not blocked")
-	ErrUserBanned           = errors.New("user is banned")
-	ErrUserSuspended        = errors.New("user is suspended")
-	ErrInvalidCategory      = errors.New("invalid report category")
-	ErrInvalidLevel         = errors.New("invalid moderation level")
-	ErrInvalidStatus        = errors.New("invalid report status")
-	ErrReasonRequired       = errors.New("reason is required")
-	ErrDescriptionTooLong   = errors.New("description too long")
-)
+// Error definitions moved to errors.go
 
 // ModerationService handles moderation operations
 type ModerationService struct {

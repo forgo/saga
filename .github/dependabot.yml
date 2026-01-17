@@ -22,7 +22,7 @@ updates:
 
   # Swift packages
   - package-ecosystem: "swift"
-    directory: "/ios/BabySync"
+    directory: "/ios/Saga"
     schedule:
       interval: "weekly"
     commit-message:

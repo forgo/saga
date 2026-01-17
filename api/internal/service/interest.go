@@ -2,17 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Interest service errors
-var (
-	ErrInterestNotFound      = errors.New("interest not found")
-	ErrInterestAlreadyExists = errors.New("user already has this interest")
-	ErrInvalidInterestLevel  = errors.New("invalid interest level")
-)
+// Error definitions moved to errors.go
 
 // InterestRepository defines the interface for interest storage
 type InterestRepository interface {

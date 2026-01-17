@@ -13,14 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Acceptance criteria documentation in test files
 
 ### Changed
+- Removed legacy BabySync iOS app, replaced with modern Saga iOS app
+- Updated all project configuration to use Saga naming
+- Rewrote iOS README for new app architecture
 - Repository fixes for SurrealDB record casting
 - Moderation repository NULL vs NONE handling
+
+### Removed
+- Deleted obsolete ios/BabySync directory
 
 ### Fixed
 - `parseTime()` now handles `models.CustomDateTime` from SurrealDB
 - Report/Block creation uses SET-style queries to avoid NULL issues
 
-## [0.6.0] - 2025-01-XX
+## [0.6.0] - 2025-01-17
 
 ### Added
 - Modern SwiftUI iOS app (Phase 6)

@@ -1,0 +1,68 @@
+# Device token endpoints for push notifications
+
+devices:
+  get:
+    summary: List registered devices
+    operationId: listDevices
+    tags: [devices]
+    responses:
+      '200':
+        description: List of devices
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Device'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  post:
+    summary: Register a device token
+    operationId: registerDevice
+    tags: [devices]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/RegisterDeviceRequest'
+    responses:
+      '201':
+        description: Device registered
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/DeviceToken'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+      '429':
+        description: Maximum devices per user reached
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+device:
+  delete:
+    summary: Unregister a device
+    operationId: deleteDevice
+    tags: [devices]
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Device unregistered
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'

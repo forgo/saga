@@ -11,7 +11,7 @@ type UserProfile struct {
 	Languages  []string   `json:"languages,omitempty"`
 	Timezone   *string    `json:"timezone,omitempty"`
 	Location   *Location  `json:"location,omitempty"`
-	Visibility string     `json:"visibility"` // circles, public, private
+	Visibility string     `json:"visibility"` // guilds, public, private
 	LastActive *time.Time `json:"last_active,omitempty"`
 	CreatedOn  time.Time  `json:"created_on"`
 	UpdatedOn  time.Time  `json:"updated_on"`
@@ -202,7 +202,7 @@ func (p *UserProfile) IsEligibleForDiscovery() bool {
 
 // Visibility options
 const (
-	VisibilityCircles = "circles" // Only circle members can see
+	VisibilityGuilds  = "guilds"  // Only guild members can see
 	VisibilityPublic  = "public"  // Anyone can see
 	VisibilityPrivate = "private" // Only self can see
 )

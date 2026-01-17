@@ -40,21 +40,7 @@ type MemberRepository interface {
 	Delete(ctx context.Context, id string) error
 }
 
-// Guild service errors
-var (
-	ErrGuildNotFound             = errors.New("guild not found")
-	ErrGuildNameRequired         = errors.New("guild name is required")
-	ErrGuildNameTooLong          = errors.New("guild name exceeds maximum length")
-	ErrGuildDescTooLong          = errors.New("guild description exceeds maximum length")
-	ErrNotGuildMember            = errors.New("not a member of this guild")
-	ErrNotGuildAdmin             = errors.New("not authorized to perform this action")
-	ErrCannotLeaveSoleMember     = errors.New("cannot leave guild as the only member")
-	ErrAlreadyGuildMember        = errors.New("already a member of this guild")
-	ErrMaxGuildsReached          = errors.New("maximum number of guilds reached")
-	ErrMaxMembersReached         = errors.New("guild has reached maximum member limit")
-	ErrGuildNameExists           = errors.New("a guild with this name already exists")
-	ErrMergeRequiresDualMembership = errors.New("must be a member of both guilds to merge")
-)
+// Error definitions moved to errors.go
 
 // GuildService handles guild business logic
 type GuildService struct {

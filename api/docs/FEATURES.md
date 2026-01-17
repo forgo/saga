@@ -222,7 +222,7 @@ flowchart LR
 | **Mana** | Support sessions | Helping others in hangouts |
 | **Wayfinder** | Hosting events | Organizing activities |
 | **Attunement** | Profile completion | Answering questionnaire |
-| **Nexus** | Guild activity | Contributing to guilds |
+| **Nexus** | Guild activity | Contributing to guilds *(planned)* |
 
 ### Ledger-Based Architecture
 
@@ -682,10 +682,10 @@ stateDiagram-v2
     Unset --> Distrust: Create with trust_level=distrust
 
     Trust --> Unset: DELETE (unset rating)
-    Trust --> Distrust: PATCH (30-day cooldown)
+    Trust --> Distrust: PATCH (update rating)
 
     Distrust --> Unset: DELETE (unset rating)
-    Distrust --> Trust: PATCH (30-day cooldown)
+    Distrust --> Trust: PATCH (update rating)
 
     note right of Trust
         - Review REQUIRED (public)
@@ -748,18 +748,18 @@ erDiagram
 |--------|----------|-----------|
 | Anchor Required | Event/Rideshare with verified attendance | Prevents fake reviews, ensures real interaction |
 | No Neutral | Only trust/distrust, DELETE = unset | Simplifies UX, avoids "non-rating" accumulation |
-| 30-day Cooldown | Can't change rating within 30 days | Prevents manipulation, encourages thoughtful ratings |
 | Daily Limit | Max 10 ratings per day | Prevents spam/abuse |
 | Review Required | 240 char max, always required | Forces meaningful feedback |
 | Distrust Private | Distrust reviews admin-only | Protects from public shaming, enables moderation |
+| Audit Trail | All changes logged to history | Enables moderation review, transparency |
 
 ### Anti-Abuse Mechanisms
 
 1. **Anchor Validation**: Both users must have confirmed attendance at the same event
 2. **Rate Limiting**: 10 ratings/day/user via `trust_rating_daily_count` table
-3. **Cooldown Period**: 30 days between rating changes
-4. **Endorsement Limits**: One endorsement per (endorser, rating) pair
-5. **Audit Trail**: All changes logged to `trust_rating_history`
+3. **Endorsement Limits**: One endorsement per (endorser, rating) pair
+4. **Audit Trail**: All changes logged to `trust_rating_history`
+5. **Self-Rating Prevention**: Cannot rate yourself (database trigger enforced)
 
 ---
 

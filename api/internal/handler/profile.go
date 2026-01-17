@@ -260,7 +260,7 @@ func toPublicProfileResponse(p *model.PublicProfile) *PublicProfileResponse {
 }
 
 func isValidVisibility(v string) bool {
-	return v == model.VisibilityCircles ||
+	return v == model.VisibilityGuilds ||
 		v == model.VisibilityPublic ||
 		v == model.VisibilityPrivate
 }

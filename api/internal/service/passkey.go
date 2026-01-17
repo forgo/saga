@@ -4,20 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrPasskeyNotFound      = errors.New("passkey not found")
-	ErrInvalidChallenge     = errors.New("invalid or expired challenge")
-	ErrInvalidCredential    = errors.New("invalid credential")
-	ErrCredentialNotAllowed = errors.New("credential not allowed for this user")
-	ErrSignCountMismatch    = errors.New("sign count mismatch - potential cloned authenticator")
-	ErrPasskeyLimitReached  = errors.New("maximum number of passkeys reached")
-)
+// Error definitions moved to errors.go
 
 const (
 	// Challenge expiration time

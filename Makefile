@@ -33,7 +33,7 @@ dev-api: ## Run API with hot reload (requires running db)
 	@$(MAKE) -C api dev
 
 dev-ios: ## Open iOS project in Xcode
-	@open ios/BabySync/BabySync.xcodeproj
+	@open ios/Saga/Saga.xcodeproj
 
 # ============================================================================
 # Testing
@@ -45,7 +45,7 @@ test-api: ## Run API tests
 	@$(MAKE) -C api test
 
 test-ios: ## Run iOS tests
-	@cd ios/BabySync && swift test
+	@cd ios/Saga && swift test
 
 # ============================================================================
 # Linting & Formatting
@@ -89,7 +89,7 @@ db-reset: ## Reset database (drop and recreate with seed data)
 
 clean: ## Clean all build artifacts
 	@$(MAKE) -C api clean
-	@rm -rf ios/BabySync/.build
+	@rm -rf ios/Saga/.build
 
 keys: ## Generate JWT keys
 	@$(MAKE) -C api keys-generate

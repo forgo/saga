@@ -10,12 +10,7 @@ import (
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Push service errors
-var (
-	ErrPushDisabled       = errors.New("push notifications are disabled")
-	ErrNoDeviceTokens     = errors.New("no device tokens found for user")
-	ErrInvalidDeviceToken = errors.New("invalid device token")
-)
+// Error definitions moved to errors.go
 
 // PushNotification represents a push notification to send
 type PushNotification struct {

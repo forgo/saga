@@ -2,22 +2,12 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-var (
-	ErrEventNotFound       = errors.New("event not found")
-	ErrRSVPNotFound        = errors.New("RSVP not found")
-	ErrNotEventHost        = errors.New("not an event host")
-	ErrEventFull           = errors.New("event is full")
-	ErrAlreadyRSVPd        = errors.New("already RSVP'd")
-	ErrRSVPNotAllowed      = errors.New("RSVP not allowed for this event")
-	ErrValuesCheckRequired = errors.New("values alignment check required")
-	ErrMaxHostsReached     = errors.New("maximum hosts reached")
-)
+// Error definitions moved to errors.go
 
 // EventRepositoryInterface defines the repository interface
 type EventRepositoryInterface interface {
@@ -287,7 +277,7 @@ func (s *EventService) AddHost(ctx context.Context, userID, eventID, newHostID s
 	// Check if already a host
 	for _, h := range hosts {
 		if h.UserID == newHostID {
-			return nil, errors.New("already a host")
+			return nil, ErrAlreadyHost
 		}
 	}
 

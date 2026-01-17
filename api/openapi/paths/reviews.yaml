@@ -1,0 +1,197 @@
+# Review endpoints for peer feedback
+
+reviews:
+  post:
+    summary: Leave feedback
+    operationId: createReview
+    tags: [reviews]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateReviewRequest'
+    responses:
+      '201':
+        description: Review created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Review'
+      '400':
+        description: Cannot review yourself
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '409':
+        description: Already reviewed for this reference
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+review:
+  get:
+    summary: Get a specific review
+    operationId: getReview
+    tags: [reviews]
+    parameters:
+      - name: reviewId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Review details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Review'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+my-reviews-given:
+  get:
+    summary: Get reviews you've left
+    operationId: getReviewsGiven
+    tags: [reviews, profile]
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of reviews given
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Review'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+my-reviews-received:
+  get:
+    summary: Get reviews you've received
+    operationId: getReviewsReceived
+    tags: [reviews, profile]
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of reviews received
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Review'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+my-reputation:
+  get:
+    summary: Get own reputation
+    operationId: getMyReputation
+    tags: [reviews, profile]
+    responses:
+      '200':
+        description: Reputation summary
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Reputation'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+user-reputation:
+  get:
+    summary: Get another user's reputation
+    operationId: getUserReputation
+    tags: [reviews]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Reputation display
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ReputationDisplay'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+review-tags-positive:
+  get:
+    summary: List positive review tags
+    operationId: getPositiveTags
+    tags: [reviews]
+    security: []
+    responses:
+      '200':
+        description: List of positive tags
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/ReviewTag'
+
+review-tags-improvement:
+  get:
+    summary: List improvement review tags
+    operationId: getImprovementTags
+    tags: [reviews]
+    security: []
+    responses:
+      '200':
+        description: List of improvement tags
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/ReviewTag'

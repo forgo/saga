@@ -1,0 +1,162 @@
+# Trust and IRL verification endpoints
+
+trust-list:
+  get:
+    summary: Get list of trusted users
+    operationId: getTrustedUsers
+    tags: [trust]
+    responses:
+      '200':
+        description: List of trusted users
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/TrustedUser'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+trust:
+  get:
+    summary: Get trust summary with a user
+    operationId: getTrustSummary
+    tags: [trust]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Trust summary
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/TrustSummary'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  post:
+    summary: Grant trust to another user
+    operationId: grantTrust
+    tags: [trust]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '201':
+        description: Trust granted
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Trust'
+      '400':
+        description: Cannot trust yourself
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '409':
+        description: Already trusted
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+  delete:
+    summary: Revoke trust from a user
+    operationId: revokeTrust
+    tags: [trust]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Trust revoked
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+my-trust-profile:
+  get:
+    summary: Get own trust profile
+    operationId: getTrustProfile
+    tags: [trust, profile]
+    responses:
+      '200':
+        description: Trust profile
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/TrustProfile'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+irl-confirm:
+  post:
+    summary: Confirm IRL meeting with a user
+    operationId: confirmIRL
+    tags: [trust]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/ConfirmIRLRequest'
+    responses:
+      '201':
+        description: IRL confirmation recorded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/IRLConnection'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        description: Invalid IRL context
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+irl-connections:
+  get:
+    summary: Get list of IRL connections
+    operationId: getIRLConnections
+    tags: [trust]
+    responses:
+      '200':
+        description: List of IRL connections
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/IRLConnection'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

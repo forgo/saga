@@ -124,8 +124,8 @@ flowchart TD
     A[unified_rsvp UPDATE] --> B[unified_rsvp_updated trigger]
     B --> C[Update timestamp]
 
-    A --> D[update_event_attendee_count trigger]
-    D --> E[Recalculate event.attendee_count]
+    A --> D[update_event_counts trigger]
+    D --> E[Recalculate approved_count, pending_count, waitlist_count, attendee_count]
 
     A --> F{completion_confirmed?}
     F -->|Yes| G[rsvp_confirmation_tracking trigger]
@@ -188,12 +188,15 @@ These fields are kept in sync by triggers:
 
 | Table | Field | Trigger |
 |-------|-------|---------|
-| `event` | `attendee_count` | `update_event_attendee_count` |
+| `event` | `attendee_count`, `approved_count`, `pending_count`, `waitlist_count` | `update_event_counts` |
 | `event` | `confirmed_count` | `rsvp_confirmation_tracking` |
 | `adventure` | `participant_count` | `update_adventure_participant_count` |
 | `guild` | `member_count` | `update_guild_member_count` |
 | `interest` | `user_count` | `update_interest_user_count` |
-| `event_role` | `filled_slots` | `increment/decrement_filled_slots` |
+| `event_role` | `filled_slots` | `increment_filled_slots` (on create), `decrement_filled_slots` (on delete) |
+| `rideshare_role` | `filled_slots` | `increment_rideshare_filled_slots` (on create), `decrement_rideshare_filled_slots` (on delete) |
+| `forum_post` | `reply_count`, `last_reply_on` | `update_forum_reply_count`, `decrement_forum_reply_count` |
+| `destination` | `vote_count`, `total_rank_score` | `update_destination_votes` |
 | `resonance_score` | all stats | `resonance_score_update` |
 
 ### When to Add New Denormalized Fields

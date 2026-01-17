@@ -1,0 +1,386 @@
+# Event endpoints for creating and managing events
+
+events:
+  post:
+    summary: Create a new event
+    operationId: createEvent
+    tags: [events]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateEventRequest'
+    responses:
+      '201':
+        description: Event created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+event:
+  get:
+    summary: Get event details
+    operationId: getEvent
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Event details with RSVPs and roles
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventWithDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  patch:
+    summary: Update an event
+    operationId: updateEvent
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateEventRequest'
+    responses:
+      '200':
+        description: Event updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  delete:
+    summary: Cancel an event
+    operationId: cancelEvent
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Event cancelled
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-rsvp:
+  post:
+    summary: RSVP to an event
+    operationId: createRSVP
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/RSVPRequest'
+    responses:
+      '201':
+        description: RSVP created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/RSVP'
+      '204':
+        description: RSVP cancelled
+      '400':
+        $ref: '../components/schemas/_index.yaml#/BadRequestError'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+      '409':
+        $ref: '../components/schemas/_index.yaml#/ConflictError'
+
+  delete:
+    summary: Cancel own RSVP
+    operationId: cancelRSVP
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: RSVP cancelled
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-rsvps-pending:
+  get:
+    summary: Get pending RSVPs (host only)
+    operationId: getPendingRSVPs
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of pending RSVPs
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RSVP'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+
+event-rsvp-respond:
+  post:
+    summary: Respond to an RSVP (host only)
+    operationId: respondToRSVP
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/RespondToRSVPRequest'
+    responses:
+      '200':
+        description: RSVP response recorded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/RSVP'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-hosts:
+  post:
+    summary: Add a co-host
+    operationId: addHost
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [user_id]
+            properties:
+              user_id:
+                type: string
+    responses:
+      '201':
+        description: Host added
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventHost'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '409':
+        $ref: '../components/schemas/_index.yaml#/ConflictError'
+
+event-confirm:
+  post:
+    summary: Confirm event completion
+    operationId: confirmEventCompletion
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [completed]
+            properties:
+              completed:
+                type: boolean
+                description: True if you attended the event
+    responses:
+      '204':
+        description: Confirmation recorded
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-checkin:
+  post:
+    summary: Check in to event
+    operationId: checkinEvent
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Checked in
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-feedback:
+  post:
+    summary: Submit event feedback
+    operationId: submitEventFeedback
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/EventFeedbackRequest'
+    responses:
+      '204':
+        description: Feedback submitted
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+discover-events:
+  get:
+    summary: Discover public events
+    operationId: discoverEvents
+    tags: [discovery, events]
+    parameters:
+      - name: template
+        in: query
+        schema:
+          type: string
+        description: Filter by event template
+      - name: city
+        in: query
+        schema:
+          type: string
+        description: Filter by city
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of public events
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Event'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+guild-events-list:
+  get:
+    summary: Get guild events
+    operationId: getGuildEvents
+    tags: [guilds, events]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of guild events
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Event'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

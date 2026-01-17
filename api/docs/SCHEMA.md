@@ -106,32 +106,47 @@ erDiagram
 
 ## Tables Overview
 
-The schema is organized into logical domains:
+The schema contains **81 tables** organized into logical domains:
 
 | Domain | Tables | Description |
 |--------|--------|-------------|
 | **Auth** | `user`, `identity`, `passkey`, `refresh_token` | User accounts and authentication |
 | **Profile** | `user_profile`, `answer`, `user_bias_profile` | User profiles and questionnaire responses |
 | **Guild** | `guild`, `member`, `guild_alliance`, `guild_moderation_settings` | Community groups |
-| **Events** | `event`, `event_role`, `event_role_assignment` | Scheduled gatherings |
-| **Adventures** | `adventure`, `destination`, `adventure_activity`, `adventure_participant`, `adventure_admission` | Multi-day trips with admission control |
+| **Events** | `event`, `event_role`, `event_role_assignment`, `event_host`, `event_rsvp` | Scheduled gatherings |
+| **Adventures** | `adventure`, `destination`, `adventure_activity`, `adventure_participant`, `adventure_admission`, `destination_vote`, `activity_vote` | Multi-day trips with admission control |
 | **RSVPs** | `unified_rsvp` | Polymorphic attendance tracking |
 | **Rideshares** | `rideshare`, `rideshare_segment`, `rideshare_seat` | Transportation coordination |
 | **Forums** | `forum`, `forum_post` | Discussion threads |
 | **Matching** | `matching_pool`, `pool_member`, `match_result` | Donut-style matching |
-| **Discovery** | `discovery_daily_count`, `availability` | Finding people/events |
-| **Resonance** | `resonance_ledger`, `resonance_score`, `resonance_daily_cap` | Gamification scoring |
+| **Discovery** | `discovery_daily_count`, `availability`, `hangout`, `hangout_request` | Finding people/events |
+| **Resonance** | `resonance_ledger`, `resonance_score`, `resonance_daily_cap`, `support_pair_count` | Gamification scoring |
 | **Trust** | `trust_relation`, `irl_verification`, `review`, `trust_rating`, `trust_rating_history`, `trust_endorsement`, `trust_rating_daily_count` | Reputation and trust system |
-| **Moderation** | `report`, `moderation_action`, `block`, `user_flag` | Safety enforcement |
+| **Moderation** | `report`, `moderation_action`, `block`, `user_block`, `user_flag`, `user_moderation` | Safety enforcement |
 | **Nudges** | `nudge`, `nudge_history`, `nudge_preference`, `nudge_settings` | Notifications |
 | **Role Catalogs** | `role_catalog`, `rideshare_role`, `rideshare_role_assignment` | Reusable role templates |
 | **Voting** | `vote`, `vote_option`, `vote_ballot` | Generic voting system |
+| **Devices** | `device_token` | Push notification tokens |
+| **Relationships** | `person`, `activity`, `timer`, `reminder` | Relationship tracking |
+| **Relations** | `part_of`, `responsible_for`, `managed_by`, `tracked_by`, `adheres_to`, `authenticates_via`, `has_interest`, `event_participant`, `rsvp` | Graph-style relations |
 
 ---
 
 ## Triggers
 
-Saga uses database triggers organized into three categories for validation, automation, and data integrity.
+Saga uses **106 database triggers** organized into categories for validation, automation, and data integrity. Full SQL for all triggers is in the `api/migrations/` directory.
+
+**Trigger Summary by Migration:**
+
+| Migration | Trigger Count | Purpose |
+|-----------|---------------|---------|
+| 001_initial_schema | 44 | Core validation (limits, enums), auto-updates |
+| 002_schema_hardening | 8 | Unified RSVP, discovery, visibility cascade |
+| 003_bug_fixes | 3 | Block validation, count maintenance |
+| 004_security_hardening | 5 | User/profile auto-updates, block checks |
+| 005_performance_indexes | 8 | Denormalized count maintenance |
+| 006_data_model_cleanup | 17 | Cascade deletes, data validation |
+| 007_features_v2 | 21 | Trust ratings, voting, role catalogs |
 
 ### Validation Triggers
 
@@ -207,12 +222,87 @@ These automate data updates and business logic:
 | `visibility_cascade_rideshare` | `rideshare` | On CREATE/UPDATE: Validates visibility <= parent event/adventure |
 | `resonance_score_update` | `resonance_ledger` | On CREATE: Updates `resonance_score` table with floor at 0 |
 | `answer_eligibility_check` | `answer` | On CREATE: Updates `user_profile.discovery_eligible` |
+| `update_event_counts` | `unified_rsvp` | On CREATE/UPDATE/DELETE: Recalculates all event count fields |
+
+### Cascade Delete Triggers
+
+These triggers clean up related records when parent entities are deleted (migration 006):
+
+| Trigger | Table | Behavior |
+|---------|-------|----------|
+| `cascade_guild_delete` | `guild` | Deletes events, pools, values, members, alliances |
+| `cascade_adventure_delete` | `adventure` | Deletes events, destinations, participants, rideshares, forums |
+| `cascade_event_delete` | `event` | Deletes RSVPs, roles, hosts, rideshares, forums |
+| `cascade_destination_delete` | `destination` | Deletes destination votes |
+| `cascade_rideshare_delete` | `rideshare` | Deletes seats and segments |
+| `cascade_pool_delete` | `matching_pool` | Deletes members and match results |
+| `cascade_user_delete` | `user` | Deletes all user-owned data |
+| `cascade_member_delete` | `member` | Deletes guild memberships, pool memberships |
+| `cascade_forum_delete` | `forum` | Deletes all forum posts |
+| `cascade_event_role_delete` | `event_role` | Deletes role assignments |
+
+### Trust Rating Triggers
+
+These enforce trust rating rules (migration 007):
+
+| Trigger | Table | Behavior |
+|---------|-------|----------|
+| `trust_rating_self_check` | `trust_rating` | Prevents self-rating |
+| `trust_rating_updated` | `trust_rating` | Auto-updates timestamp on changes |
+| `trust_rating_history_on_update` | `trust_rating` | Creates immutable audit entry |
+| `trust_endorsement_self_check` | `trust_endorsement` | Prevents endorsing own ratings |
+| `trust_rating_daily_limit` | `trust_rating` | Enforces 10 ratings/day limit |
+
+### Voting System Triggers
+
+These enforce voting rules (migration 007):
+
+| Trigger | Table | Behavior |
+|---------|-------|----------|
+| `prevent_ballot_update` | `vote_ballot` | Ballots are immutable |
+| `validate_vote_dates` | `vote` | Close time must be after open time |
+| `check_vote_option_limit` | `vote_option` | Max 20 options per vote |
+| `check_guild_vote_limit` | `vote` | Max 50 active votes per guild |
+| `prevent_option_change_after_voting` | `vote_option` | Cannot modify after voting starts |
 
 ---
 
 ## Functions
 
-The schema defines 11 custom functions:
+The schema defines **28 custom functions** across security, discovery, and helper categories:
+
+**Function Summary:**
+
+| Function | Category | Purpose |
+|----------|----------|---------|
+| `fn::distance_bucket` | Location | Converts coordinates to privacy bucket |
+| `fn::coarse_location` | Location | Strips coordinates from location object |
+| `fn::safe_profile` | Location | Returns profile without coordinates |
+| `fn::required_categories` | Discovery | Returns required question categories |
+| `fn::check_eligibility` | Discovery | Checks if user can be discovered |
+| `fn::has_discovery_quota` | Discovery | Checks daily discovery limit |
+| `fn::increment_discovery_count` | Discovery | Increments daily count |
+| `fn::check_event_completion` | Events | Checks if event is verified complete |
+| `fn::is_early_confirm` | Events | Checks if confirmation is ≥2h before event |
+| `fn::is_ontime_checkin` | Events | Checks if checkin is within ±10min window |
+| `fn::visibility_level` | Access | Converts visibility string to numeric level |
+| `fn::is_blocked` | Security | Bidirectional block check |
+| `fn::get_blocked_users` | Security | Returns all blocked user IDs |
+| `fn::is_guild_member` | Security | Checks guild membership |
+| `fn::shares_guild` | Security | Checks if users share any guild |
+| `fn::shares_alliance` | Security | Checks if users' guilds are allied |
+| `fn::can_view_guild` | Security | Guild access control |
+| `fn::can_access` | Security | Master access control function |
+| `fn::get_safe_profile` | Security | Profile with all access checks |
+| `fn::paginate_guild_events` | Pagination | Cursor-based event pagination |
+| `fn::paginate_upcoming_events` | Pagination | Visibility-aware event pagination |
+| `fn::paginate_forum_posts` | Pagination | Threaded forum pagination |
+| `fn::paginate_availability` | Pagination | Geo-aware availability pagination |
+| `fn::can_rate_user` | Trust | Validates rating eligibility |
+| `fn::get_trust_aggregate` | Trust | Aggregates trust/distrust counts |
+| `fn::can_create_guild_vote` | Voting | Checks vote creation permission |
+| `fn::can_vote_in_guild` | Voting | Checks voting permission |
+| `fn::is_admitted_to_adventure` | Adventures | Checks adventure admission status |
 
 ### Location Privacy Functions
 
@@ -670,6 +760,88 @@ DEFINE FUNCTION fn::get_safe_profile($viewer_id: string, $target_id: string) {
 | `fn::can_view_guild` | Check guild access | `bool` |
 | `fn::can_access` | Master access check | `bool` |
 | `fn::get_safe_profile` | Get privacy-safe profile | `object \| NONE` |
+
+---
+
+## Pagination Functions
+
+Added in migration 005, these provide efficient cursor-based pagination.
+
+#### `fn::paginate_guild_events($guild_id, $cursor, $limit)`
+
+Returns events for a guild with cursor-based pagination.
+
+```sql
+DEFINE FUNCTION fn::paginate_guild_events($guild_id: string, $cursor: option<datetime>, $limit: int) {
+    IF $cursor IS NONE {
+        RETURN SELECT * FROM event
+            WHERE guild_id = type::record("guild", $guild_id)
+            ORDER BY created_on DESC LIMIT $limit;
+    };
+    RETURN SELECT * FROM event
+        WHERE guild_id = type::record("guild", $guild_id)
+        AND created_on < $cursor
+        ORDER BY created_on DESC LIMIT $limit;
+};
+```
+
+#### `fn::paginate_upcoming_events($viewer_id, $cursor, $limit)`
+
+Returns visibility-aware upcoming events.
+
+#### `fn::paginate_forum_posts($forum_id, $cursor, $limit)`
+
+Returns threaded forum posts with nested replies (max 5 per parent).
+
+#### `fn::paginate_availability($viewer_lat, $viewer_lng, $radius_km, $cursor, $limit)`
+
+Returns geo-filtered availability records with bounding box optimization.
+
+---
+
+## Trust and Voting Functions
+
+Added in migration 007, these support the trust rating and voting systems.
+
+#### `fn::can_rate_user($rater_id, $ratee_id, $anchor_type, $anchor_id)`
+
+Validates that a user can rate another based on shared event/rideshare participation.
+
+**Rules:**
+- Both users must have confirmed attendance at the anchor event
+- For rideshares, both must be driver or confirmed passenger
+- Anchor must be verified complete
+
+#### `fn::get_trust_aggregate($user_id)`
+
+Returns aggregated trust statistics for a user.
+
+```sql
+DEFINE FUNCTION fn::get_trust_aggregate($user_id: string) {
+    LET $received = SELECT count() as cnt, trust_level FROM trust_rating
+        WHERE ratee_id = type::record("user", $user_id)
+        GROUP BY trust_level;
+    LET $trust_count = $received[trust_level="trust"].cnt ?? 0;
+    LET $distrust_count = $received[trust_level="distrust"].cnt ?? 0;
+    RETURN {
+        trust_count: $trust_count,
+        distrust_count: $distrust_count,
+        net_trust: $trust_count - $distrust_count
+    };
+};
+```
+
+#### `fn::can_create_guild_vote($user_id, $guild_id)`
+
+Checks if user has permission to create votes in a guild (requires membership).
+
+#### `fn::can_vote_in_guild($user_id, $guild_id)`
+
+Checks if user can vote in guild polls (requires membership).
+
+#### `fn::is_admitted_to_adventure($user_id, $adventure_id)`
+
+Checks if user has been admitted to a private adventure.
 
 ---
 

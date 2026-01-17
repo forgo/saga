@@ -1,6 +1,6 @@
-# BabySync iOS
+# Saga iOS
 
-Modern SwiftUI app for tracking baby care activities across families.
+Modern SwiftUI app for social coordination and meaningful connections.
 
 ## Requirements
 
@@ -15,45 +15,52 @@ The app follows a modern SwiftUI architecture with:
 
 - **@Observable** for reactive state management
 - **async/await** for all networking
-- **Swift Concurrency** with actors for thread safety
+- **Swift 6 Concurrency** with actors for thread safety
 - **Server-Sent Events (SSE)** for real-time updates
-- **MVVM** pattern for view organization
 
 ## Project Structure
 
 ```
-Sources/
-├── App/
-│   └── BabySyncApp.swift          # App entry point
-├── Models/
-│   ├── User.swift                 # User, Identity, Passkey models
-│   ├── Family.swift               # Family, Parent models
-│   ├── Baby.swift                 # Baby model
-│   ├── Activity.swift             # Activity model
-│   ├── Timer.swift                # BabyTimer model
-│   ├── APIResponse.swift          # Response wrappers, errors
-│   └── AuthRequests.swift         # Auth request DTOs
-├── Networking/
-│   ├── APIClient.swift            # REST API client
-│   └── SSEClient.swift            # Server-Sent Events client
-├── Services/
-│   ├── AuthService.swift          # Authentication management
-│   ├── PasskeyService.swift       # WebAuthn passkey support
-│   └── FamilyService.swift        # Family data management
-├── Views/
-│   ├── Auth/
-│   │   └── AuthView.swift         # Login/Register screen
-│   ├── Family/
-│   │   ├── FamilyListView.swift   # Family list
-│   │   └── FamilyDetailView.swift # Family details with babies
-│   ├── Baby/
-│   │   └── BabyDetailView.swift   # Baby with timers
-│   ├── Timer/
-│   │   └── TimerCard.swift        # Timer display component
-│   └── Settings/
-│       └── SettingsView.swift     # Settings & account
+ios/Saga/
+├── Sources/
+│   ├── App/
+│   │   ├── SagaApp.swift              # App entry point
+│   │   ├── AppState.swift             # Global state coordinator
+│   │   └── Environment.swift          # API URL configuration
+│   ├── Models/
+│   │   ├── Core/                      # Guild, Person, User, Activity, Timer
+│   │   ├── Events/                    # Event, EventRole
+│   │   ├── Social/                    # Profile, Trust, Review, Availability
+│   │   ├── Discovery/                 # Interest, Questionnaire
+│   │   ├── Advanced/                  # Adventure, Pool, Vote, RoleCatalog
+│   │   ├── Gamification/              # Resonance
+│   │   ├── Moderation/                # Report, Block
+│   │   └── API/                       # APIResponse, APIError, AuthRequests
+│   ├── Networking/
+│   │   ├── APIClient.swift            # REST API client (actor-based)
+│   │   ├── APIClient+*.swift          # API extensions by domain
+│   │   └── SSEClient.swift            # Server-Sent Events client
+│   ├── Services/
+│   │   ├── AuthService.swift          # Authentication & token management
+│   │   ├── PasskeyService.swift       # WebAuthn passkey support
+│   │   ├── GuildService.swift         # Guild data & real-time sync
+│   │   ├── EventService.swift         # Event management
+│   │   ├── ProfileService.swift       # User profiles
+│   │   └── DiscoveryService.swift     # Discovery & matching
+│   └── Views/
+│       ├── App/                       # ContentView, MainTabView
+│       ├── Auth/                      # Login, Register, Passkey setup
+│       ├── Guild/                     # Guild list, detail, management
+│       ├── People/                    # Person detail, timers
+│       ├── Events/                    # Event list, detail, RSVP
+│       ├── Social/                    # Profile, Trust, Availability
+│       ├── Discovery/                 # Nearby, Interests, Questionnaires
+│       ├── Advanced/                  # Adventures, Pools, Votes
+│       ├── Moderation/                # Reports, Blocks, Resonance
+│       ├── Settings/                  # Account, Notifications, Privacy
+│       └── Components/                # Reusable UI components
 └── Tests/
-    └── BabySyncTests.swift        # Unit tests
+    └── SagaTests.swift
 ```
 
 ## Features
@@ -63,47 +70,75 @@ Sources/
 - Sign in with Apple
 - Sign in with Google (PKCE)
 - Passkeys (WebAuthn) for biometric login
+- Token refresh with secure keychain storage
 
-### Family Management
-- Create and join families
-- View family members
-- Leave or merge families
+### Guilds
+- Create and join guilds (communities)
+- View guild members
+- Manage people and relationships
+- Activity timers with thresholds
 
-### Baby Tracking
-- Add babies to families
-- Create activity timers for each baby
-- Real-time timer synchronization across devices
+### Events
+- Create and discover events
+- RSVP management (going/maybe/not going)
+- Event roles and assignments
+- Check-in and feedback
 
-### Timers
-- Visual timer cards with elapsed time
-- Warning and critical threshold indicators
-- One-tap reset
-- Push notification support
+### Discovery
+- Interest-based matching (teach/learn)
+- Questionnaire compatibility scoring
+- Nearby availability
+- Event recommendations
+
+### Trust Network
+- Trust grants (basic/elevated/full)
+- IRL confirmations
+- Trust ratings with anchors
+- Endorsements and reviews
+
+### Advanced Features
+- Adventures with admission control
+- Matching pools (donut-style)
+- Voting (FPTP, ranked choice, approval, multi-select)
+- Role catalogs
+
+### Moderation & Safety
+- Report submission
+- Block/unblock users
+- Moderation status
+
+### Gamification
+- Resonance scoring
+- Level progression
+- Score breakdown
 
 ### Real-Time Sync
 - SSE connection for live updates
 - Automatic reconnection with exponential backoff
-- Offline-capable timer display (client-side calculation)
 
 ## Setup
 
-1. Open `Package.swift` in Xcode
+1. Open `ios/Saga/Saga.xcodeproj` in Xcode
 2. Wait for Swift Package Manager to resolve dependencies
 3. Select a simulator or device
-4. Build and run
+4. Build and run (⌘R)
+
+Or use Make:
+```bash
+make dev-ios
+```
 
 ## Configuration
 
-The API base URL can be configured in `APIClient.swift`:
+The API environment is configured in `Environment.swift`:
 
 ```swift
-init(
-    baseURL: URL = URL(string: "http://localhost:8080/v1")!,
-    ...
-)
+enum APIEnvironment {
+    case development
+    case staging
+    case production
+}
 ```
-
-For production, update this to your deployed API URL.
 
 ## Dependencies
 
@@ -113,7 +148,9 @@ For production, update this to your deployed API URL.
 
 Run tests with:
 ```bash
-swift test
+make test-ios
+# Or directly:
+cd ios/Saga && swift test
 ```
 
-Or use Xcode's Test Navigator (⌘+6).
+Or use Xcode's Test Navigator (⌘6).

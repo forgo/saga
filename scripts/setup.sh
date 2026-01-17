@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "========================================"
-echo "BabySync Development Environment Setup"
+echo "Saga Development Environment Setup"
 echo "========================================"
 echo ""
 
@@ -141,5 +141,5 @@ echo "API:       http://localhost:8080"
 echo "SurrealDB: http://localhost:8000"
 echo ""
 echo "Demo credentials:"
-echo "  Email:    demo@babysync.app"
+echo "  Email:    demo@saga.app"
 echo "  Password: password123"

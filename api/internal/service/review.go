@@ -2,20 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/forgo/saga/api/internal/model"
 )
 
-// Review service errors
-var (
-	ErrReviewNotFound      = errors.New("review not found")
-	ErrCannotReviewSelf    = errors.New("cannot review yourself")
-	ErrAlreadyReviewed     = errors.New("already reviewed for this reference")
-	ErrInvalidReviewContext = errors.New("invalid review context")
-	ErrTooManyTags         = errors.New("too many tags")
-	ErrPrivateNoteTooLong  = errors.New("private note too long")
-)
+// Error definitions moved to errors.go
 
 // ReviewRepository defines the interface for review storage
 type ReviewRepository interface {

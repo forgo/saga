@@ -1,0 +1,99 @@
+# Resonance scoring endpoints
+
+my-resonance:
+  get:
+    summary: Get own resonance score
+    operationId: getMyResonance
+    tags: [resonance, profile]
+    responses:
+      '200':
+        description: Resonance score breakdown
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ResonanceDisplay'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+user-resonance:
+  get:
+    summary: Get another user's resonance score
+    operationId: getUserResonance
+    tags: [resonance]
+    description: Only returns total score for privacy
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Resonance score (total only)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ResonanceDisplay'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+resonance-ledger:
+  get:
+    summary: Get point history
+    operationId: getResonanceLedger
+    tags: [resonance, profile]
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: Ledger entries
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/ResonanceLedgerEntry'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+resonance-recalculate:
+  post:
+    summary: Force recalculate resonance score
+    operationId: recalculateResonance
+    tags: [resonance, profile]
+    responses:
+      '200':
+        description: Recalculated score
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ResonanceDisplay'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+resonance-explain:
+  get:
+    summary: Explain the scoring system
+    operationId: explainResonance
+    tags: [resonance]
+    security: []
+    responses:
+      '200':
+        description: Scoring system explanation
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ResonanceExplainer'

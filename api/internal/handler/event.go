@@ -390,22 +390,22 @@ func (h *EventHandler) GetPublicEvents(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetCircleEvents handles GET /v1/circles/{circleId}/events - get circle events
-func (h *EventHandler) GetCircleEvents(w http.ResponseWriter, r *http.Request) {
-	circleID := r.PathValue("circleId")
-	if circleID == "" {
-		WriteError(w, model.NewBadRequestError("circle ID required"))
+// GetGuildEvents handles GET /v1/guilds/{guildId}/events - get guild events
+func (h *EventHandler) GetGuildEvents(w http.ResponseWriter, r *http.Request) {
+	guildID := r.PathValue("guildId")
+	if guildID == "" {
+		WriteError(w, model.NewBadRequestError("guild ID required"))
 		return
 	}
 
-	events, err := h.eventService.GetCircleEvents(r.Context(), circleID, nil)
+	events, err := h.eventService.GetGuildEvents(r.Context(), guildID, nil)
 	if err != nil {
 		WriteError(w, model.NewInternalError("failed to get events"))
 		return
 	}
 
 	WriteCollection(w, http.StatusOK, events, nil, map[string]string{
-		"self": "/v1/circles/" + circleID + "/events",
+		"self": "/v1/guilds/" + guildID + "/events",
 	})
 }
 

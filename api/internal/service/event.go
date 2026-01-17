@@ -25,7 +25,7 @@ type EventRepositoryInterface interface {
 	Get(ctx context.Context, eventID string) (*model.Event, error)
 	Update(ctx context.Context, eventID string, updates map[string]interface{}) (*model.Event, error)
 	Delete(ctx context.Context, eventID string) error
-	GetByCircle(ctx context.Context, circleID string, filters *model.EventSearchFilters) ([]*model.Event, error)
+	GetByGuild(ctx context.Context, guildID string, filters *model.EventSearchFilters) ([]*model.Event, error)
 	GetPublicEvents(ctx context.Context, filters *model.EventSearchFilters, limit int) ([]*model.Event, error)
 	CreateHost(ctx context.Context, host *model.EventHost) error
 	GetHosts(ctx context.Context, eventID string) ([]*model.EventHost, error)
@@ -564,9 +564,9 @@ func (s *EventService) GetPendingRSVPs(ctx context.Context, userID, eventID stri
 	return s.repo.GetPendingRSVPs(ctx, eventID)
 }
 
-// GetCircleEvents retrieves events for a circle
-func (s *EventService) GetCircleEvents(ctx context.Context, circleID string, filters *model.EventSearchFilters) ([]*model.Event, error) {
-	return s.repo.GetByCircle(ctx, circleID, filters)
+// GetGuildEvents retrieves events for a guild
+func (s *EventService) GetGuildEvents(ctx context.Context, guildID string, filters *model.EventSearchFilters) ([]*model.Event, error) {
+	return s.repo.GetByGuild(ctx, guildID, filters)
 }
 
 // GetPublicEvents retrieves public events

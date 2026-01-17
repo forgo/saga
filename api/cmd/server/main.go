@@ -95,8 +95,6 @@ func main() {
 	// TODO: Implement Rideshare repository (renamed from Commute)
 	// commuteRepo := repository.NewCommuteRepository(db)
 	poolRepo := repository.NewPoolRepository(db)
-	// TODO: Implement Adventure repository (renamed from Trip)
-	// tripRepo := repository.NewTripRepository(db)
 	moderationRepo := repository.NewModerationRepository(db)
 
 	// Initialize services
@@ -210,23 +208,17 @@ func main() {
 
 	eventRoleService := service.NewEventRoleService(eventRoleRepo, interestService)
 
-	// TODO: Fix EventRepository interface - missing GetByCircle method
-	// eventService := service.NewEventService(eventRepo, compatibilityService, questionnaireService, eventRoleService)
-	_ = eventRepo
-	_ = compatibilityService
-	_ = eventRoleService
+	eventService := service.NewEventService(eventRepo, compatibilityService, questionnaireService, eventRoleService)
 
 	// TODO: Implement Rideshare service (renamed from Commute)
 	// commuteService := service.NewCommuteService(commuteRepo, trustService)
 
-	// TODO: Fix PoolService - references CircleRepo which no longer exists
-	// poolService := service.NewPoolService(service.PoolServiceConfig{
-	// 	PoolRepo:      poolRepo,
-	// 	CircleRepo:    circleRepo,
-	// 	MemberRepo:    memberRepo,
-	// 	Compatibility: compatibilityService,
-	// })
-	_ = poolRepo
+	poolService := service.NewPoolService(service.PoolServiceConfig{
+		PoolRepo:      poolRepo,
+		GuildRepo:     guildRepo,
+		MemberRepo:    memberRepo,
+		Compatibility: compatibilityService,
+	})
 
 	discoveryService := service.NewDiscoveryService(service.DiscoveryServiceConfig{
 		AvailabilityRepo:  availabilityRepo,
@@ -254,12 +246,6 @@ func main() {
 	eventHub := service.NewEventHub()
 	defer eventHub.Close()
 
-	// TODO: Implement Adventure service (renamed from Trip)
-	// tripService := service.NewTripService(service.TripServiceConfig{
-	// 	Repo:     tripRepo,
-	// 	EventHub: eventHub,
-	// })
-
 	// Initialize moderation service
 	moderationService := service.NewModerationService(moderationRepo, eventHub)
 
@@ -273,10 +259,9 @@ func main() {
 	thresholdMonitor.Start()
 	defer thresholdMonitor.Stop()
 
-	// TODO: Re-enable pool matcher when pool service is fixed
-	// poolMatcher := jobs.NewPoolMatcher(poolService, 1*time.Hour)
-	// poolMatcher.Start()
-	// defer poolMatcher.Stop()
+	poolMatcher := jobs.NewPoolMatcher(poolService, 1*time.Hour)
+	poolMatcher.Start()
+	defer poolMatcher.Stop()
 
 	// Initialize nudge service and processor
 	nudgeService := service.NewNudgeService(service.NudgeServiceConfig{
@@ -310,15 +295,12 @@ func main() {
 	eventsHandler := handler.NewEventsHandler(eventHub)
 	profileHandler := handler.NewProfileHandler(profileService)
 	interestHandler := handler.NewInterestHandler(interestService)
-	// TODO: Fix questionnaire handler - needs compatibilityService
-	// questionnaireHandler := handler.NewQuestionnaireHandler(questionnaireService, compatibilityService)
-	_ = questionnaireService
+	questionnaireHandler := handler.NewQuestionnaireHandler(questionnaireService, compatibilityService)
 	availabilityHandler := handler.NewAvailabilityHandler(availabilityService, profileService)
 	resonanceHandler := handler.NewResonanceHandler(resonanceService)
 	reviewHandler := handler.NewReviewHandler(reviewService)
-	// TODO: Fix event handler - needs eventService
-	// eventHandler := handler.NewEventHandler(eventService)
-	// eventRoleHandler := handler.NewEventRoleHandler(eventRoleService)
+	eventHandler := handler.NewEventHandler(eventService)
+	eventRoleHandler := handler.NewEventRoleHandler(eventRoleService)
 	trustHandler := handler.NewTrustHandler(trustService)
 	trustRatingHandler := handler.NewTrustRatingHandler(trustRatingService)
 	roleCatalogHandler := handler.NewRoleCatalogHandler(roleCatalogService)
@@ -326,11 +308,8 @@ func main() {
 	adventureHandler := handler.NewAdventureHandler(adventureService)
 	// TODO: Implement Rideshare handler (renamed from Commute)
 	// commuteHandler := handler.NewCommuteHandler(commuteService)
-	// TODO: Fix pool handler - needs poolService and circleService
-	// poolHandler := handler.NewPoolHandler(poolService, circleService)
+	poolHandler := handler.NewPoolHandler(poolService, guildService)
 	discoveryHandler := handler.NewDiscoveryHandler(discoveryService)
-	// TODO: Implement Adventure handler (renamed from Trip)
-	// tripHandler := handler.NewTripHandler(tripService, circleService)
 	moderationHandler := handler.NewModerationHandler(moderationService, userRepo)
 
 	// Create router and register routes
@@ -400,9 +379,20 @@ func main() {
 	mux.Handle("GET /v1/interests/matches/learning", authMiddleware(http.HandlerFunc(interestHandler.FindLearningMatches)))
 	mux.Handle("GET /v1/interests/shared", authMiddleware(http.HandlerFunc(interestHandler.FindSharedInterests)))
 
-	// TODO: Questionnaire endpoints - needs questionnaireHandler
-	// mux.HandleFunc("GET /v1/questions", questionnaireHandler.ListQuestions)
-	// ... etc
+	// Questionnaire endpoints (public)
+	mux.HandleFunc("GET /v1/questions", questionnaireHandler.ListQuestions)
+	mux.HandleFunc("GET /v1/questions/categories", questionnaireHandler.GetCategories)
+
+	// Questionnaire endpoints (auth required)
+	mux.Handle("GET /v1/questions/{questionId}", authMiddleware(http.HandlerFunc(questionnaireHandler.GetQuestion)))
+	mux.Handle("GET /v1/profile/answers", authMiddleware(http.HandlerFunc(questionnaireHandler.GetUserAnswers)))
+	mux.Handle("GET /v1/profile/answers/detailed", authMiddleware(http.HandlerFunc(questionnaireHandler.GetUserAnswersWithQuestions)))
+	mux.Handle("GET /v1/profile/questions/progress", authMiddleware(http.HandlerFunc(questionnaireHandler.GetQuestionProgress)))
+	mux.Handle("POST /v1/questions/{questionId}/answer", authMiddleware(http.HandlerFunc(questionnaireHandler.AnswerQuestion)))
+	mux.Handle("PATCH /v1/questions/{questionId}/answer", authMiddleware(http.HandlerFunc(questionnaireHandler.UpdateAnswer)))
+	mux.Handle("DELETE /v1/questions/{questionId}/answer", authMiddleware(http.HandlerFunc(questionnaireHandler.DeleteAnswer)))
+	mux.Handle("GET /v1/compatibility/{userId}", authMiddleware(http.HandlerFunc(questionnaireHandler.GetCompatibility)))
+	mux.Handle("GET /v1/compatibility/{userId}/yikes", authMiddleware(http.HandlerFunc(questionnaireHandler.GetYikesSummary)))
 
 	// Availability endpoints
 	mux.HandleFunc("GET /v1/hangout-types", availabilityHandler.GetHangoutTypes)
@@ -436,13 +426,32 @@ func main() {
 	mux.HandleFunc("GET /v1/reviews/tags/positive", reviewHandler.GetPositiveTags)
 	mux.HandleFunc("GET /v1/reviews/tags/improvement", reviewHandler.GetImprovementTags)
 
-	// TODO: Event endpoints - needs eventHandler
-	// mux.Handle("POST /v1/events", authMiddleware(http.HandlerFunc(eventHandler.CreateEvent)))
-	// ... etc
+	// Event endpoints
+	mux.Handle("POST /v1/events", authMiddleware(http.HandlerFunc(eventHandler.CreateEvent)))
+	mux.Handle("GET /v1/events/{eventId}", authMiddleware(http.HandlerFunc(eventHandler.GetEvent)))
+	mux.Handle("PATCH /v1/events/{eventId}", authMiddleware(http.HandlerFunc(eventHandler.UpdateEvent)))
+	mux.Handle("POST /v1/events/{eventId}/cancel", authMiddleware(http.HandlerFunc(eventHandler.CancelEvent)))
+	mux.Handle("POST /v1/events/{eventId}/rsvp", authMiddleware(http.HandlerFunc(eventHandler.RSVP)))
+	mux.Handle("DELETE /v1/events/{eventId}/rsvp", authMiddleware(http.HandlerFunc(eventHandler.CancelRSVP)))
+	mux.Handle("GET /v1/events/{eventId}/pending-rsvps", authMiddleware(http.HandlerFunc(eventHandler.GetPendingRSVPs)))
+	mux.Handle("POST /v1/events/{eventId}/rsvps/{rsvpUserId}/respond", authMiddleware(http.HandlerFunc(eventHandler.RespondToRSVP)))
+	mux.Handle("POST /v1/events/{eventId}/hosts", authMiddleware(http.HandlerFunc(eventHandler.AddHost)))
+	mux.Handle("POST /v1/events/{eventId}/completion", authMiddleware(http.HandlerFunc(eventHandler.ConfirmCompletion)))
+	mux.Handle("POST /v1/events/{eventId}/checkin", authMiddleware(http.HandlerFunc(eventHandler.Checkin)))
+	mux.Handle("POST /v1/events/{eventId}/feedback", authMiddleware(http.HandlerFunc(eventHandler.SubmitFeedback)))
+	mux.Handle("GET /v1/discover/events", authMiddleware(http.HandlerFunc(eventHandler.GetPublicEvents)))
+	mux.Handle("GET /v1/guilds/{guildId}/events", authMiddleware(http.HandlerFunc(eventHandler.GetGuildEvents)))
 
-	// TODO: Event role endpoints - needs eventRoleHandler
-	// mux.Handle("POST /v1/events/{eventId}/roles", authMiddleware(http.HandlerFunc(eventRoleHandler.CreateRole)))
-	// ... etc
+	// Event role endpoints
+	mux.Handle("POST /v1/events/{eventId}/roles", authMiddleware(http.HandlerFunc(eventRoleHandler.CreateRole)))
+	mux.Handle("GET /v1/events/{eventId}/roles", authMiddleware(http.HandlerFunc(eventRoleHandler.GetRoles)))
+	mux.Handle("GET /v1/events/{eventId}/roles/overview", authMiddleware(http.HandlerFunc(eventRoleHandler.GetRolesOverview)))
+	mux.Handle("PATCH /v1/events/{eventId}/roles/{roleId}", authMiddleware(http.HandlerFunc(eventRoleHandler.UpdateRole)))
+	mux.Handle("DELETE /v1/events/{eventId}/roles/{roleId}", authMiddleware(http.HandlerFunc(eventRoleHandler.DeleteRole)))
+	mux.Handle("POST /v1/events/{eventId}/roles/assign", authMiddleware(http.HandlerFunc(eventRoleHandler.AssignRole)))
+	mux.Handle("GET /v1/events/{eventId}/roles/mine", authMiddleware(http.HandlerFunc(eventRoleHandler.GetMyRoles)))
+	mux.Handle("GET /v1/events/{eventId}/roles/suggestions", authMiddleware(http.HandlerFunc(eventRoleHandler.GetRoleSuggestions)))
+	mux.Handle("DELETE /v1/events/{eventId}/roles/assignments/{assignmentId}", authMiddleware(http.HandlerFunc(eventRoleHandler.CancelAssignment)))
 
 	// Trust endpoints
 	mux.Handle("GET /v1/trust", authMiddleware(http.HandlerFunc(trustHandler.GetTrustedUsers)))
@@ -457,9 +466,22 @@ func main() {
 	// mux.Handle("GET /v1/rideshares", authMiddleware(http.HandlerFunc(rideshareHandler.GetUserRideshares)))
 	// ... etc
 
-	// TODO: Pool endpoints - needs poolHandler and guild service
-	// mux.Handle("GET /v1/guilds/{guildId}/pools", withGuild(poolHandler.ListPools))
-	// ... etc
+	// Pool endpoints (guild-scoped)
+	mux.Handle("GET /v1/guilds/{guildId}/pools", authMiddleware(http.HandlerFunc(poolHandler.ListPools)))
+	mux.Handle("POST /v1/guilds/{guildId}/pools", authMiddleware(http.HandlerFunc(poolHandler.CreatePool)))
+	mux.Handle("GET /v1/guilds/{guildId}/pools/{poolId}", authMiddleware(http.HandlerFunc(poolHandler.GetPool)))
+	mux.Handle("PATCH /v1/guilds/{guildId}/pools/{poolId}", authMiddleware(http.HandlerFunc(poolHandler.UpdatePool)))
+	mux.Handle("DELETE /v1/guilds/{guildId}/pools/{poolId}", authMiddleware(http.HandlerFunc(poolHandler.DeletePool)))
+	mux.Handle("POST /v1/guilds/{guildId}/pools/{poolId}/join", authMiddleware(http.HandlerFunc(poolHandler.JoinPool)))
+	mux.Handle("POST /v1/guilds/{guildId}/pools/{poolId}/leave", authMiddleware(http.HandlerFunc(poolHandler.LeavePool)))
+	mux.Handle("GET /v1/guilds/{guildId}/pools/{poolId}/members", authMiddleware(http.HandlerFunc(poolHandler.GetPoolMembers)))
+	mux.Handle("PATCH /v1/guilds/{guildId}/pools/{poolId}/membership", authMiddleware(http.HandlerFunc(poolHandler.UpdateMembership)))
+	mux.Handle("GET /v1/guilds/{guildId}/pools/{poolId}/stats", authMiddleware(http.HandlerFunc(poolHandler.GetPoolStats)))
+	mux.Handle("GET /v1/guilds/{guildId}/pools/{poolId}/matches", authMiddleware(http.HandlerFunc(poolHandler.GetMatchHistory)))
+
+	// Pool matching endpoints (user-scoped)
+	mux.Handle("GET /v1/profile/matches/pending", authMiddleware(http.HandlerFunc(poolHandler.GetPendingMatches)))
+	mux.Handle("PATCH /v1/matches/{matchId}", authMiddleware(http.HandlerFunc(poolHandler.UpdateMatch)))
 
 	// Trust Rating endpoints
 	mux.Handle("POST /v1/trust-ratings", authMiddleware(http.HandlerFunc(trustRatingHandler.Create)))

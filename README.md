@@ -111,7 +111,10 @@ make dev
 
 # Terminal 2: Run iOS UI tests
 cd ios/Saga
-xcodebuild test -scheme SagaUITests -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+xcodebuild test -scheme Saga -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
+
+# To see available simulators:
+xcrun simctl list devices available
 ```
 
 ## Documentation

@@ -165,9 +165,12 @@ UI tests require the API running locally with seed data:
 # Terminal 1: Start API with seed data
 make dev
 
-# Terminal 2: Run UI tests
+# Terminal 2: Run UI tests (adjust simulator name/OS as needed)
 cd ios/Saga
-xcodebuild test -scheme SagaUITests -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+xcodebuild test -scheme Saga -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
+
+# To list available simulators:
+xcrun simctl list devices available
 ```
 
 ### Test Modes

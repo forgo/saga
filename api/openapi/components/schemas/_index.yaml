@@ -1,0 +1,1335 @@
+# Common schemas
+
+HealthResponse:
+  type: object
+  required: [status, timestamp, version]
+  properties:
+    status:
+      type: string
+      example: healthy
+    timestamp:
+      type: string
+      format: date-time
+    version:
+      type: string
+      example: 1.0.0
+
+# User & Auth schemas
+User:
+  type: object
+  required: [id, email, email_verified, created_on, updated_on]
+  properties:
+    id:
+      type: string
+      example: user:abc123
+    email:
+      type: string
+      format: email
+      example: parent@example.com
+    username:
+      type: string
+      nullable: true
+      example: parentname
+    firstname:
+      type: string
+      nullable: true
+      example: Jane
+    lastname:
+      type: string
+      nullable: true
+      example: Doe
+    email_verified:
+      type: boolean
+      example: true
+    created_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+    updated_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+  example:
+    id: user:abc123
+    email: parent@example.com
+    username: janedoe
+    firstname: Jane
+    lastname: Doe
+    email_verified: true
+    created_on: "2026-01-05T10:00:00Z"
+    updated_on: "2026-01-05T10:00:00Z"
+
+Identity:
+  type: object
+  required: [id, provider, provider_user_id, created_on]
+  properties:
+    id:
+      type: string
+    provider:
+      type: string
+      enum: [google, apple]
+    provider_user_id:
+      type: string
+    provider_email:
+      type: string
+      nullable: true
+    email_verified_by_provider:
+      type: boolean
+    created_on:
+      type: string
+      format: date-time
+
+Passkey:
+  type: object
+  required: [id, name, created_on]
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+      description: User-friendly name like "iPhone 15"
+    created_on:
+      type: string
+      format: date-time
+    last_used_on:
+      type: string
+      format: date-time
+      nullable: true
+
+UserWithIdentities:
+  type: object
+  required: [user, identities, passkeys]
+  properties:
+    user:
+      $ref: '#/User'
+    identities:
+      type: array
+      items:
+        $ref: '#/Identity'
+    passkeys:
+      type: array
+      items:
+        $ref: '#/Passkey'
+
+# Guild schemas
+Guild:
+  type: object
+  required: [id, name, created_on, updated_on]
+  properties:
+    id:
+      type: string
+      example: guild:xyz789
+    name:
+      type: string
+      maxLength: 100
+      example: Close Friends
+    description:
+      type: string
+      nullable: true
+      maxLength: 500
+      example: My closest friends
+    icon:
+      type: string
+      nullable: true
+      maxLength: 50
+      example: person.3.fill
+    color:
+      type: string
+      nullable: true
+      pattern: '^#[0-9A-Fa-f]{6}$'
+      example: "#6B46C1"
+    created_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+    updated_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+  example:
+    id: guild:xyz789
+    name: Close Friends
+    description: My closest friends
+    icon: person.3.fill
+    color: "#6B46C1"
+    created_on: "2026-01-05T10:00:00Z"
+    updated_on: "2026-01-05T10:00:00Z"
+
+Member:
+  type: object
+  required: [id, name, email]
+  properties:
+    id:
+      type: string
+      example: member:def456
+    name:
+      type: string
+      example: Jane Doe
+    email:
+      type: string
+      format: email
+      example: jane@example.com
+    user:
+      type: string
+      nullable: true
+      example: user:abc123
+  example:
+    id: member:def456
+    name: Jane Doe
+    email: jane@example.com
+
+GuildData:
+  type: object
+  required: [guild, members, people, activities]
+  properties:
+    guild:
+      $ref: '#/Guild'
+    members:
+      type: array
+      items:
+        $ref: '#/Member'
+    people:
+      type: array
+      items:
+        $ref: '#/Person'
+    activities:
+      type: array
+      items:
+        $ref: '#/Activity'
+
+# Person schemas
+Person:
+  type: object
+  required: [id, name, created_on, updated_on]
+  properties:
+    id:
+      type: string
+      example: person:alex123
+    name:
+      type: string
+      maxLength: 100
+      example: Alex Chen
+    nickname:
+      type: string
+      nullable: true
+      maxLength: 50
+      example: Alex
+    birthday:
+      type: string
+      format: date
+      nullable: true
+      example: "1990-03-15"
+    notes:
+      type: string
+      nullable: true
+      maxLength: 500
+      example: Met at college, loves hiking
+    created_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+    updated_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+  example:
+    id: person:alex123
+    name: Alex Chen
+    nickname: Alex
+    birthday: "1990-03-15"
+    notes: Met at college, loves hiking
+    created_on: "2026-01-05T10:00:00Z"
+    updated_on: "2026-01-05T10:00:00Z"
+
+CreatePersonRequest:
+  type: object
+  required: [name]
+  properties:
+    name:
+      type: string
+      maxLength: 100
+      example: Alex Chen
+    nickname:
+      type: string
+      maxLength: 50
+      example: Alex
+    birthday:
+      type: string
+      format: date
+      example: "1990-03-15"
+    notes:
+      type: string
+      maxLength: 500
+      example: Met at college, loves hiking
+  example:
+    name: Alex Chen
+    nickname: Alex
+
+UpdatePersonRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      maxLength: 100
+      example: Alex Chen
+    nickname:
+      type: string
+      maxLength: 50
+      example: Alex
+    birthday:
+      type: string
+      format: date
+      example: "1990-03-15"
+    notes:
+      type: string
+      maxLength: 500
+  example:
+    name: Alex Chen
+    nickname: Alex
+
+# Activity schemas
+Activity:
+  type: object
+  required: [id, name, icon, warn, critical, created_on, updated_on]
+  properties:
+    id:
+      type: string
+      example: activity:hungout123
+    name:
+      type: string
+      maxLength: 50
+      example: Hung out
+    icon:
+      type: string
+      maxLength: 50
+      example: person.2.fill
+    warn:
+      type: number
+      description: Seconds until warning threshold
+      minimum: 60
+      maximum: 2592000
+      example: 1209600
+    critical:
+      type: number
+      description: Seconds until critical threshold
+      minimum: 60
+      maximum: 7776000
+      example: 2592000
+    created_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+    updated_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+  example:
+    id: activity:hungout123
+    name: Hung out
+    icon: person.2.fill
+    warn: 1209600
+    critical: 2592000
+    created_on: "2026-01-05T10:00:00Z"
+    updated_on: "2026-01-05T10:00:00Z"
+
+CreateActivityRequest:
+  type: object
+  required: [name, icon, warn, critical]
+  properties:
+    name:
+      type: string
+      maxLength: 50
+      example: Hung out
+    icon:
+      type: string
+      maxLength: 50
+      example: person.2.fill
+    warn:
+      type: number
+      minimum: 60
+      maximum: 2592000
+      example: 1209600
+    critical:
+      type: number
+      minimum: 60
+      maximum: 7776000
+      example: 2592000
+  example:
+    name: Hung out
+    icon: person.2.fill
+    warn: 1209600
+    critical: 2592000
+
+# Timer schemas
+Timer:
+  type: object
+  required: [id, reset_date, enabled, push, created_on, updated_on]
+  properties:
+    id:
+      type: string
+      example: timer:abc456
+    reset_date:
+      type: string
+      format: date-time
+      example: "2026-01-05T14:30:00Z"
+    enabled:
+      type: boolean
+      example: true
+    push:
+      type: boolean
+      description: Push notifications enabled
+      example: true
+    created_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T10:00:00Z"
+    updated_on:
+      type: string
+      format: date-time
+      example: "2026-01-05T14:30:00Z"
+  example:
+    id: timer:abc456
+    reset_date: "2026-01-05T14:30:00Z"
+    enabled: true
+    push: true
+    created_on: "2026-01-05T10:00:00Z"
+    updated_on: "2026-01-05T14:30:00Z"
+
+CreateTimerRequest:
+  type: object
+  required: [activity_id]
+  properties:
+    activity_id:
+      type: string
+      example: activity:hungout123
+    enabled:
+      type: boolean
+      default: true
+      example: true
+    push:
+      type: boolean
+      default: false
+      example: true
+  example:
+    activity_id: activity:hungout123
+    enabled: true
+    push: true
+
+UpdateTimerRequest:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+      example: false
+    push:
+      type: boolean
+      example: true
+  example:
+    enabled: false
+    push: true
+
+# Auth request/response schemas
+RegisterRequest:
+  type: object
+  required: [email, password]
+  properties:
+    email:
+      type: string
+      format: email
+    password:
+      type: string
+      minLength: 8
+      maxLength: 128
+    firstname:
+      type: string
+    lastname:
+      type: string
+
+LoginRequest:
+  type: object
+  required: [email, password]
+  properties:
+    email:
+      type: string
+      format: email
+    password:
+      type: string
+
+OAuthRequest:
+  type: object
+  required: [code, code_verifier]
+  properties:
+    code:
+      type: string
+      description: Authorization code from OAuth provider
+    code_verifier:
+      type: string
+      description: PKCE code verifier
+
+TokenResponse:
+  type: object
+  required: [access_token, refresh_token, token_type, expires_in]
+  properties:
+    access_token:
+      type: string
+    refresh_token:
+      type: string
+    token_type:
+      type: string
+      example: Bearer
+    expires_in:
+      type: integer
+      description: Seconds until access token expires
+      example: 900
+
+RefreshRequest:
+  type: object
+  required: [refresh_token]
+  properties:
+    refresh_token:
+      type: string
+
+# Passkey schemas
+PasskeyRegistrationStartResponse:
+  type: object
+  required: [challenge, rp, user, pubKeyCredParams]
+  properties:
+    challenge:
+      type: string
+      format: byte
+    rp:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+          format: byte
+        name:
+          type: string
+        displayName:
+          type: string
+    pubKeyCredParams:
+      type: array
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+          alg:
+            type: integer
+
+PasskeyRegistrationFinishRequest:
+  type: object
+  required: [credential, name]
+  properties:
+    credential:
+      type: object
+      description: WebAuthn credential response
+    name:
+      type: string
+      description: User-friendly name for this passkey
+
+PasskeyLoginStartRequest:
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      description: Optional email hint
+
+PasskeyLoginStartResponse:
+  type: object
+  required: [challenge, allowCredentials]
+  properties:
+    challenge:
+      type: string
+      format: byte
+    allowCredentials:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: byte
+          type:
+            type: string
+
+PasskeyLoginFinishRequest:
+  type: object
+  required: [credential]
+  properties:
+    credential:
+      type: object
+      description: WebAuthn assertion response
+
+# Error schemas
+ProblemDetails:
+  type: object
+  required: [type, title, status]
+  properties:
+    type:
+      type: string
+      format: uri
+      example: https://saga-api.forgo.software/errors/validation
+    title:
+      type: string
+      example: Validation Error
+    status:
+      type: integer
+      example: 422
+    detail:
+      type: string
+      example: One or more fields failed validation
+    instance:
+      type: string
+      example: /v1/families
+    errors:
+      type: array
+      items:
+        $ref: '#/FieldError'
+    code:
+      type: integer
+      example: 4001
+    limit:
+      type: integer
+      example: 10
+    current:
+      type: integer
+      example: 10
+  example:
+    type: https://saga-api.forgo.software/errors/validation
+    title: Validation Error
+    status: 422
+    detail: One or more fields failed validation
+    instance: /v1/families
+    errors:
+      - field: name
+        message: Name is required
+    code: 4001
+
+FieldError:
+  type: object
+  required: [field, message]
+  properties:
+    field:
+      type: string
+      example: name
+    message:
+      type: string
+      example: Name is required
+  example:
+    field: name
+    message: Name is required
+
+# Pagination
+PaginationInfo:
+  type: object
+  properties:
+    cursor:
+      type: string
+    has_more:
+      type: boolean
+
+# Response wrappers
+DataResponse:
+  type: object
+  required: [data]
+  properties:
+    data:
+      type: object
+    _links:
+      type: object
+      additionalProperties:
+        type: string
+
+CollectionResponse:
+  type: object
+  required: [data]
+  properties:
+    data:
+      type: array
+      items:
+        type: object
+    pagination:
+      $ref: '#/PaginationInfo'
+    _links:
+      type: object
+      additionalProperties:
+        type: string
+
+# ============================================================================
+# Trust Rating schemas
+# ============================================================================
+
+TrustRating:
+  type: object
+  required: [id, rater_id, ratee_id, anchor_type, anchor_id, trust_level, trust_review, created_on]
+  properties:
+    id:
+      type: string
+      example: trust_rating:abc123
+    rater_id:
+      type: string
+      example: user:xyz789
+    ratee_id:
+      type: string
+      example: user:def456
+    anchor_type:
+      type: string
+      enum: [event, rideshare]
+    anchor_id:
+      type: string
+    trust_level:
+      type: string
+      enum: [trust, distrust]
+    trust_review:
+      type: string
+      maxLength: 240
+      description: Required review (public for trust, admin-only for distrust)
+    review_visibility:
+      type: string
+      enum: [public, private]
+      default: public
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+TrustRatingWithEndorsements:
+  type: object
+  allOf:
+    - $ref: '#/TrustRating'
+    - type: object
+      properties:
+        agree_count:
+          type: integer
+        disagree_count:
+          type: integer
+        cooldown_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: If set, rating cannot be changed until this time
+
+CreateTrustRatingRequest:
+  type: object
+  required: [ratee_id, anchor_type, anchor_id, trust_level, trust_review]
+  properties:
+    ratee_id:
+      type: string
+    anchor_type:
+      type: string
+      enum: [event, rideshare]
+    anchor_id:
+      type: string
+    trust_level:
+      type: string
+      enum: [trust, distrust]
+    trust_review:
+      type: string
+      maxLength: 240
+
+UpdateTrustRatingRequest:
+  type: object
+  properties:
+    trust_level:
+      type: string
+      enum: [trust, distrust]
+    trust_review:
+      type: string
+      maxLength: 240
+
+TrustEndorsement:
+  type: object
+  required: [id, trust_rating_id, endorser_id, endorsement_type, created_on]
+  properties:
+    id:
+      type: string
+    trust_rating_id:
+      type: string
+    endorser_id:
+      type: string
+    endorsement_type:
+      type: string
+      enum: [agree, disagree]
+    note:
+      type: string
+      nullable: true
+    created_on:
+      type: string
+      format: date-time
+
+CreateEndorsementRequest:
+  type: object
+  required: [endorsement_type]
+  properties:
+    endorsement_type:
+      type: string
+      enum: [agree, disagree]
+    note:
+      type: string
+
+TrustAggregate:
+  type: object
+  properties:
+    user_id:
+      type: string
+    trust_count:
+      type: integer
+    distrust_count:
+      type: integer
+    total_endorsements:
+      type: integer
+
+DistrustSignal:
+  type: object
+  properties:
+    user_id:
+      type: string
+    distrust_count:
+      type: integer
+    recent_distrusts:
+      type: array
+      items:
+        $ref: '#/TrustRating'
+
+# ============================================================================
+# Role Catalog schemas
+# ============================================================================
+
+RoleCatalog:
+  type: object
+  required: [id, scope_type, scope_id, role_type, name, is_active, created_on]
+  properties:
+    id:
+      type: string
+      example: role_catalog:abc123
+    scope_type:
+      type: string
+      enum: [guild, user]
+    scope_id:
+      type: string
+    role_type:
+      type: string
+      enum: [event, rideshare]
+    name:
+      type: string
+      maxLength: 50
+    description:
+      type: string
+      nullable: true
+    icon:
+      type: string
+      nullable: true
+    is_active:
+      type: boolean
+      default: true
+    created_by:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+
+CreateRoleCatalogRequest:
+  type: object
+  required: [role_type, name]
+  properties:
+    role_type:
+      type: string
+      enum: [event, rideshare]
+    name:
+      type: string
+      maxLength: 50
+    description:
+      type: string
+    icon:
+      type: string
+
+UpdateRoleCatalogRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      maxLength: 50
+    description:
+      type: string
+    icon:
+      type: string
+    is_active:
+      type: boolean
+
+RideshareRole:
+  type: object
+  required: [id, rideshare_id, name, max_slots, filled_slots, created_on]
+  properties:
+    id:
+      type: string
+    rideshare_id:
+      type: string
+    catalog_role_id:
+      type: string
+      nullable: true
+    name:
+      type: string
+    description:
+      type: string
+      nullable: true
+    max_slots:
+      type: integer
+      minimum: 1
+    filled_slots:
+      type: integer
+    sort_order:
+      type: integer
+    created_by:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+
+RideshareRoleAssignment:
+  type: object
+  required: [id, rideshare_id, role_id, user_id, status, assigned_on]
+  properties:
+    id:
+      type: string
+    rideshare_id:
+      type: string
+    role_id:
+      type: string
+    user_id:
+      type: string
+    note:
+      type: string
+      nullable: true
+    status:
+      type: string
+      default: confirmed
+    assigned_on:
+      type: string
+      format: date-time
+
+RideshareRoleWithAssignments:
+  type: object
+  properties:
+    role:
+      $ref: '#/RideshareRole'
+    assignments:
+      type: array
+      items:
+        $ref: '#/RideshareRoleAssignment'
+    is_full:
+      type: boolean
+    spots_left:
+      type: integer
+      description: -1 means unlimited
+
+CreateRideshareRoleRequest:
+  type: object
+  required: [name]
+  properties:
+    catalog_role_id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    max_slots:
+      type: integer
+      minimum: 1
+      default: 1
+
+UpdateRideshareRoleRequest:
+  type: object
+  properties:
+    name:
+      type: string
+    description:
+      type: string
+    max_slots:
+      type: integer
+      minimum: 1
+
+EventRole:
+  type: object
+  required: [id, event_id, name, max_slots, filled_slots]
+  properties:
+    id:
+      type: string
+    event_id:
+      type: string
+    catalog_role_id:
+      type: string
+      nullable: true
+    name:
+      type: string
+    description:
+      type: string
+      nullable: true
+    max_slots:
+      type: integer
+    filled_slots:
+      type: integer
+
+# ============================================================================
+# Vote schemas
+# ============================================================================
+
+Vote:
+  type: object
+  required: [id, scope_type, created_by, title, vote_type, opens_at, closes_at, status, created_on]
+  properties:
+    id:
+      type: string
+      example: vote:abc123
+    scope_type:
+      type: string
+      enum: [guild, global]
+    scope_id:
+      type: string
+      nullable: true
+      description: Guild ID if scope_type is guild
+    created_by:
+      type: string
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+      nullable: true
+    vote_type:
+      type: string
+      enum: [fptp, ranked_choice, approval, multi_select]
+    opens_at:
+      type: string
+      format: date-time
+    closes_at:
+      type: string
+      format: date-time
+    status:
+      type: string
+      enum: [draft, open, closed, cancelled]
+    results_visibility:
+      type: string
+      enum: [always, after_vote, after_close]
+      default: after_close
+    max_options_selectable:
+      type: integer
+      nullable: true
+      description: For multi_select votes
+    ballot_count:
+      type: integer
+      default: 0
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+VoteOption:
+  type: object
+  required: [id, vote_id, option_text, sort_order]
+  properties:
+    id:
+      type: string
+    vote_id:
+      type: string
+    option_text:
+      type: string
+    option_description:
+      type: string
+      nullable: true
+    sort_order:
+      type: integer
+    created_by:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+
+VoteWithDetails:
+  type: object
+  properties:
+    vote:
+      $ref: '#/Vote'
+    options:
+      type: array
+      items:
+        $ref: '#/VoteOption'
+    has_voted:
+      type: boolean
+    can_vote:
+      type: boolean
+    can_manage:
+      type: boolean
+
+CreateVoteRequest:
+  type: object
+  required: [scope_type, title, vote_type, opens_at, closes_at]
+  properties:
+    scope_type:
+      type: string
+      enum: [guild, global]
+    scope_id:
+      type: string
+      description: Required if scope_type is guild
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    vote_type:
+      type: string
+      enum: [fptp, ranked_choice, approval, multi_select]
+    opens_at:
+      type: string
+      format: date-time
+    closes_at:
+      type: string
+      format: date-time
+    results_visibility:
+      type: string
+      enum: [always, after_vote, after_close]
+      default: after_close
+    max_options_selectable:
+      type: integer
+      description: Required for multi_select
+
+UpdateVoteRequest:
+  type: object
+  properties:
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    opens_at:
+      type: string
+      format: date-time
+    closes_at:
+      type: string
+      format: date-time
+    results_visibility:
+      type: string
+      enum: [always, after_vote, after_close]
+
+CreateVoteOptionRequest:
+  type: object
+  required: [option_text]
+  properties:
+    option_text:
+      type: string
+    option_description:
+      type: string
+    sort_order:
+      type: integer
+
+UpdateVoteOptionRequest:
+  type: object
+  properties:
+    option_text:
+      type: string
+    option_description:
+      type: string
+    sort_order:
+      type: integer
+
+VoteBallot:
+  type: object
+  required: [id, vote_id, voter_user_id, ballot_data, created_on]
+  properties:
+    id:
+      type: string
+    vote_id:
+      type: string
+    voter_user_id:
+      type: string
+    voter_snapshot:
+      type: object
+      properties:
+        username:
+          type: string
+        display_name:
+          type: string
+    ballot_data:
+      type: object
+      description: |
+        Format varies by vote_type:
+        - fptp: { "option_id": "..." }
+        - ranked_choice: { "rankings": ["opt1", "opt2", ...] }
+        - approval: { "approved_options": ["opt1", "opt2"] }
+        - multi_select: { "selected_options": ["opt1", "opt2"] }
+    created_on:
+      type: string
+      format: date-time
+
+CastBallotRequest:
+  type: object
+  required: [ballot_data]
+  properties:
+    ballot_data:
+      type: object
+      description: Format must match vote_type
+
+VoteResults:
+  type: object
+  properties:
+    vote_id:
+      type: string
+    vote_type:
+      type: string
+    total_ballots:
+      type: integer
+    winner:
+      $ref: '#/VoteOption'
+    option_results:
+      type: array
+      items:
+        type: object
+        properties:
+          option:
+            $ref: '#/VoteOption'
+          count:
+            type: integer
+          percentage:
+            type: number
+    rounds:
+      type: array
+      description: For ranked_choice only - elimination rounds
+      items:
+        type: object
+        properties:
+          round_number:
+            type: integer
+          eliminated:
+            type: string
+          standings:
+            type: object
+
+# ============================================================================
+# Adventure schemas
+# ============================================================================
+
+Adventure:
+  type: object
+  required: [id, organizer_type, organizer_id, title, status, visibility, created_on]
+  properties:
+    id:
+      type: string
+      example: adventure:abc123
+    organizer_type:
+      type: string
+      enum: [guild, user]
+    organizer_id:
+      type: string
+      description: Guild or user ID
+    organizer_user_id:
+      type: string
+      description: The specific user organizing (within guild or personally)
+    guild_id:
+      type: string
+      nullable: true
+      description: Deprecated - use organizer_type/organizer_id
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+      nullable: true
+    status:
+      type: string
+      enum: [idea, planning, confirmed, active, completed, cancelled, frozen]
+    visibility:
+      type: string
+      enum: [public, guild, private]
+    freeze_reason:
+      type: string
+      nullable: true
+    frozen_on:
+      type: string
+      format: date-time
+      nullable: true
+    created_by_id:
+      type: string
+    created_on:
+      type: string
+      format: date-time
+    updated_on:
+      type: string
+      format: date-time
+
+CreateAdventureRequest:
+  type: object
+  required: [title]
+  properties:
+    organizer_type:
+      type: string
+      enum: [guild, user]
+      default: user
+    guild_id:
+      type: string
+      description: Required if organizer_type is guild
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    visibility:
+      type: string
+      enum: [public, guild, private]
+      default: private
+
+UpdateAdventureRequest:
+  type: object
+  properties:
+    title:
+      type: string
+      maxLength: 200
+    description:
+      type: string
+    status:
+      type: string
+      enum: [idea, planning, confirmed, active, completed, cancelled]
+    visibility:
+      type: string
+      enum: [public, guild, private]
+
+AdventureAdmission:
+  type: object
+  required: [id, adventure_id, user_id, status, requested_by, requested_on]
+  properties:
+    id:
+      type: string
+    adventure_id:
+      type: string
+    user_id:
+      type: string
+    status:
+      type: string
+      enum: [requested, admitted, rejected]
+    requested_by:
+      type: string
+      enum: [self, invited]
+    invited_by_id:
+      type: string
+      nullable: true
+    rejection_reason:
+      type: string
+      nullable: true
+    requested_on:
+      type: string
+      format: date-time
+    decided_on:
+      type: string
+      format: date-time
+      nullable: true

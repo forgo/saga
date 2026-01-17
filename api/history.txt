@@ -1,0 +1,6 @@
+#V2
+IF true THEN RETURN 1 END
+LET $x = 5; IF $x > 0 { IF $x > 10 { RETURN 2 }; RETURN 1 }
+-- Test 1: Statement IF with curly braces
+DEFINE EVENT test_event ON TABLE test_table WHEN $event = "CREATE" THEN {    IF $after.value > 10 {        THROW "Value too large";    };};
+DEFINE EVENT test_event ON TABLE test_table WHEN $event = 'CREATE' THEN { IF $after.value > 10 { THROW 'Value too large' }; };

@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  GO_VERSION: '1.23'
+  MIN_COVERAGE: 20  # Start at 20%, increase as test coverage grows
+
+jobs:
+  api:
+    name: API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start SurrealDB
+        run: |
+          docker run -d --name surrealdb -p 8000:8000 \
+            surrealdb/surrealdb:v3.0.0-beta.1 \
+            start --user root --pass root --bind 0.0.0.0:8000 memory
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+        working-directory: .
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          working-directory: ./api
+          version: latest
+          args: --timeout=5m
+
+      - name: Test with Coverage
+        run: |
+          go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+          go tool cover -func=coverage.out
+        env:
+          DB_HOST: localhost
+          DB_PORT: 8000
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAMESPACE: saga
+          DB_DATABASE: test
+
+      - name: Check Coverage Threshold
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < ${{ env.MIN_COVERAGE }}" | bc -l) )); then
+            echo "Coverage ${COVERAGE}% is below minimum threshold of ${{ env.MIN_COVERAGE }}%"
+            exit 1
+          fi
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./api/coverage.out
+          flags: api
+          fail_ci_if_error: false
+        continue-on-error: true
+
+      - name: Build
+        run: go build -o server ./cmd/server

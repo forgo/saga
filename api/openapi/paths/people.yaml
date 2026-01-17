@@ -1,0 +1,178 @@
+# People endpoints (nested under guild)
+
+people:
+  get:
+    summary: List people in guild
+    operationId: listPeople
+    tags: [people]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of people
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Person'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+  post:
+    summary: Add person to guild
+    operationId: createPerson
+    tags: [people]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreatePersonRequest'
+    responses:
+      '201':
+        description: Person created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Person'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+      '422':
+        description: Validation error or limit exceeded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+person:
+  get:
+    summary: Get person details with timers
+    operationId: getPerson
+    tags: [people]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Person details with timers
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    person:
+                      $ref: '../components/schemas/_index.yaml#/Person'
+                    timers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          timer:
+                            $ref: '../components/schemas/_index.yaml#/Timer'
+                          activity:
+                            $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Person or guild not found
+
+  patch:
+    summary: Update person
+    operationId: updatePerson
+    tags: [people]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdatePersonRequest'
+    responses:
+      '200':
+        description: Person updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Person'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Person or guild not found
+      '422':
+        description: Validation error
+
+  delete:
+    summary: Remove person
+    operationId: deletePerson
+    tags: [people]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Person deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Person or guild not found

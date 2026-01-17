@@ -1,0 +1,185 @@
+# Activity endpoints (nested under guild)
+
+activities:
+  get:
+    summary: List activities in guild
+    operationId: listActivities
+    tags: [activities]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of activities
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+  post:
+    summary: Create activity
+    operationId: createActivity
+    tags: [activities]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateActivityRequest'
+    responses:
+      '201':
+        description: Activity created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+      '409':
+        description: Activity with this name already exists
+      '422':
+        description: Validation error or limit exceeded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+activity:
+  get:
+    summary: Get activity details
+    operationId: getActivity
+    tags: [activities]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: activityId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Activity details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Activity or guild not found
+
+  patch:
+    summary: Update activity
+    operationId: updateActivity
+    tags: [activities]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: activityId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                maxLength: 50
+              icon:
+                type: string
+                maxLength: 50
+              warn:
+                type: number
+                minimum: 60
+                maximum: 86400
+              critical:
+                type: number
+                minimum: 60
+                maximum: 172800
+    responses:
+      '200':
+        description: Activity updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Activity or guild not found
+      '409':
+        description: Activity with this name already exists
+      '422':
+        description: Validation error
+
+  delete:
+    summary: Delete activity
+    operationId: deleteActivity
+    tags: [activities]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: activityId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Activity deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Activity or guild not found

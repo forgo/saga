@@ -1,0 +1,185 @@
+package model
+
+import "time"
+
+// Member represents a member linked to a user
+type Member struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	UserID    string    `json:"user_id"`
+	CreatedOn time.Time `json:"created_on"`
+	UpdatedOn time.Time `json:"updated_on"`
+}
+
+// Guild represents a community with shared purpose (formerly Circle)
+type Guild struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Icon        string    `json:"icon,omitempty"`
+	Color       string    `json:"color,omitempty"`
+	Visibility  string    `json:"visibility"` // private, public
+	CreatedOn   time.Time `json:"created_on"`
+	UpdatedOn   time.Time `json:"updated_on"`
+}
+
+// GuildVisibility constants
+const (
+	GuildVisibilityPrivate = "private"
+	GuildVisibilityPublic  = "public"
+)
+
+// GuildMembership represents a member's relationship to a guild
+type GuildMembership struct {
+	MemberID        string `json:"member_id"`
+	GuildID         string `json:"guild_id"`
+	PendingApproval bool   `json:"pending_approval"`
+}
+
+// GuildData is a complete guild with all related data
+type GuildData struct {
+	Guild      Guild      `json:"guild"`
+	Members    []Member   `json:"members"`
+	People     []Person   `json:"people"`
+	Activities []Activity `json:"activities"`
+}
+
+// Person represents a person you track interactions with
+type Person struct {
+	ID        string     `json:"id"`
+	GuildID   string     `json:"guild_id"`
+	Name      string     `json:"name"`
+	Nickname  string     `json:"nickname,omitempty"`
+	Avatar    string     `json:"avatar,omitempty"`
+	Birthday  *time.Time `json:"birthday,omitempty"`
+	Notes     string     `json:"notes,omitempty"`
+	CreatedOn time.Time  `json:"created_on"`
+	UpdatedOn time.Time  `json:"updated_on"`
+}
+
+// Activity represents a trackable activity (hung out, called, played games, etc.)
+type Activity struct {
+	ID        string    `json:"id"`
+	GuildID   string    `json:"guild_id"`
+	Name      string    `json:"name"`
+	Icon      string    `json:"icon"`
+	Warn      float64   `json:"warn"`     // Seconds until warning
+	Critical  float64   `json:"critical"` // Seconds until critical
+	CreatedOn time.Time `json:"created_on"`
+	UpdatedOn time.Time `json:"updated_on"`
+}
+
+// Timer represents a timer for tracking an activity for a person
+type Timer struct {
+	ID         string    `json:"id"`
+	PersonID   string    `json:"person_id"`
+	ActivityID string    `json:"activity_id"`
+	ResetDate  time.Time `json:"reset_date"`
+	Enabled    bool      `json:"enabled"`
+	Push       bool      `json:"push"` // Push notifications enabled
+	CreatedOn  time.Time `json:"created_on"`
+	UpdatedOn  time.Time `json:"updated_on"`
+}
+
+// TimerWithActivity includes the timer with its associated activity
+type TimerWithActivity struct {
+	Timer    Timer    `json:"timer"`
+	Activity Activity `json:"activity"`
+}
+
+// PersonWithTimers includes a person with all their timers
+type PersonWithTimers struct {
+	Person Person              `json:"person"`
+	Timers []TimerWithActivity `json:"timers"`
+}
+
+// Business constraints
+const (
+	MaxMembersPerGuild    = 20
+	MaxPeoplePerGuild     = 50
+	MaxActivitiesPerGuild = 50
+	MaxTimersPerPerson    = 50
+	MaxGuildsPerUser      = 10
+
+	MaxGuildNameLength      = 100
+	MaxGuildDescLength      = 500
+	MaxPersonNameLength     = 100
+	MaxPersonNicknameLength = 50
+	MaxPersonNotesLength    = 1000
+	MaxActivityNameLength   = 50
+	MaxActivityIconLength   = 50
+
+	MinWarnSeconds     = 60       // 1 minute
+	MaxWarnSeconds     = 2592000  // 30 days
+	MinCriticalSeconds = 60       // 1 minute
+	MaxCriticalSeconds = 7776000  // 90 days
+)
+
+// CreateGuildRequest represents a request to create a guild
+type CreateGuildRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Icon        string `json:"icon,omitempty"`
+	Color       string `json:"color,omitempty"`
+	Visibility  string `json:"visibility,omitempty"` // defaults to "private"
+}
+
+// UpdateGuildRequest represents a request to update a guild
+type UpdateGuildRequest struct {
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon        *string `json:"icon,omitempty"`
+	Color       *string `json:"color,omitempty"`
+	Visibility  *string `json:"visibility,omitempty"`
+}
+
+// CreatePersonRequest represents a request to create a person
+type CreatePersonRequest struct {
+	Name     string     `json:"name"`
+	Nickname string     `json:"nickname,omitempty"`
+	Birthday *time.Time `json:"birthday,omitempty"`
+	Notes    string     `json:"notes,omitempty"`
+}
+
+// UpdatePersonRequest represents a request to update a person
+type UpdatePersonRequest struct {
+	Name     *string    `json:"name,omitempty"`
+	Nickname *string    `json:"nickname,omitempty"`
+	Birthday *time.Time `json:"birthday,omitempty"`
+	Notes    *string    `json:"notes,omitempty"`
+}
+
+// CreateActivityRequest represents a request to create an activity
+type CreateActivityRequest struct {
+	Name     string  `json:"name"`
+	Icon     string  `json:"icon"`
+	Warn     float64 `json:"warn"`
+	Critical float64 `json:"critical"`
+}
+
+// UpdateActivityRequest represents a request to update an activity
+type UpdateActivityRequest struct {
+	Name     *string  `json:"name,omitempty"`
+	Icon     *string  `json:"icon,omitempty"`
+	Warn     *float64 `json:"warn,omitempty"`
+	Critical *float64 `json:"critical,omitempty"`
+}
+
+// CreateTimerRequest represents a request to create a timer
+type CreateTimerRequest struct {
+	ActivityID string `json:"activity_id"`
+	Enabled    *bool  `json:"enabled,omitempty"`
+	Push       *bool  `json:"push,omitempty"`
+}
+
+// UpdateTimerRequest represents a request to update a timer
+type UpdateTimerRequest struct {
+	Enabled *bool `json:"enabled,omitempty"`
+	Push    *bool `json:"push,omitempty"`
+}
+
+// Backward compatibility type aliases (deprecated, will be removed)
+type Circle = Guild
+type CircleMembership = GuildMembership
+type CircleData = GuildData

@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # Go modules
+  - package-ecosystem: "gomod"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    groups:
+      go-dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "deps(go)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps(actions)"
+
+  # Swift packages
+  - package-ecosystem: "swift"
+    directory: "/ios/BabySync"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps(swift)"

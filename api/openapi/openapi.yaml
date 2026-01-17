@@ -1,0 +1,271 @@
+openapi: 3.1.0
+info:
+  title: Saga API
+  description: |
+    Saga API for social coordination platform.
+
+    ## Authentication
+    The API supports multiple authentication methods:
+    - OAuth 2.0 with PKCE (Google, Apple)
+    - Passkeys (WebAuthn)
+    - Email/Password (fallback)
+
+    ## Rate Limiting
+    - 100 requests per minute per user
+    - Rate limit headers included in all responses
+
+    ## Real-Time Updates
+    Use the SSE endpoint `/v1/guilds/{id}/events` for real-time updates.
+  version: 1.0.0
+  contact:
+    name: Saga Support
+    url: https://saga.forgo.software/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://saga-api.forgo.software
+    description: Production
+  - url: http://localhost:8080
+    description: Development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: auth
+    description: Authentication endpoints
+  - name: users
+    description: User management
+  - name: guilds
+    description: Guild management
+  - name: people
+    description: People management (contacts within guilds)
+  - name: activities
+    description: Activity management
+  - name: timers
+    description: Timer management
+  - name: events
+    description: Real-time events
+  - name: trust-ratings
+    description: Trust rating system with event-anchored reviews
+  - name: role-catalogs
+    description: Reusable role templates for events and rideshares
+  - name: votes
+    description: Voting system with multiple methods (FPTP, ranked choice, approval, multi-select)
+  - name: adventures
+    description: Adventure management with admission control
+  - name: rideshares
+    description: Rideshare coordination with roles
+  - name: admin
+    description: Administrative endpoints
+
+paths:
+  # ===========================================================================
+  # Infrastructure endpoints (unversioned - for load balancers, k8s probes)
+  # ===========================================================================
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      security: []
+      tags: [health]
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # ===========================================================================
+  # API v1 - Authentication
+  # ===========================================================================
+  /v1/auth/register:
+    $ref: './paths/auth.yaml#/register'
+  /v1/auth/login:
+    $ref: './paths/auth.yaml#/login'
+  /v1/auth/oauth/google:
+    $ref: './paths/auth.yaml#/oauth-google'
+  /v1/auth/oauth/apple:
+    $ref: './paths/auth.yaml#/oauth-apple'
+  /v1/auth/passkey/register/start:
+    $ref: './paths/auth.yaml#/passkey-register-start'
+  /v1/auth/passkey/register/finish:
+    $ref: './paths/auth.yaml#/passkey-register-finish'
+  /v1/auth/passkey/login/start:
+    $ref: './paths/auth.yaml#/passkey-login-start'
+  /v1/auth/passkey/login/finish:
+    $ref: './paths/auth.yaml#/passkey-login-finish'
+  /v1/auth/refresh:
+    $ref: './paths/auth.yaml#/refresh'
+  /v1/auth/logout:
+    $ref: './paths/auth.yaml#/logout'
+  /v1/auth/me:
+    $ref: './paths/auth.yaml#/me'
+  /v1/auth/link:
+    $ref: './paths/auth.yaml#/link'
+  /v1/auth/passkey/{id}:
+    $ref: './paths/auth.yaml#/passkey-delete'
+
+  # ===========================================================================
+  # API v1 - Guilds (social groups)
+  # ===========================================================================
+  /v1/guilds:
+    $ref: './paths/guilds.yaml#/guilds'
+  /v1/guilds/{id}:
+    $ref: './paths/guilds.yaml#/guild'
+  /v1/guilds/{id}/members:
+    $ref: './paths/guilds.yaml#/members'
+  /v1/guilds/{id}/join:
+    $ref: './paths/guilds.yaml#/join'
+  /v1/guilds/{id}/leave:
+    $ref: './paths/guilds.yaml#/leave'
+  /v1/guilds/{id}/merge:
+    $ref: './paths/guilds.yaml#/merge'
+  /v1/guilds/{id}/events:
+    $ref: './paths/guilds.yaml#/events'
+
+  # ===========================================================================
+  # API v1 - People (contacts within guilds)
+  # ===========================================================================
+  /v1/guilds/{guildId}/people:
+    $ref: './paths/people.yaml#/people'
+  /v1/guilds/{guildId}/people/{personId}:
+    $ref: './paths/people.yaml#/person'
+
+  # ===========================================================================
+  # API v1 - Activities (interaction types)
+  # ===========================================================================
+  /v1/guilds/{guildId}/activities:
+    $ref: './paths/activities.yaml#/activities'
+  /v1/guilds/{guildId}/activities/{activityId}:
+    $ref: './paths/activities.yaml#/activity'
+
+  # ===========================================================================
+  # API v1 - Timers (tracking interactions with people)
+  # ===========================================================================
+  /v1/guilds/{guildId}/people/{personId}/timers:
+    $ref: './paths/timers.yaml#/timers'
+  /v1/guilds/{guildId}/people/{personId}/timers/{timerId}:
+    $ref: './paths/timers.yaml#/timer'
+  /v1/guilds/{guildId}/people/{personId}/timers/{timerId}/reset:
+    $ref: './paths/timers.yaml#/reset'
+
+  # ===========================================================================
+  # API v1 - Trust Ratings
+  # ===========================================================================
+  /v1/trust-ratings:
+    $ref: './paths/trust-ratings.yaml#/trust-ratings'
+  /v1/trust-ratings/{ratingId}:
+    $ref: './paths/trust-ratings.yaml#/trust-rating'
+  /v1/trust-ratings/{ratingId}/endorsements:
+    $ref: './paths/trust-ratings.yaml#/endorsements'
+  /v1/users/{userId}/trust-ratings/received:
+    $ref: './paths/trust-ratings.yaml#/user-trust-ratings-received'
+  /v1/users/{userId}/trust-ratings/given:
+    $ref: './paths/trust-ratings.yaml#/user-trust-ratings-given'
+  /v1/users/{userId}/trust-aggregate:
+    $ref: './paths/trust-ratings.yaml#/user-trust-aggregate'
+  /v1/admin/distrust-signals:
+    $ref: './paths/trust-ratings.yaml#/admin-distrust-signals'
+
+  # ===========================================================================
+  # API v1 - Role Catalogs
+  # ===========================================================================
+  /v1/guilds/{guildId}/role-catalogs:
+    $ref: './paths/role-catalogs.yaml#/guild-role-catalogs'
+  /v1/guilds/{guildId}/role-catalogs/{catalogId}:
+    $ref: './paths/role-catalogs.yaml#/guild-role-catalog'
+  /v1/users/me/role-catalogs:
+    $ref: './paths/role-catalogs.yaml#/user-role-catalogs'
+  /v1/users/me/role-catalogs/{catalogId}:
+    $ref: './paths/role-catalogs.yaml#/user-role-catalog'
+  /v1/events/{eventId}/roles/from-catalog:
+    $ref: './paths/role-catalogs.yaml#/event-roles-from-catalog'
+  /v1/rideshares/{rideshareId}/roles:
+    $ref: './paths/role-catalogs.yaml#/rideshare-roles'
+  /v1/rideshares/{rideshareId}/roles/{roleId}:
+    $ref: './paths/role-catalogs.yaml#/rideshare-role'
+  /v1/rideshares/{rideshareId}/roles/{roleId}/assignments:
+    $ref: './paths/role-catalogs.yaml#/rideshare-role-assignments'
+  /v1/rideshares/{rideshareId}/roles/{roleId}/assignments/{assignmentId}:
+    $ref: './paths/role-catalogs.yaml#/rideshare-role-assignment'
+  /v1/rideshares/{rideshareId}/roles/from-catalog:
+    $ref: './paths/role-catalogs.yaml#/rideshare-roles-from-catalog'
+
+  # ===========================================================================
+  # API v1 - Votes
+  # ===========================================================================
+  /v1/votes:
+    $ref: './paths/votes.yaml#/votes'
+  /v1/votes/{voteId}:
+    $ref: './paths/votes.yaml#/vote'
+  /v1/votes/{voteId}/open:
+    $ref: './paths/votes.yaml#/vote-open'
+  /v1/votes/{voteId}/close:
+    $ref: './paths/votes.yaml#/vote-close'
+  /v1/votes/{voteId}/cancel:
+    $ref: './paths/votes.yaml#/vote-cancel'
+  /v1/votes/{voteId}/options:
+    $ref: './paths/votes.yaml#/vote-options'
+  /v1/votes/{voteId}/options/batch:
+    $ref: './paths/votes.yaml#/vote-options-batch'
+  /v1/votes/{voteId}/options/{optionId}:
+    $ref: './paths/votes.yaml#/vote-option'
+  /v1/votes/{voteId}/ballot:
+    $ref: './paths/votes.yaml#/vote-ballot'
+  /v1/votes/{voteId}/ballots:
+    $ref: './paths/votes.yaml#/vote-ballots'
+  /v1/votes/{voteId}/results:
+    $ref: './paths/votes.yaml#/vote-results'
+  /v1/votes/{voteId}/stats:
+    $ref: './paths/votes.yaml#/vote-stats'
+  /v1/guilds/{guildId}/votes:
+    $ref: './paths/votes.yaml#/guild-votes'
+  /v1/votes/global:
+    $ref: './paths/votes.yaml#/global-votes'
+
+  # ===========================================================================
+  # API v1 - Adventures
+  # ===========================================================================
+  /v1/adventures:
+    $ref: './paths/adventures.yaml#/adventures'
+  /v1/adventures/{adventureId}:
+    $ref: './paths/adventures.yaml#/adventure'
+  /v1/adventures/{adventureId}/transfer:
+    $ref: './paths/adventures.yaml#/adventure-transfer'
+  /v1/adventures/{adventureId}/unfreeze:
+    $ref: './paths/adventures.yaml#/adventure-unfreeze'
+  /v1/adventures/{adventureId}/admission/request:
+    $ref: './paths/adventures.yaml#/adventure-admission-request'
+  /v1/adventures/{adventureId}/admission:
+    $ref: './paths/adventures.yaml#/adventure-admission'
+  /v1/adventures/{adventureId}/admissions:
+    $ref: './paths/adventures.yaml#/adventure-admissions'
+  /v1/adventures/{adventureId}/admissions/{userId}/respond:
+    $ref: './paths/adventures.yaml#/adventure-admission-respond'
+  /v1/adventures/{adventureId}/admissions/invite:
+    $ref: './paths/adventures.yaml#/adventure-invite'
+  /v1/guilds/{guildId}/adventures:
+    $ref: './paths/adventures.yaml#/guild-adventures'
+  /v1/users/me/adventures:
+    $ref: './paths/adventures.yaml#/user-adventures'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token
+
+  schemas:
+    $ref: './components/schemas/_index.yaml'
+
+  responses:
+    $ref: './components/responses/_index.yaml'
+
+  parameters:
+    $ref: './components/parameters/_index.yaml'

@@ -1,0 +1,323 @@
+# Guild endpoints
+
+guilds:
+  get:
+    summary: List user's guilds
+    operationId: listGuilds
+    tags: [guilds]
+    responses:
+      '200':
+        description: List of guilds
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Guild'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+  post:
+    summary: Create a new guild
+    operationId: createGuild
+    tags: [guilds]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                maxLength: 100
+                description: Guild name
+              description:
+                type: string
+                maxLength: 500
+              icon:
+                type: string
+                maxLength: 50
+              color:
+                type: string
+                pattern: '^#[0-9A-Fa-f]{6}$'
+    responses:
+      '201':
+        description: Guild created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Guild'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '422':
+        description: Validation error or limit exceeded
+
+guild:
+  get:
+    summary: Get guild with all data
+    operationId: getGuild
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Guild data
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/GuildData'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+  patch:
+    summary: Update guild
+    operationId: updateGuild
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                maxLength: 100
+              description:
+                type: string
+                maxLength: 500
+              icon:
+                type: string
+                maxLength: 50
+              color:
+                type: string
+                pattern: '^#[0-9A-Fa-f]{6}$'
+    responses:
+      '200':
+        description: Guild updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Guild'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+      '422':
+        description: Validation error
+
+  delete:
+    summary: Delete guild
+    operationId: deleteGuild
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Guild deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+members:
+  get:
+    summary: List guild members
+    operationId: getGuildMembers
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of guild members
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Member'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+join:
+  post:
+    summary: Join an existing guild
+    description: Adds the authenticated user as a member of the specified guild
+    operationId: joinGuild
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Successfully joined guild
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+      '409':
+        description: Already a member of this guild
+      '422':
+        description: Guild or member limit exceeded
+
+leave:
+  post:
+    summary: Leave guild
+    operationId: leaveGuild
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Left guild
+      '400':
+        description: Cannot leave - you are the only member
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found
+
+merge:
+  post:
+    summary: Merge another guild into this one
+    description: |
+      Merges the source guild into the target guild. All people, activities,
+      and members from the source guild are moved to the target. The source
+      guild is deleted after merge. User must be a member of both guilds.
+    operationId: mergeGuilds
+    tags: [guilds]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [source_guild_id]
+            properties:
+              source_guild_id:
+                type: string
+                description: ID of guild to merge into this one
+    responses:
+      '200':
+        description: Guilds merged successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/GuildData'
+                _links:
+                  type: object
+      '400':
+        description: Cannot merge guild into itself or merge would exceed limits
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a member of both guilds
+      '404':
+        description: Guild not found
+
+events:
+  get:
+    summary: Subscribe to guild events (SSE)
+    description: |
+      Server-Sent Events stream for real-time guild updates. Event types include:
+      - `timer.created`, `timer.reset`, `timer.updated`, `timer.deleted`
+      - `timer.warn`, `timer.critical` (threshold alerts)
+      - `person.created`, `person.updated`, `person.deleted`
+      - `activity.created`, `activity.updated`, `activity.deleted`
+      - `guild.member_joined`, `guild.member_left`
+      - `heartbeat` (sent every 30s to keep connection alive)
+
+      Timer elapsed time should be calculated client-side from the reset_date.
+    operationId: getGuildEvents
+    tags: [events]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: SSE stream of guild events
+        content:
+          text/event-stream:
+            schema:
+              type: string
+              description: |
+                SSE formatted events. Example:
+                ```
+                event: timer.reset
+                data: {"id":"timer:abc","reset_date":"2026-01-05T10:00:00Z",...}
+                ```
+      '401':
+        description: Unauthorized
+      '404':
+        description: Guild not found

@@ -1,0 +1,565 @@
+# Adventure endpoints
+
+adventures:
+  post:
+    summary: Create adventure
+    description: |
+      Create a new adventure. Specify organizer_type to determine ownership:
+      - "guild": Adventure organized by a guild (requires guild membership)
+      - "user": Adventure organized by you personally
+    operationId: createAdventure
+    tags: [adventures]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateAdventureRequest'
+    responses:
+      '201':
+        description: Adventure created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '400':
+        description: Invalid request
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member (for guild adventures)
+
+guild-adventures:
+  get:
+    summary: List guild adventures
+    operationId: listGuildAdventures
+    tags: [adventures]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [idea, planning, confirmed, active, completed, cancelled, frozen]
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of guild adventures
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Adventure'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member
+      '404':
+        description: Guild not found
+
+  post:
+    summary: Create guild adventure
+    description: Create an adventure for the guild
+    operationId: createGuildAdventure
+    tags: [adventures]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateAdventureRequest'
+    responses:
+      '201':
+        description: Adventure created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member
+      '404':
+        description: Guild not found
+
+user-adventures:
+  get:
+    summary: List my adventures
+    description: List adventures I organize or am admitted to
+    operationId: listMyAdventures
+    tags: [adventures]
+    parameters:
+      - name: role
+        in: query
+        description: Filter by role (organizer or participant)
+        schema:
+          type: string
+          enum: [organizer, participant]
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [idea, planning, confirmed, active, completed, cancelled, frozen]
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of my adventures
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Adventure'
+      '401':
+        description: Unauthorized
+
+  post:
+    summary: Create personal adventure
+    description: Create an adventure organized by you personally
+    operationId: createMyAdventure
+    tags: [adventures]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateAdventureRequest'
+    responses:
+      '201':
+        description: Adventure created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '401':
+        description: Unauthorized
+
+adventure:
+  get:
+    summary: Get adventure details
+    operationId: getAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Adventure details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not admitted to private adventure
+      '404':
+        description: Adventure not found
+
+  patch:
+    summary: Update adventure
+    operationId: updateAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateAdventureRequest'
+    responses:
+      '200':
+        description: Adventure updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '400':
+        description: Adventure is frozen
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Adventure not found
+
+  delete:
+    summary: Cancel adventure
+    operationId: deleteAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Adventure cancelled
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Adventure not found
+
+adventure-transfer:
+  post:
+    summary: Transfer adventure ownership
+    description: |
+      Transfer organizer role to another user.
+      - For guild adventures: new organizer must be a guild member
+      - For user adventures: requires explicit acceptance
+      Note: organizer_type can NEVER change (no guild-to-user or user-to-guild transfers)
+    operationId: transferAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - new_organizer_user_id
+            properties:
+              new_organizer_user_id:
+                type: string
+                description: User ID of new organizer
+    responses:
+      '200':
+        description: Adventure transferred
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '400':
+        description: Invalid transfer (user not in guild, etc.)
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Adventure not found
+
+adventure-unfreeze:
+  post:
+    summary: Unfreeze adventure
+    description: |
+      Unfreeze a frozen adventure by assigning a new organizer.
+      Only guild admins can unfreeze guild adventures.
+    operationId: unfreezeAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - new_organizer_user_id
+            properties:
+              new_organizer_user_id:
+                type: string
+    responses:
+      '200':
+        description: Adventure unfrozen
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Adventure'
+      '400':
+        description: Adventure not frozen
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not guild admin
+      '404':
+        description: Adventure not found
+
+adventure-admission-request:
+  post:
+    summary: Request admission to adventure
+    operationId: requestAdventureAdmission
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Optional message to organizer
+    responses:
+      '201':
+        description: Admission requested (or auto-admitted)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/AdventureAdmission'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Adventure not found
+      '409':
+        description: Already requested or admitted
+
+adventure-admission:
+  get:
+    summary: Get my admission status
+    operationId: getMyAdventureAdmission
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Admission status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/AdventureAdmission'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Not requested admission
+
+  delete:
+    summary: Withdraw admission request
+    operationId: withdrawAdventureAdmission
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Admission withdrawn
+      '401':
+        description: Unauthorized
+      '404':
+        description: Not requested admission
+
+adventure-admissions:
+  get:
+    summary: List admission requests
+    description: List all admission requests for the adventure (organizer only)
+    operationId: listAdventureAdmissions
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [requested, admitted, rejected]
+    responses:
+      '200':
+        description: List of admissions
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/AdventureAdmission'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Adventure not found
+
+adventure-admission-respond:
+  post:
+    summary: Respond to admission request
+    description: Approve or reject an admission request (organizer only)
+    operationId: respondToAdventureAdmission
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - decision
+            properties:
+              decision:
+                type: string
+                enum: [admit, reject]
+              rejection_reason:
+                type: string
+                description: Optional reason for rejection
+    responses:
+      '200':
+        description: Decision recorded
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/AdventureAdmission'
+      '400':
+        description: Invalid decision or already decided
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Admission request not found
+
+adventure-invite:
+  post:
+    summary: Invite user to adventure
+    description: Invite a user to the adventure (auto-admits them)
+    operationId: inviteToAdventure
+    tags: [adventures]
+    parameters:
+      - name: adventureId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+            properties:
+              user_id:
+                type: string
+    responses:
+      '201':
+        description: User invited
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/AdventureAdmission'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not adventure organizer
+      '404':
+        description: Adventure not found
+      '409':
+        description: User already admitted

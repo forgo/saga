@@ -146,7 +146,9 @@ enum APIEnvironment {
 
 ## Testing
 
-Run tests with:
+### Unit Tests
+
+Run unit tests with:
 ```bash
 make test-ios
 # Or directly:
@@ -154,3 +156,48 @@ cd ios/Saga && swift test
 ```
 
 Or use Xcode's Test Navigator (⌘6).
+
+### UI Tests (E2E)
+
+UI tests require the API running locally with seed data:
+
+```bash
+# Terminal 1: Start API with seed data
+make dev
+
+# Terminal 2: Run UI tests
+cd ios/Saga
+xcodebuild test -scheme SagaUITests -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+```
+
+### Test Modes
+
+The app supports launch arguments for testing:
+
+| Argument | Description |
+|----------|-------------|
+| `--uitesting` | Enables UI test mode, uses test environment |
+| `--demo` | Auto-login with demo user (for quick feature testing) |
+
+These can be set in Xcode's scheme editor (Product > Scheme > Edit Scheme > Run > Arguments) or passed via `XCUIApplication.launchArguments` in UI tests.
+
+### Demo Credentials
+
+For manual testing with the local API:
+
+| Email | Password |
+|-------|----------|
+| `demo@forgo.software` | `password123` |
+| `second@forgo.software` | `password123` |
+
+### Accessibility Identifiers
+
+Key views include accessibility identifiers for reliable UI testing:
+
+- `login_email_field` - Email text field
+- `login_password_field` - Password secure field
+- `login_submit_button` - Sign in button
+- `login_error_message` - Error message label
+- `guild_list` - Guild list view
+- `create_guild_button` - Create guild button
+- `guild_row_{id}` - Individual guild row

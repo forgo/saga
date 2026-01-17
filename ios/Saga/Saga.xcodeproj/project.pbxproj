@@ -10,6 +10,7 @@
 		01CE7FC3DAB405E16E649539 /* PoolPreferencesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40B4D23AB5AB92F7EAFA85F /* PoolPreferencesSheet.swift */; };
 		02CF03B05D43B2FDFBF24D79 /* ModerationStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A54E2DBDBDD26A5621EA0DF /* ModerationStatusView.swift */; };
 		0559667A8EE3E1500C672852 /* QuestionnaireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52BF30ACDBDEDDF625442AF /* QuestionnaireView.swift */; };
+		096CF6980AED8B91A79C4844 /* SagaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BB08A9C512FD2B61FA5446 /* SagaUITests.swift */; };
 		0B2CE6E7F6CDABB1A756E932 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD3238C00E384EDAD1737DD2 /* Timer.swift */; };
 		0BD4E6F1CE655DF5574814F3 /* PoolDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252BC757EE8C84115FA628C8 /* PoolDetailView.swift */; };
 		0F95ADE898655BC66AD01B1B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABBEFF766EB9498420B4750 /* ErrorView.swift */; };
@@ -108,6 +109,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		EE2484F331C29EBAA91F1595 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B649681C041D8D26AD77FD65 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E8F2EED0D73788E0023DF5AB;
+			remoteInfo = Saga;
+		};
 		F7E886A8B992D65ECDD89C17 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B649681C041D8D26AD77FD65 /* Project object */;
@@ -165,6 +173,7 @@
 		6189D54FEAD718CEE5566B00 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		61DA91CE5470FD0F1C98CF33 /* GuildService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuildService.swift; sourceTree = "<group>"; };
 		62998995BB0B38C56BB4A4D6 /* PublicProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileView.swift; sourceTree = "<group>"; };
+		64BB08A9C512FD2B61FA5446 /* SagaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SagaUITests.swift; sourceTree = "<group>"; };
 		64BD03BC2FD941E572109A2C /* ResonanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResonanceView.swift; sourceTree = "<group>"; };
 		660421EB3DC3836B805DDCFF /* AdventureDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdventureDetailView.swift; sourceTree = "<group>"; };
 		687B5ADC8F363BDA40C03BBB /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
@@ -195,6 +204,7 @@
 		B1BEFD19CADCCD31432D3979 /* DiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryService.swift; sourceTree = "<group>"; };
 		B40B4D23AB5AB92F7EAFA85F /* PoolPreferencesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoolPreferencesSheet.swift; sourceTree = "<group>"; };
 		B5123C50512402818DB7F33D /* CreateAvailabilitySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAvailabilitySheet.swift; sourceTree = "<group>"; };
+		B639634CE89645E045637B5F /* SagaUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SagaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA652D071C0CEE70213C21BA /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		BD3238C00E384EDAD1737DD2 /* Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		BD3E3C94B440073E94AACEF1 /* VoteListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoteListView.swift; sourceTree = "<group>"; };
@@ -364,6 +374,14 @@
 			path = Discovery;
 			sourceTree = "<group>";
 		};
+		6146A6DA17CC01A360B22F96 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				64BB08A9C512FD2B61FA5446 /* SagaUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		641FB346A562B8274646C133 /* Gamification */ = {
 			isa = PBXGroup;
 			children = (
@@ -489,6 +507,7 @@
 			children = (
 				92EC0991F022298F2715DE3A /* Sources */,
 				1ED13AE270F85568E7A6A433 /* Tests */,
+				6146A6DA17CC01A360B22F96 /* UITests */,
 				C21BE330D35AFBE773D69E5A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -516,6 +535,7 @@
 			children = (
 				2FF292A2F9F174AA222C685E /* Saga.app */,
 				46297523C13A59EBDA57AB02 /* SagaTests.xctest */,
+				B639634CE89645E045637B5F /* SagaUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -651,6 +671,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C3433D5881B5DF5537C1F995 /* SagaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1B8240DE9E46C0B6D6CE491 /* Build configuration list for PBXNativeTarget "SagaUITests" */;
+			buildPhases = (
+				3A146F8B5B6E937F4DCA71CB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				52FE003B9D2D79E49FEAE015 /* PBXTargetDependency */,
+			);
+			name = SagaUITests;
+			packageProductDependencies = (
+			);
+			productName = SagaUITests;
+			productReference = B639634CE89645E045637B5F /* SagaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		E8F2EED0D73788E0023DF5AB /* Saga */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5014D501D0B5C1CFEC9CC069 /* Build configuration list for PBXNativeTarget "Saga" */;
@@ -697,6 +735,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					C3433D5881B5DF5537C1F995 = {
+						TestTargetID = E8F2EED0D73788E0023DF5AB;
+					};
 					E8F2EED0D73788E0023DF5AB = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -722,6 +763,7 @@
 			targets = (
 				E8F2EED0D73788E0023DF5AB /* Saga */,
 				F3DEB791A3EF5DA70E60ADE6 /* SagaTests */,
+				C3433D5881B5DF5537C1F995 /* SagaUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -830,6 +872,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3A146F8B5B6E937F4DCA71CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				096CF6980AED8B91A79C4844 /* SagaUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95FA5E851D7AD644DDF21738 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -841,6 +891,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		52FE003B9D2D79E49FEAE015 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E8F2EED0D73788E0023DF5AB /* Saga */;
+			targetProxy = EE2484F331C29EBAA91F1595 /* PBXContainerItemProxy */;
+		};
 		9BFC4346ACF5D64F964F591D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E8F2EED0D73788E0023DF5AB /* Saga */;
@@ -903,6 +958,23 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		307FDA73B27EDE2392BE0F43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.saga.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Saga;
 			};
 			name = Release;
 		};
@@ -1006,16 +1078,34 @@
 			};
 			name = Debug;
 		};
-		DB5FF6249E955870A802FDBB /* Release */ = {
+		C271E31FDCF90DC4B9393051 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.saga.SagaTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.saga.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Saga;
+			};
+			name = Debug;
+		};
+		DB5FF6249E955870A802FDBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.saga.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Saga.app/Saga";
@@ -1026,12 +1116,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.saga.SagaTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.saga.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Saga.app/Saga";
@@ -1064,6 +1155,15 @@
 			buildConfigurations = (
 				6B2FFB08BF84B20646430A6F /* Debug */,
 				02A794919B2BF140DCFB50B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C1B8240DE9E46C0B6D6CE491 /* Build configuration list for PBXNativeTarget "SagaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C271E31FDCF90DC4B9393051 /* Debug */,
+				307FDA73B27EDE2392BE0F43 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

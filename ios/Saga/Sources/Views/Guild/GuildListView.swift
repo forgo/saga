@@ -21,10 +21,12 @@ struct GuildListView: View {
                     NavigationLink(value: GuildDestination.detail(guild: guild)) {
                         GuildRow(guild: guild)
                     }
+                    .accessibilityIdentifier("guild_row_\(guild.id)")
                 }
                 .onDelete(perform: deleteGuilds)
             }
         }
+        .accessibilityIdentifier("guild_list")
         .navigationTitle("Guilds")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -33,6 +35,7 @@ struct GuildListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("create_guild_button")
             }
         }
         .refreshable {

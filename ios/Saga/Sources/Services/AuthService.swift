@@ -256,4 +256,47 @@ final class AuthService: @unchecked Sendable {
     func identity(for provider: IdentityProvider) -> Identity? {
         identities.first { $0.provider == provider }
     }
+
+    // MARK: - Demo/Testing Support
+
+    #if DEBUG
+    /// Demo user credentials (matches API seed data)
+    enum DemoCredentials {
+        static let email = "demo@forgo.software"
+        static let password = "password123"
+    }
+
+    /// Login with demo user - uses seed data from API
+    func loginWithDemoUser() async throws {
+        try await login(email: DemoCredentials.email, password: DemoCredentials.password)
+    }
+
+    /// Bypass auth for UI testing by setting state directly
+    /// - Parameters:
+    ///   - user: The mock user to set
+    ///   - accessToken: Access token for API calls
+    ///   - refreshToken: Refresh token for token refresh
+    func setAuthStateForTesting(user: User, accessToken: String, refreshToken: String) async {
+        keychain[KeychainKey.accessToken] = accessToken
+        keychain[KeychainKey.refreshToken] = refreshToken
+        await apiClient.setTokens(access: accessToken, refresh: refreshToken)
+
+        await MainActor.run {
+            self.currentUser = user
+            self.isAuthenticated = true
+            self.error = nil
+        }
+    }
+
+    /// Clear all auth state for testing
+    func clearAuthStateForTesting() async {
+        await clearTokens()
+        await MainActor.run {
+            self.currentUser = nil
+            self.identities = []
+            self.passkeys = []
+            self.isAuthenticated = false
+        }
+    }
+    #endif
 }

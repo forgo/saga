@@ -72,12 +72,21 @@ struct AuthView: View {
                             .padding()
                             .background(.fill.tertiary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .accessibilityIdentifier("login_email_field")
 
                         SecureField("Password", text: $password)
                             .textContentType(mode == .login ? .password : .newPassword)
                             .padding()
                             .background(.fill.tertiary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .accessibilityIdentifier("login_password_field")
+
+                        if let errorMessage, isShowingError {
+                            Text(errorMessage)
+                                .foregroundStyle(.red)
+                                .font(.subheadline)
+                                .accessibilityIdentifier("login_error_message")
+                        }
 
                         Button {
                             Task { await handleEmailAuth() }
@@ -97,6 +106,7 @@ struct AuthView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .disabled(authService.isLoading || !isFormValid)
+                        .accessibilityIdentifier("login_submit_button")
                     }
                     .padding(.horizontal)
 

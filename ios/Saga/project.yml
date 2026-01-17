@@ -44,3 +44,32 @@ targets:
       - path: Tests
     dependencies:
       - target: Saga
+    settings:
+      GENERATE_INFOPLIST_FILE: true
+      PRODUCT_BUNDLE_IDENTIFIER: app.saga.tests
+
+  SagaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: Saga
+    settings:
+      GENERATE_INFOPLIST_FILE: true
+      PRODUCT_BUNDLE_IDENTIFIER: app.saga.uitests
+
+schemes:
+  Saga:
+    build:
+      targets:
+        Saga: all
+        SagaTests: [test]
+        SagaUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SagaTests
+        - SagaUITests

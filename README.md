@@ -71,6 +71,49 @@ make test
 | `make lint` | Lint code |
 | `make test-coverage` | Run tests with coverage report |
 
+## Local Development
+
+### Running the Full Stack
+
+1. **Start API with seed data:**
+   ```bash
+   make dev          # Starts API + SurrealDB
+   ```
+
+2. **Run iOS app pointing to local API:**
+   - Open `ios/Saga/Saga.xcodeproj`
+   - Environment defaults to `development` (localhost:8080)
+   - Use demo credentials to login (see below)
+
+### Demo Users
+
+The API seed data includes test users for development:
+
+| Email | Password | Description |
+|-------|----------|-------------|
+| `demo@forgo.software` | `password123` | Primary user with guilds & data |
+| `second@forgo.software` | `password123` | Secondary user for testing |
+
+### iOS Testing Modes
+
+The iOS app supports launch arguments for testing:
+
+| Argument | Description |
+|----------|-------------|
+| `--uitesting` | Enables UI test mode |
+| `--demo` | Auto-login with demo user |
+
+### Running E2E Tests
+
+```bash
+# Terminal 1: Start API
+make dev
+
+# Terminal 2: Run iOS UI tests
+cd ios/Saga
+xcodebuild test -scheme SagaUITests -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+```
+
 ## Documentation
 
 ### API Documentation

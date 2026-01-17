@@ -261,11 +261,5 @@ components:
       bearerFormat: JWT
       description: JWT access token
 
-  schemas:
-    $ref: './components/schemas/_index.yaml'
-
-  responses:
-    $ref: './components/responses/_index.yaml'
-
-  parameters:
-    $ref: './components/parameters/_index.yaml'
+  # Schemas are defined in ./components/schemas/_index.yaml
+  # Referenced via $ref: '../components/schemas/_index.yaml#/SchemaName' in paths

@@ -135,11 +135,11 @@ activity:
               warn:
                 type: number
                 minimum: 60
-                maximum: 86400
+                maximum: 2592000
               critical:
                 type: number
                 minimum: 60
-                maximum: 172800
+                maximum: 7776000
     responses:
       '200':
         description: Activity updated

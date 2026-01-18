@@ -131,21 +131,14 @@ jobs:
       - name: List Available Simulators
         run: xcrun simctl list devices available | grep -E "iPhone|iPad" | head -20
 
-      - name: Build
-        run: |
-          xcodebuild build-for-testing \
-            -project Saga.xcodeproj \
-            -scheme Saga \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
-            -quiet
-
-      - name: Run Unit Tests
+      - name: Build and Run Unit Tests
         run: |
           xcodebuild test \
             -project Saga.xcodeproj \
             -scheme Saga \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -only-testing:SagaTests \
+            -skip-testing:SagaUITests \
             -resultBundlePath TestResults.xcresult
 
       - name: Upload Test Results

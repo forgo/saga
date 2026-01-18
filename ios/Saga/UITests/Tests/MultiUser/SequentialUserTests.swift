@@ -7,13 +7,11 @@ final class SequentialUserTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!
 
-    @MainActor
     override func setUpWithError() throws {
         try super.setUpWithError()
         multiApp = MultiAppHelper()
     }
 
-    @MainActor
     override func tearDownWithError() throws {
         multiApp?.cleanup()
         multiApp = nil

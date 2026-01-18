@@ -13,7 +13,6 @@ class SagaUITestCase: XCTestCase {
 
     // MARK: - Setup & Teardown
 
-    @MainActor
     override func setUpWithError() throws {
         try super.setUpWithError()
 
@@ -31,7 +30,6 @@ class SagaUITestCase: XCTestCase {
         loginHelper = LoginHelper(app: app)
     }
 
-    @MainActor
     override func tearDownWithError() throws {
         app = nil
         loginHelper = nil

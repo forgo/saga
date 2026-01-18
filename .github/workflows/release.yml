@@ -26,7 +26,7 @@ jobs:
       - name: Start SurrealDB
         run: |
           docker run -d --name surrealdb -p 8000:8000 \
-            surrealdb/surrealdb:v2.1.0 \
+            surrealdb/surrealdb:v3.0.0-beta.1 \
             start --user root --pass root --bind 0.0.0.0:8000 memory
           sleep 5
           curl -f http://localhost:8000/health || exit 1

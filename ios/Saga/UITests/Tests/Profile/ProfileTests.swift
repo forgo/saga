@@ -1,7 +1,7 @@
 import XCTest
 
 /// Tests for profile functionality
-@MainActor
+
 final class ProfileTests: SagaUITestCase {
 
     // MARK: - Tab Navigation Tests

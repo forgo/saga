@@ -1,7 +1,7 @@
 import XCTest
 
 /// Tests for guild list functionality
-@MainActor
+
 final class GuildListTests: SagaUITestCase {
 
     // MARK: - Guild List Display Tests

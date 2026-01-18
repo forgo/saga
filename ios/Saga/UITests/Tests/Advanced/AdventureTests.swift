@@ -2,7 +2,7 @@ import XCTest
 
 /// Tests for adventure functionality
 /// Adventures are accessed from the guild detail view
-@MainActor
+
 final class AdventureTests: SagaUITestCase {
 
     // MARK: - Helper

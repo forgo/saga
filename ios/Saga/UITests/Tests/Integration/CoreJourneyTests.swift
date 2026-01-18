@@ -2,7 +2,7 @@ import XCTest
 
 /// Tests for core user journeys through the app
 /// These tests verify end-to-end flows that span multiple screens
-@MainActor
+
 final class CoreJourneyTests: SagaUITestCase {
 
     // MARK: - Login to Guild Journey

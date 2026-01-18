@@ -2,7 +2,6 @@ import XCTest
 
 /// Tests for multi-user scenarios using sequential login/logout
 /// These tests verify that changes made by one user are visible to another
-@MainActor
 final class SequentialUserTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!

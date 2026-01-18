@@ -1,7 +1,7 @@
 import XCTest
 
 /// Debug test to capture guild loading errors
-@MainActor
+
 final class GuildLoadingDebugTest: SagaUITestCase {
 
     /// Test that captures the error message when guilds fail to load

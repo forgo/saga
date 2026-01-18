@@ -2,7 +2,7 @@ import XCTest
 
 /// Tests for real-time synchronization via Server-Sent Events (SSE)
 /// These tests verify the app correctly handles real-time updates
-@MainActor
+
 final class RealTimeSyncTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!

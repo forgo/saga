@@ -2,7 +2,7 @@ import XCTest
 
 /// Tests for event list functionality
 /// NOTE: Events require a guild to be selected first, as they are loaded per-guild
-@MainActor
+
 final class EventListTests: SagaUITestCase {
 
     // MARK: - Tab Navigation Tests

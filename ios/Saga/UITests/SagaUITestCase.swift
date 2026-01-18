@@ -2,7 +2,6 @@ import XCTest
 
 /// Base test case class for all Saga UI tests
 /// Provides common setup, teardown, and helper methods
-@MainActor
 class SagaUITestCase: XCTestCase {
 
     /// The main application under test

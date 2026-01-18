@@ -3,7 +3,6 @@ import XCTest
 /// Tests for real-time sync scenarios between users
 /// Note: True dual-app testing is limited in XCUITest. These tests verify
 /// that changes are persisted and visible after re-login.
-@MainActor
 final class DualAppTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!

@@ -1,7 +1,7 @@
 import XCTest
 
 /// Tests for user login functionality
-@MainActor
+
 final class LoginTests: SagaUITestCase {
 
     // MARK: - Auth Screen Tests

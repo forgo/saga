@@ -30,6 +30,16 @@ final class AuthService: @unchecked Sendable {
     // MARK: - Token Storage
 
     private func loadStoredTokens() async {
+        #if DEBUG
+        // In UI testing mode (without demo), skip loading stored tokens for clean test isolation
+        if isUITesting && !isDemoMode {
+            // Clear any existing tokens
+            try? keychain.remove(KeychainKey.accessToken)
+            try? keychain.remove(KeychainKey.refreshToken)
+            return
+        }
+        #endif
+
         guard let accessToken = keychain[KeychainKey.accessToken],
               let refreshToken = keychain[KeychainKey.refreshToken] else {
             return

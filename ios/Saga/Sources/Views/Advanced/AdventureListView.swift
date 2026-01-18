@@ -38,6 +38,7 @@ struct AdventureListView: View {
                 }
             }
         }
+        .accessibilityIdentifier("adventure_list")
         .navigationTitle("Adventures")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -46,6 +47,7 @@ struct AdventureListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("adventure_create_button")
             }
         }
         .refreshable {

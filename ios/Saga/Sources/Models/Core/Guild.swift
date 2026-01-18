@@ -10,11 +10,12 @@ struct Guild: Codable, Sendable, Identifiable, Hashable {
     let description: String?
     let icon: String?
     let color: String?
+    let visibility: String?
     let createdOn: Date?
     let updatedOn: Date?
 
     enum CodingKeys: String, CodingKey {
-        case id, name, description, icon, color
+        case id, name, description, icon, color, visibility
         case createdOn = "created_on"
         case updatedOn = "updated_on"
     }

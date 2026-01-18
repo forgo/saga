@@ -27,9 +27,11 @@ struct CreateEventSheet: View {
                 Section("Event Details") {
                     TextField("Title", text: $title)
                         .textContentType(.none)
+                        .accessibilityIdentifier("event_title_field")
 
                     TextField("Description (optional)", text: $description, axis: .vertical)
                         .lineLimit(3...6)
+                        .accessibilityIdentifier("event_description_field")
                 }
 
                 // Location
@@ -115,12 +117,14 @@ struct CreateEventSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("event_create_cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         Task { await createEvent() }
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
+                    .accessibilityIdentifier("event_create_confirm")
                 }
             }
             .interactiveDismissDisabled(isCreating)

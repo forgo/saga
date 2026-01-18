@@ -47,6 +47,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Guilds", systemImage: "person.3.fill")
             }
+            .accessibilityIdentifier("tab_guilds")
 
             // Events tab
             NavigationStack {
@@ -63,6 +64,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Events", systemImage: "calendar")
             }
+            .accessibilityIdentifier("tab_events")
 
             // Discover tab
             NavigationStack {
@@ -71,6 +73,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Discover", systemImage: "sparkle.magnifyingglass")
             }
+            .accessibilityIdentifier("tab_discover")
 
             // Profile tab
             NavigationStack {
@@ -79,6 +82,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Profile", systemImage: "person.crop.circle")
             }
+            .accessibilityIdentifier("tab_profile")
         }
     }
 
@@ -93,30 +97,14 @@ struct MainTabView: View {
             CreatePersonSheet()
         case .settings:
             Text("Guild Settings")
-        case .events:
-            if let guildId = guildService.currentGuild?.guild.id {
-                GuildEventListView(guildId: guildId)
-            } else {
-                Text("Select a guild first")
-            }
-        case .adventures:
-            if let guildId = guildService.currentGuild?.guild.id {
-                AdventureListView(guildId: guildId)
-            } else {
-                Text("Select a guild first")
-            }
-        case .pools:
-            if let guildId = guildService.currentGuild?.guild.id {
-                PoolListView(guildId: guildId)
-            } else {
-                Text("Select a guild first")
-            }
-        case .votes:
-            if let guildId = guildService.currentGuild?.guild.id {
-                VoteListView(guildId: guildId)
-            } else {
-                Text("Select a guild first")
-            }
+        case .events(let guildId):
+            GuildEventListView(guildId: guildId)
+        case .adventures(let guildId):
+            AdventureListView(guildId: guildId)
+        case .pools(let guildId):
+            PoolListView(guildId: guildId)
+        case .votes(let guildId):
+            VoteListView(guildId: guildId)
         }
     }
 }
@@ -333,6 +321,7 @@ struct ProfileView: View {
                     }
                 }
                 .disabled(authService.isLoading)
+                .accessibilityIdentifier("profile_logout_button")
             }
         }
         .navigationTitle("Profile")

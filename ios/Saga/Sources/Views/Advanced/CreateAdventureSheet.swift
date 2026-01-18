@@ -28,9 +28,12 @@ struct CreateAdventureSheet: View {
             // Basic Info
             Section("Details") {
                 TextField("Title", text: $title)
+                    .accessibilityIdentifier("adventure_title_field")
                 TextField("Description (optional)", text: $description, axis: .vertical)
                     .lineLimit(3...6)
+                    .accessibilityIdentifier("adventure_description_field")
                 TextField("Location (optional)", text: $location)
+                    .accessibilityIdentifier("adventure_location_field")
             }
 
             // Schedule
@@ -98,12 +101,14 @@ struct CreateAdventureSheet: View {
                 Button("Cancel") {
                     dismiss()
                 }
+                .accessibilityIdentifier("adventure_create_cancel")
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Create") {
                     Task { await createAdventure() }
                 }
                 .disabled(title.isEmpty || isCreating)
+                .accessibilityIdentifier("adventure_create_confirm")
             }
         }
         .alert("Error", isPresented: .constant(error != nil)) {

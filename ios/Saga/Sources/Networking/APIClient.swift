@@ -21,7 +21,29 @@ actor APIClient {
         self.session = session
 
         self.decoder = JSONDecoder()
-        self.decoder.dateDecodingStrategy = .iso8601
+        // Use custom date decoding that handles fractional seconds (nanoseconds from Go/SurrealDB)
+        self.decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+
+            // Try ISO8601 with fractional seconds first
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+
+            // Fallback to standard ISO8601 without fractional seconds
+            formatter.formatOptions = [.withInternetDateTime]
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot decode date: \(dateString)"
+            )
+        }
 
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .iso8601

@@ -43,6 +43,7 @@ struct AuthView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
+                    .accessibilityIdentifier("auth_mode_picker")
 
                     // Email/Password form
                     VStack(spacing: 16) {
@@ -54,6 +55,7 @@ struct AuthView: View {
                                     .padding()
                                     .background(.fill.tertiary)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .accessibilityIdentifier("auth_firstname_field")
 
                                 TextField("Last name", text: $lastname)
                                     .textContentType(.familyName)
@@ -61,6 +63,7 @@ struct AuthView: View {
                                     .padding()
                                     .background(.fill.tertiary)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .accessibilityIdentifier("auth_lastname_field")
                             }
                         }
 
@@ -72,20 +75,20 @@ struct AuthView: View {
                             .padding()
                             .background(.fill.tertiary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .accessibilityIdentifier("login_email_field")
+                            .accessibilityIdentifier("auth_email_field")
 
                         SecureField("Password", text: $password)
                             .textContentType(mode == .login ? .password : .newPassword)
                             .padding()
                             .background(.fill.tertiary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .accessibilityIdentifier("login_password_field")
+                            .accessibilityIdentifier("auth_password_field")
 
                         if let errorMessage, isShowingError {
                             Text(errorMessage)
                                 .foregroundStyle(.red)
                                 .font(.subheadline)
-                                .accessibilityIdentifier("login_error_message")
+                                .accessibilityIdentifier("auth_error_message")
                         }
 
                         Button {
@@ -106,7 +109,7 @@ struct AuthView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .disabled(authService.isLoading || !isFormValid)
-                        .accessibilityIdentifier("login_submit_button")
+                        .accessibilityIdentifier("auth_submit_button")
                     }
                     .padding(.horizontal)
 
@@ -154,6 +157,7 @@ struct AuthView: View {
                                     .stroke(.secondary.opacity(0.3), lineWidth: 1)
                             )
                         }
+                        .accessibilityIdentifier("auth_google_button")
 
                         // Passkey login (only in login mode)
                         if mode == .login {
@@ -169,6 +173,7 @@ struct AuthView: View {
                                 .background(.fill.tertiary)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
+                            .accessibilityIdentifier("auth_passkey_button")
                         }
                     }
                     .padding(.horizontal)

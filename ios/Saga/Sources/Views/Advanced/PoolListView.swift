@@ -38,6 +38,7 @@ struct PoolListView: View {
                 }
             }
         }
+        .accessibilityIdentifier("pool_list")
         .navigationTitle("Matching Pools")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -46,6 +47,7 @@ struct PoolListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("pool_create_button")
             }
         }
         .refreshable {

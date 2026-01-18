@@ -2,7 +2,8 @@ import Foundation
 
 /// Manages guild data and real-time updates
 @Observable
-final class GuildService: @unchecked Sendable {
+@MainActor
+final class GuildService {
     static let shared = GuildService()
 
     private(set) var guilds: [Guild] = []
@@ -21,28 +22,26 @@ final class GuildService: @unchecked Sendable {
 
     /// Fetch all guilds for current user
     func fetchGuilds() async throws {
-        await setLoading(true)
-        defer { Task { await setLoading(false) } }
+        isLoading = true
+        defer { isLoading = false }
 
         let response = try await apiClient.listGuilds()
-
-        await MainActor.run {
-            self.guilds = response.data
-            self.error = nil
-        }
+        self.guilds = response.data
+        self.error = nil
     }
 
     /// Create a new guild
     func createGuild(name: String, description: String? = nil, icon: String? = nil, color: String? = nil) async throws -> Guild {
-        await setLoading(true)
-        defer { Task { await setLoading(false) } }
+        isLoading = true
+        defer { isLoading = false }
 
         let request = CreateGuildRequest(name: name, description: description, icon: icon, color: color)
         let response = try await apiClient.createGuild(request)
 
-        await MainActor.run {
-            self.guilds.append(response.data)
-        }
+        // Use full assignment instead of append for more reliable @Observable updates
+        var updatedGuilds = self.guilds
+        updatedGuilds.append(response.data)
+        self.guilds = updatedGuilds
 
         return response.data
     }
@@ -50,13 +49,10 @@ final class GuildService: @unchecked Sendable {
     /// Delete a guild
     func deleteGuild(id: String) async throws {
         try await apiClient.deleteGuild(id: id)
-
-        await MainActor.run {
-            self.guilds.removeAll { $0.id == id }
-            if self.currentGuildId == id {
-                self.currentGuild = nil
-                self.currentGuildId = nil
-            }
+        self.guilds.removeAll { $0.id == id }
+        if self.currentGuildId == id {
+            self.currentGuild = nil
+            self.currentGuildId = nil
         }
     }
 
@@ -67,16 +63,13 @@ final class GuildService: @unchecked Sendable {
         // Disconnect from previous guild
         await disconnectSSE()
 
-        await setLoading(true)
-        defer { Task { await setLoading(false) } }
+        isLoading = true
+        defer { isLoading = false }
 
         let response = try await apiClient.getGuild(id: id)
-
-        await MainActor.run {
-            self.currentGuild = response.data
-            self.currentGuildId = id
-            self.error = nil
-        }
+        self.currentGuild = response.data
+        self.currentGuildId = id
+        self.error = nil
 
         // Connect to SSE for real-time updates
         await connectSSE(guildId: id)
@@ -89,21 +82,18 @@ final class GuildService: @unchecked Sendable {
         let request = UpdateGuildRequest(name: name, description: description, icon: icon, color: color)
         let response = try await apiClient.updateGuild(id: guildId, request)
 
-        await MainActor.run {
-            // Update in guilds list
-            if let index = self.guilds.firstIndex(where: { $0.id == guildId }) {
-                self.guilds[index] = response.data
-            }
-            // Update current guild
-            if var current = self.currentGuild {
-                current = GuildData(
-                    guild: response.data,
-                    members: current.members,
-                    people: current.people,
-                    activities: current.activities
-                )
-                self.currentGuild = current
-            }
+        // Update in guilds list
+        if let index = self.guilds.firstIndex(where: { $0.id == guildId }) {
+            self.guilds[index] = response.data
+        }
+        // Update current guild
+        if let current = self.currentGuild {
+            self.currentGuild = GuildData(
+                guild: response.data,
+                members: current.members,
+                people: current.people,
+                activities: current.activities
+            )
         }
     }
 
@@ -120,11 +110,9 @@ final class GuildService: @unchecked Sendable {
         try await apiClient.leaveGuild(id: guildId)
         await disconnectSSE()
 
-        await MainActor.run {
-            self.guilds.removeAll { $0.id == guildId }
-            self.currentGuild = nil
-            self.currentGuildId = nil
-        }
+        self.guilds.removeAll { $0.id == guildId }
+        self.currentGuild = nil
+        self.currentGuildId = nil
     }
 
     // MARK: - People
@@ -138,17 +126,15 @@ final class GuildService: @unchecked Sendable {
         let request = CreatePersonRequest(name: name, nickname: nickname, birthday: birthday, notes: notes)
         let response = try await apiClient.createPerson(guildId: guildId, request)
 
-        await MainActor.run {
-            if var current = self.currentGuild {
-                var people = current.people
-                people.append(response.data)
-                self.currentGuild = GuildData(
-                    guild: current.guild,
-                    members: current.members,
-                    people: people,
-                    activities: current.activities
-                )
-            }
+        if let current = self.currentGuild {
+            var people = current.people
+            people.append(response.data)
+            self.currentGuild = GuildData(
+                guild: current.guild,
+                members: current.members,
+                people: people,
+                activities: current.activities
+            )
         }
 
         return response.data
@@ -161,19 +147,17 @@ final class GuildService: @unchecked Sendable {
         let request = UpdatePersonRequest(name: name, nickname: nickname, birthday: birthday, notes: notes)
         let response = try await apiClient.updatePerson(guildId: guildId, personId: id, request)
 
-        await MainActor.run {
-            if var current = self.currentGuild {
-                var people = current.people
-                if let index = people.firstIndex(where: { $0.id == id }) {
-                    people[index] = response.data
-                }
-                self.currentGuild = GuildData(
-                    guild: current.guild,
-                    members: current.members,
-                    people: people,
-                    activities: current.activities
-                )
+        if let current = self.currentGuild {
+            var people = current.people
+            if let index = people.firstIndex(where: { $0.id == id }) {
+                people[index] = response.data
             }
+            self.currentGuild = GuildData(
+                guild: current.guild,
+                members: current.members,
+                people: people,
+                activities: current.activities
+            )
         }
     }
 
@@ -183,16 +167,14 @@ final class GuildService: @unchecked Sendable {
 
         try await apiClient.deletePerson(guildId: guildId, personId: id)
 
-        await MainActor.run {
-            if var current = self.currentGuild {
-                let people = current.people.filter { $0.id != id }
-                self.currentGuild = GuildData(
-                    guild: current.guild,
-                    members: current.members,
-                    people: people,
-                    activities: current.activities
-                )
-            }
+        if let current = self.currentGuild {
+            let people = current.people.filter { $0.id != id }
+            self.currentGuild = GuildData(
+                guild: current.guild,
+                members: current.members,
+                people: people,
+                activities: current.activities
+            )
         }
     }
 
@@ -207,17 +189,15 @@ final class GuildService: @unchecked Sendable {
         let request = CreateActivityRequest(name: name, icon: icon, warn: warn, critical: critical)
         let response = try await apiClient.createActivity(guildId: guildId, request)
 
-        await MainActor.run {
-            if var current = self.currentGuild {
-                var activities = current.activities
-                activities.append(response.data)
-                self.currentGuild = GuildData(
-                    guild: current.guild,
-                    members: current.members,
-                    people: current.people,
-                    activities: activities
-                )
-            }
+        if let current = self.currentGuild {
+            var activities = current.activities
+            activities.append(response.data)
+            self.currentGuild = GuildData(
+                guild: current.guild,
+                members: current.members,
+                people: current.people,
+                activities: activities
+            )
         }
 
         return response.data
@@ -229,16 +209,14 @@ final class GuildService: @unchecked Sendable {
 
         try await apiClient.deleteActivity(guildId: guildId, activityId: id)
 
-        await MainActor.run {
-            if var current = self.currentGuild {
-                let activities = current.activities.filter { $0.id != id }
-                self.currentGuild = GuildData(
-                    guild: current.guild,
-                    members: current.members,
-                    people: current.people,
-                    activities: activities
-                )
-            }
+        if let current = self.currentGuild {
+            let activities = current.activities.filter { $0.id != id }
+            self.currentGuild = GuildData(
+                guild: current.guild,
+                members: current.members,
+                people: current.people,
+                activities: activities
+            )
         }
     }
 
@@ -293,9 +271,7 @@ final class GuildService: @unchecked Sendable {
     private func disconnectSSE() async {
         await sseClient?.disconnect()
         sseClient = nil
-        await MainActor.run {
-            self.isConnected = false
-        }
+        self.isConnected = false
     }
 
     @MainActor
@@ -362,20 +338,12 @@ final class GuildService: @unchecked Sendable {
 
     // MARK: - Helpers
 
-    private func setLoading(_ loading: Bool) async {
-        await MainActor.run {
-            self.isLoading = loading
-        }
-    }
-
     /// Clear all state (for logout)
     func clear() async {
         await disconnectSSE()
-        await MainActor.run {
-            self.guilds = []
-            self.currentGuild = nil
-            self.currentGuildId = nil
-        }
+        self.guilds = []
+        self.currentGuild = nil
+        self.currentGuildId = nil
     }
 }
 

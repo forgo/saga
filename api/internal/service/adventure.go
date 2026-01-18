@@ -28,6 +28,8 @@ type AdventureAdmissionRepository interface {
 // AdventureRepository defines the interface for adventure storage
 type AdventureRepository interface {
 	GetByID(ctx context.Context, id string) (*model.Adventure, error)
+	GetByGuild(ctx context.Context, guildID string, limit, offset int) ([]*model.Adventure, error)
+	GetByUser(ctx context.Context, userID string, limit, offset int) ([]*model.Adventure, error)
 	Create(ctx context.Context, adventure *model.Adventure) error
 	Update(ctx context.Context, id string, updates map[string]interface{}) (*model.Adventure, error)
 	UpdateOrganizerUser(ctx context.Context, id string, newOrganizerUserID string) (*model.Adventure, error)
@@ -143,6 +145,31 @@ func (s *AdventureService) GetByID(ctx context.Context, id string) (*model.Adven
 		return nil, model.NewNotFoundError("adventure not found")
 	}
 	return adventure, nil
+}
+
+// ListByGuild retrieves adventures for a guild
+func (s *AdventureService) ListByGuild(ctx context.Context, guildID string, userID string, limit, offset int) ([]*model.Adventure, error) {
+	// Verify user is member of guild
+	if s.guildRepo != nil {
+		isMember, err := s.guildRepo.IsMember(ctx, userID, guildID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check guild membership: %w", err)
+		}
+		if !isMember {
+			return nil, model.NewForbiddenError("must be guild member to view adventures")
+		}
+	}
+
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+
+	adventures, err := s.adventureRepo.GetByGuild(ctx, guildID, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get guild adventures: %w", err)
+	}
+
+	return adventures, nil
 }
 
 // Admission Operations

@@ -20,8 +20,10 @@ struct CreatePoolSheet: View {
             // Basic Info
             Section("Details") {
                 TextField("Pool Name", text: $name)
+                    .accessibilityIdentifier("pool_name_field")
                 TextField("Description (optional)", text: $description, axis: .vertical)
                     .lineLimit(3...6)
+                    .accessibilityIdentifier("pool_description_field")
             }
 
             // Matching Settings
@@ -46,12 +48,14 @@ struct CreatePoolSheet: View {
                 Button("Cancel") {
                     dismiss()
                 }
+                .accessibilityIdentifier("pool_create_cancel")
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Create") {
                     Task { await createPool() }
                 }
                 .disabled(name.isEmpty || isCreating)
+                .accessibilityIdentifier("pool_create_confirm")
             }
         }
         .alert("Error", isPresented: .constant(error != nil)) {

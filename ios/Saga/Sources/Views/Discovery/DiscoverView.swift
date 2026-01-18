@@ -24,6 +24,7 @@ struct DiscoverView: View {
             }
             .pickerStyle(.segmented)
             .padding()
+            .accessibilityIdentifier("discover_tab_picker")
 
             // Content
             Group {
@@ -80,6 +81,7 @@ struct DiscoverView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("discover_search_button")
             }
 
             // Results Section

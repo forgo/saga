@@ -6,6 +6,7 @@ struct GuildListView: View {
     @State private var showingCreateSheet = false
     @State private var errorMessage: String?
     @State private var isShowingError = false
+    @State private var needsRefresh = false
 
     var body: some View {
         List {
@@ -15,6 +16,7 @@ struct GuildListView: View {
                     systemImage: "person.3.fill",
                     description: Text("Create a guild to start tracking your relationships")
                 )
+                .accessibilityIdentifier("guild_empty_state")
                 .listRowBackground(Color.clear)
             } else {
                 ForEach(guildService.guilds) { guild in
@@ -26,6 +28,8 @@ struct GuildListView: View {
                 .onDelete(perform: deleteGuilds)
             }
         }
+        // Force list to re-render when guild count changes
+        .id(guildService.guilds.count)
         .accessibilityIdentifier("guild_list")
         .navigationTitle("Guilds")
         .toolbar {
@@ -35,19 +39,48 @@ struct GuildListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityIdentifier("create_guild_button")
+                .accessibilityIdentifier("guild_create_button")
             }
         }
         .refreshable {
-            try? await guildService.fetchGuilds()
+            do {
+                try await guildService.fetchGuilds()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
         }
         .task {
             if guildService.guilds.isEmpty {
-                try? await guildService.fetchGuilds()
+                do {
+                    try await guildService.fetchGuilds()
+                } catch {
+                    #if DEBUG
+                    print("GuildListView: Failed to fetch guilds - \(error)")
+                    #endif
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
             }
         }
-        .sheet(isPresented: $showingCreateSheet) {
+        .sheet(isPresented: $showingCreateSheet, onDismiss: {
+            needsRefresh = true
+        }) {
             CreateGuildSheet()
+                .environment(guildService)
+        }
+        .onChange(of: needsRefresh) { _, newValue in
+            if newValue {
+                needsRefresh = false
+                Task {
+                    do {
+                        try await guildService.fetchGuilds()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                        isShowingError = true
+                    }
+                }
+            }
         }
         .alert("Error", isPresented: $isShowingError) {
             Button("OK", role: .cancel) { }
@@ -128,8 +161,10 @@ struct CreateGuildSheet: View {
             Form {
                 Section {
                     TextField("Guild name", text: $name)
+                        .accessibilityIdentifier("guild_name_field")
                     TextField("Description (optional)", text: $description, axis: .vertical)
                         .lineLimit(2...4)
+                        .accessibilityIdentifier("guild_description_field")
                 }
 
                 Section("Icon") {
@@ -170,12 +205,14 @@ struct CreateGuildSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("guild_create_cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         createGuild()
                     }
                     .disabled(name.isEmpty || isCreating)
+                    .accessibilityIdentifier("guild_create_confirm")
                 }
             }
         }
@@ -195,6 +232,8 @@ struct CreateGuildSheet: View {
                     icon: selectedIcon,
                     color: selectedColor.hexString
                 )
+                // Fetch updated list to ensure UI is in sync
+                try? await guildService.fetchGuilds()
                 dismiss()
             } catch {
                 errorMessage = error.localizedDescription
@@ -211,10 +250,10 @@ enum GuildDestination: Hashable {
     case person(person: Person)
     case createPerson
     case settings
-    case events
-    case adventures
-    case pools
-    case votes
+    case events(guildId: String)
+    case adventures(guildId: String)
+    case pools(guildId: String)
+    case votes(guildId: String)
 }
 
 #Preview {

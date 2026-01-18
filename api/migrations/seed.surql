@@ -25,7 +25,7 @@ CREATE user:demo SET
     updated_on = time::now();
 
 -- ============================================================================
--- DEMO CIRCLE
+-- DEMO GUILD
 -- ============================================================================
 
 CREATE member:demo SET
@@ -35,15 +35,16 @@ CREATE member:demo SET
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE circle:demo SET
+CREATE guild:demo SET
     name = "Close Friends",
     description = "My closest friends",
     icon = "person.3.fill",
     color = "#6B46C1",
+    visibility = "private",
     created_on = time::now(),
     updated_on = time::now();
 
-RELATE member:demo->responsible_for->circle:demo SET
+RELATE member:demo->responsible_for->guild:demo SET
     pending_approval = false,
     role = "admin";
 
@@ -58,7 +59,7 @@ CREATE activity:hungout SET
     critical = 2592000, -- 30 days in seconds
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:hungout->managed_by->circle:demo;
+RELATE activity:hungout->managed_by->guild:demo;
 
 CREATE activity:called SET
     name = "Called",
@@ -67,7 +68,7 @@ CREATE activity:called SET
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:called->managed_by->circle:demo;
+RELATE activity:called->managed_by->guild:demo;
 
 CREATE activity:texted SET
     name = "Texted",
@@ -76,7 +77,7 @@ CREATE activity:texted SET
     critical = 604800,  -- 7 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:texted->managed_by->circle:demo;
+RELATE activity:texted->managed_by->guild:demo;
 
 CREATE activity:games SET
     name = "Played games",
@@ -85,7 +86,7 @@ CREATE activity:games SET
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:games->managed_by->circle:demo;
+RELATE activity:games->managed_by->guild:demo;
 
 CREATE activity:coffee SET
     name = "Coffee",
@@ -94,7 +95,7 @@ CREATE activity:coffee SET
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:coffee->managed_by->circle:demo;
+RELATE activity:coffee->managed_by->guild:demo;
 
 -- ============================================================================
 -- PEOPLE (friends you want to stay in touch with)
@@ -107,7 +108,7 @@ CREATE person:alex SET
     notes = "Met at college, loves hiking",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:alex->part_of->circle:demo;
+RELATE person:alex->part_of->guild:demo;
 
 CREATE person:sam SET
     name = "Sam Rivera",
@@ -116,14 +117,14 @@ CREATE person:sam SET
     notes = "Coworker at previous job, into board games",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:sam->part_of->circle:demo;
+RELATE person:sam->part_of->guild:demo;
 
 CREATE person:jordan SET
     name = "Jordan Lee",
     notes = "Gym buddy",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:jordan->part_of->circle:demo;
+RELATE person:jordan->part_of->guild:demo;
 
 -- ============================================================================
 -- TIMERS FOR ALEX (varied states for testing)
@@ -198,7 +199,7 @@ RELATE person:jordan->tracked_by->timer:jordan_hungout;
 RELATE timer:jordan_hungout->adheres_to->activity:hungout;
 
 -- ============================================================================
--- SECOND USER (for multi-user/circle testing)
+-- SECOND USER (for multi-user/guild testing)
 -- ============================================================================
 
 CREATE user:second SET
@@ -218,7 +219,7 @@ CREATE member:second SET
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE circle:second SET
+CREATE guild:second SET
     name = "Work Buddies",
     description = "Former colleagues",
     icon = "briefcase.fill",
@@ -226,11 +227,11 @@ CREATE circle:second SET
     created_on = time::now(),
     updated_on = time::now();
 
-RELATE member:second->responsible_for->circle:second SET
+RELATE member:second->responsible_for->guild:second SET
     pending_approval = false,
     role = "admin";
 
--- Activities for second circle
+-- Activities for second guild
 CREATE activity:hungout2 SET
     name = "Hung out",
     icon = "person.2.fill",
@@ -238,7 +239,7 @@ CREATE activity:hungout2 SET
     critical = 2592000,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:hungout2->managed_by->circle:second;
+RELATE activity:hungout2->managed_by->guild:second;
 
 CREATE activity:called2 SET
     name = "Called",
@@ -247,7 +248,7 @@ CREATE activity:called2 SET
     critical = 1209600,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:called2->managed_by->circle:second;
+RELATE activity:called2->managed_by->guild:second;
 
 CREATE activity:lunch2 SET
     name = "Lunch",
@@ -256,16 +257,16 @@ CREATE activity:lunch2 SET
     critical = 2592000,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:lunch2->managed_by->circle:second;
+RELATE activity:lunch2->managed_by->guild:second;
 
--- Person for second circle
+-- Person for second guild
 CREATE person:taylor SET
     name = "Taylor Martinez",
     nickname = "Tay",
     notes = "Former manager, great mentor",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:taylor->part_of->circle:second;
+RELATE person:taylor->part_of->guild:second;
 
 -- Timers for Taylor
 CREATE timer:taylor_hungout SET
@@ -296,7 +297,7 @@ RELATE person:taylor->tracked_by->timer:taylor_lunch;
 RELATE timer:taylor_lunch->adheres_to->activity:lunch2;
 
 -- ============================================================================
--- PENDING INVITE (for testing circle join flow)
+-- PENDING INVITE (for testing guild join flow)
 -- ============================================================================
 
 CREATE user:pending SET
@@ -317,7 +318,7 @@ CREATE member:pending SET
     updated_on = time::now();
 
 -- Pending invite to Demo Circle (for testing approval flow)
-RELATE member:pending->responsible_for->circle:demo SET
+RELATE member:pending->responsible_for->guild:demo SET
     pending_approval = true;
 
 -- ============================================================================
@@ -325,7 +326,7 @@ RELATE member:pending->responsible_for->circle:demo SET
 -- ============================================================================
 
 CREATE event:gamenight SET
-    circle_id = circle:demo,
+    guild_id = guild:demo,
     title = "Board Game Night",
     description = "Monthly board game meetup at Alex's place. Bring snacks!",
     location = "123 Main St, Apt 4B",

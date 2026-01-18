@@ -36,6 +36,7 @@ struct EventListView: View {
             .pickerStyle(.segmented)
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            .accessibilityIdentifier("event_filter_picker")
 
             if filteredEvents.isEmpty && !eventService.isLoading {
                 ContentUnavailableView(
@@ -55,6 +56,7 @@ struct EventListView: View {
                             NavigationLink(value: EventDestination.detail(event)) {
                                 EventRow(event: event)
                             }
+                            .accessibilityIdentifier("event_row_\(event.id)")
                         }
                     }
                 }
@@ -71,11 +73,13 @@ struct EventListView: View {
                             NavigationLink(value: EventDestination.detail(event)) {
                                 EventRow(event: event)
                             }
+                            .accessibilityIdentifier("event_row_\(event.id)")
                         }
                     }
                 }
             }
         }
+        .accessibilityIdentifier("event_list")
         .navigationTitle("Events")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -85,6 +89,7 @@ struct EventListView: View {
                     Image(systemName: "plus")
                 }
                 .disabled(guildService.currentGuild == nil)
+                .accessibilityIdentifier("event_create_button")
             }
         }
         .refreshable {

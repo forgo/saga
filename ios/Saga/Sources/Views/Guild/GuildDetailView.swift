@@ -71,20 +71,20 @@ struct GuildDetailView: View {
 
             // Features section
             Section("Features") {
-                NavigationLink(value: GuildDestination.events) {
-                    Label("Events", systemImage: "calendar")
+                NavigationLink(value: GuildDestination.events(guildId: guild.id)) {
+                    FeatureRow(title: "Events", icon: "calendar", identifier: "guild_feature_events")
                 }
 
-                NavigationLink(value: GuildDestination.adventures) {
-                    Label("Adventures", systemImage: "figure.hiking")
+                NavigationLink(value: GuildDestination.adventures(guildId: guild.id)) {
+                    FeatureRow(title: "Adventures", icon: "figure.hiking", identifier: "guild_feature_adventures")
                 }
 
-                NavigationLink(value: GuildDestination.pools) {
-                    Label("Matching Pools", systemImage: "person.2.circle")
+                NavigationLink(value: GuildDestination.pools(guildId: guild.id)) {
+                    FeatureRow(title: "Matching Pools", icon: "person.2.circle", identifier: "guild_feature_pools")
                 }
 
-                NavigationLink(value: GuildDestination.votes) {
-                    Label("Votes", systemImage: "chart.bar.xaxis")
+                NavigationLink(value: GuildDestination.votes(guildId: guild.id)) {
+                    FeatureRow(title: "Votes", icon: "chart.bar.xaxis", identifier: "guild_feature_votes")
                 }
             }
 
@@ -154,6 +154,20 @@ struct GuildDetailView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Feature Row
+
+struct FeatureRow: View {
+    let title: String
+    let icon: String
+    let identifier: String
+
+    var body: some View {
+        Label(title, systemImage: icon)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(identifier)
     }
 }
 
@@ -294,6 +308,7 @@ struct CreatePersonSheet: View {
             description: "My closest friends",
             icon: "person.3.fill",
             color: "#6B46C1",
+            visibility: "private",
             createdOn: Date(),
             updatedOn: Date()
         ))

@@ -530,6 +530,7 @@ func main() {
 	// Adventure endpoints
 	mux.Handle("POST /v1/adventures", authMiddleware(http.HandlerFunc(adventureHandler.Create)))
 	mux.Handle("GET /v1/adventures/{adventureId}", authMiddleware(http.HandlerFunc(adventureHandler.GetByID)))
+	mux.Handle("GET /v1/guilds/{guildId}/adventures", authMiddleware(http.HandlerFunc(adventureHandler.ListGuildAdventures)))
 	mux.Handle("POST /v1/guilds/{guildId}/adventures", authMiddleware(http.HandlerFunc(adventureHandler.CreateGuildAdventure)))
 	mux.Handle("POST /v1/users/me/adventures", authMiddleware(http.HandlerFunc(adventureHandler.CreateUserAdventure)))
 	// Adventure admission endpoints

@@ -42,6 +42,27 @@ func (h *AdventureHandler) Create(w http.ResponseWriter, r *http.Request) {
 	WriteData(w, http.StatusCreated, adventure, nil)
 }
 
+// ListGuildAdventures handles GET /v1/guilds/{guildId}/adventures
+func (h *AdventureHandler) ListGuildAdventures(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		WriteError(w, model.NewUnauthorizedError("authentication required"))
+		return
+	}
+	guildID := r.PathValue("guildId")
+
+	limit, offset := getPaginationParams(r)
+
+	adventures, err := h.svc.ListByGuild(ctx, guildID, userID, limit, offset)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	WriteCollection(w, http.StatusOK, adventures, nil, nil)
+}
+
 // CreateGuildAdventure handles POST /v1/guilds/{guildId}/adventures
 func (h *AdventureHandler) CreateGuildAdventure(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -58,6 +58,7 @@ struct EventDetailView: View {
             }
             .padding()
         }
+        .accessibilityIdentifier("event_detail_view")
         .navigationTitle(event.title)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -232,6 +233,7 @@ struct RSVPSection: View {
                     ) {
                         await updateRSVP(.going)
                     }
+                    .accessibilityIdentifier("event_rsvp_going")
 
                     RSVPButton(
                         status: .maybe,
@@ -240,6 +242,7 @@ struct RSVPSection: View {
                     ) {
                         await updateRSVP(.maybe)
                     }
+                    .accessibilityIdentifier("event_rsvp_maybe")
 
                     RSVPButton(
                         status: .notGoing,
@@ -248,6 +251,7 @@ struct RSVPSection: View {
                     ) {
                         await updateRSVP(.notGoing)
                     }
+                    .accessibilityIdentifier("event_rsvp_not_going")
                 }
             }
 

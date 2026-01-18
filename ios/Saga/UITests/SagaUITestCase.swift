@@ -14,8 +14,6 @@ class SagaUITestCase: XCTestCase {
     // MARK: - Setup & Teardown
 
     override func setUp() async throws {
-        try await super.setUp()
-
         // Stop immediately when a failure occurs
         continueAfterFailure = false
 
@@ -33,7 +31,6 @@ class SagaUITestCase: XCTestCase {
     override func tearDown() async throws {
         app = nil
         loginHelper = nil
-        try await super.tearDown()
     }
 
     // MARK: - Launch Helpers

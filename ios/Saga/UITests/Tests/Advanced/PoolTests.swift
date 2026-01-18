@@ -3,6 +3,7 @@ import XCTest
 /// Tests for matching pool functionality
 /// Pools are accessed from the guild detail view
 
+@MainActor
 final class PoolTests: SagaUITestCase {
 
     // MARK: - Helper

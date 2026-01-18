@@ -3,6 +3,7 @@ import XCTest
 /// Tests for trust management functionality
 /// Trust is accessed from the Profile tab
 
+@MainActor
 final class TrustTests: SagaUITestCase {
 
     // MARK: - Helper

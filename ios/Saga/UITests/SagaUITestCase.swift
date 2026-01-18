@@ -2,6 +2,7 @@ import XCTest
 
 /// Base test case class for all Saga UI tests
 /// Provides common setup, teardown, and helper methods
+@MainActor
 class SagaUITestCase: XCTestCase {
 
     /// The main application under test
@@ -12,8 +13,8 @@ class SagaUITestCase: XCTestCase {
 
     // MARK: - Setup & Teardown
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
 
         // Stop immediately when a failure occurs
         continueAfterFailure = false
@@ -29,10 +30,10 @@ class SagaUITestCase: XCTestCase {
         loginHelper = LoginHelper(app: app)
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         app = nil
         loginHelper = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     // MARK: - Launch Helpers

@@ -2,6 +2,7 @@ import XCTest
 
 /// Tests for discovery functionality
 
+@MainActor
 final class DiscoveryTests: SagaUITestCase {
 
     // MARK: - Tab Navigation Tests

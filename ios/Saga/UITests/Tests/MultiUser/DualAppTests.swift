@@ -3,19 +3,20 @@ import XCTest
 /// Tests for real-time sync scenarios between users
 /// Note: True dual-app testing is limited in XCUITest. These tests verify
 /// that changes are persisted and visible after re-login.
+@MainActor
 final class DualAppTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         multiApp = MultiAppHelper()
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         multiApp?.cleanup()
         multiApp = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     // MARK: - Real-Time Sync Simulation Tests

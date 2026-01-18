@@ -2,20 +2,20 @@ import XCTest
 
 /// Tests for real-time synchronization via Server-Sent Events (SSE)
 /// These tests verify the app correctly handles real-time updates
-
+@MainActor
 final class RealTimeSyncTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         multiApp = MultiAppHelper()
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         multiApp?.cleanup()
         multiApp = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     // MARK: - Connection State Tests

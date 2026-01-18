@@ -3,6 +3,7 @@ import XCTest
 /// Tests for voting system functionality
 /// Votes are accessed from the guild detail view
 
+@MainActor
 final class VoteTests: SagaUITestCase {
 
     // MARK: - Helper

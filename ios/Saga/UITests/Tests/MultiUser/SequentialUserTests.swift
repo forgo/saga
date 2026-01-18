@@ -2,19 +2,20 @@ import XCTest
 
 /// Tests for multi-user scenarios using sequential login/logout
 /// These tests verify that changes made by one user are visible to another
+@MainActor
 final class SequentialUserTests: SagaUITestCase {
 
     var multiApp: MultiAppHelper!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         multiApp = MultiAppHelper()
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         multiApp?.cleanup()
         multiApp = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     // MARK: - User Switching Tests

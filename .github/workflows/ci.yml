@@ -112,8 +112,6 @@ jobs:
     # Run iOS tests if iOS OR API changed (API changes could break iOS)
     if: needs.changes.outputs.ios == 'true' || needs.changes.outputs.api == 'true'
     runs-on: macos-14
-    # TODO: Fix Swift 6 concurrency issues in UITests, then remove continue-on-error
-    continue-on-error: true
     defaults:
       run:
         working-directory: ./ios/Saga

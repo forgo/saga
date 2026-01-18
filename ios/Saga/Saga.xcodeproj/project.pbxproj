@@ -1278,6 +1278,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.saga.uitests;
 				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = minimal;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Saga;
 			};
@@ -1395,6 +1396,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.saga.uitests;
 				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = minimal;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Saga;
 			};

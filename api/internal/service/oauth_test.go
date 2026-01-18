@@ -340,13 +340,13 @@ func TestOAuthService_HandleOAuthUser_NewUser(t *testing.T) {
 	// Verify user was created
 	user, _ := userRepo.GetByEmail(ctx, "newuser@example.com")
 	if user == nil {
-		t.Error("user should be created in repository")
+		t.Fatal("user should be created in repository")
 	}
 
 	// Verify identity was created
 	identity, _ := identityRepo.GetByProviderID(ctx, "google", "google-user-123")
 	if identity == nil {
-		t.Error("identity should be created in repository")
+		t.Fatal("identity should be created in repository")
 	}
 	if identity.UserID != user.ID {
 		t.Error("identity should be linked to user")
@@ -463,7 +463,7 @@ func TestOAuthService_LinkAccount_Success(t *testing.T) {
 	// Verify identity was created
 	identity, _ := identityRepo.GetByProviderID(ctx, "google", "new-google-id")
 	if identity == nil {
-		t.Error("identity should be created")
+		t.Fatal("identity should be created")
 	}
 	if identity.UserID != existingUser.ID {
 		t.Error("identity should be linked to correct user")
@@ -676,7 +676,7 @@ func TestOAuthService_AuthenticateGoogle_Success(t *testing.T) {
 				TokenType:   "Bearer",
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(resp)
+			_ = json.NewEncoder(w).Encode(resp)
 		}
 	}))
 	defer mockGoogleServer.Close()

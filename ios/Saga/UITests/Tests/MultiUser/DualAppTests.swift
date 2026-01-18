@@ -9,14 +9,14 @@ final class DualAppTests: SagaUITestCase {
     var multiApp: MultiAppHelper!
 
     override func setUp() async throws {
-        await super.setUp()
+        try await super.setUp()
         multiApp = MultiAppHelper()
     }
 
     override func tearDown() async throws {
         multiApp?.cleanup()
         multiApp = nil
-        await super.tearDown()
+        try await super.tearDown()
     }
 
     // MARK: - Real-Time Sync Simulation Tests

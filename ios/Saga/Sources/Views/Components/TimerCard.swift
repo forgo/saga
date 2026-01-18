@@ -129,8 +129,10 @@ struct TimerCard: View {
     }
 
     private func startDisplayTimer() {
-        displayTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-            elapsedTime = timer.elapsed
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [self] _ in
+            Task { @MainActor in
+                elapsedTime = timer.elapsed
+            }
         }
     }
 

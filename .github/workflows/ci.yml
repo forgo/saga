@@ -136,7 +136,7 @@ jobs:
           xcodebuild build-for-testing \
             -project Saga.xcodeproj \
             -scheme Saga \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -quiet
 
       - name: Run Unit Tests
@@ -144,7 +144,7 @@ jobs:
           xcodebuild test \
             -project Saga.xcodeproj \
             -scheme Saga \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -only-testing:SagaTests \
             -resultBundlePath TestResults.xcresult
 

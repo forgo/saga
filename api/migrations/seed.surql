@@ -14,7 +14,7 @@
 -- ============================================================================
 
 -- Password: password123 (bcrypt hash)
-CREATE user:demo SET
+UPSERT user:demo SET
     email = "demo@forgo.software",
     username = "demo",
     hash = "$2a$10$Uu16ncWz8w9YXs.wQUajr.qSfxTK2xt0RSZqL6F7M/VpQdnKMGp6m",
@@ -28,14 +28,14 @@ CREATE user:demo SET
 -- DEMO GUILD
 -- ============================================================================
 
-CREATE member:demo SET
+UPSERT member:demo SET
     name = "Demo User",
     email = "demo@forgo.software",
     user = user:demo,
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE guild:demo SET
+UPSERT guild:demo SET
     name = "Close Friends",
     description = "My closest friends",
     icon = "person.3.fill",
@@ -44,7 +44,7 @@ CREATE guild:demo SET
     created_on = time::now(),
     updated_on = time::now();
 
-RELATE member:demo->responsible_for->guild:demo SET
+RELATE member:demo->responsible_for:rf_demo_demo->guild:demo SET
     pending_approval = false,
     role = "admin";
 
@@ -52,157 +52,157 @@ RELATE member:demo->responsible_for->guild:demo SET
 -- ACTIVITIES (general-purpose interaction types)
 -- ============================================================================
 
-CREATE activity:hungout SET
+UPSERT activity:hungout SET
     name = "Hung out",
     icon = "person.2.fill",
     warn = 1209600,    -- 14 days in seconds
     critical = 2592000, -- 30 days in seconds
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:hungout->managed_by->guild:demo;
+RELATE activity:hungout->managed_by:mb_hungout_demo->guild:demo;
 
-CREATE activity:called SET
+UPSERT activity:called SET
     name = "Called",
     icon = "phone.fill",
     warn = 604800,     -- 7 days
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:called->managed_by->guild:demo;
+RELATE activity:called->managed_by:mb_called_demo->guild:demo;
 
-CREATE activity:texted SET
+UPSERT activity:texted SET
     name = "Texted",
     icon = "message.fill",
     warn = 259200,     -- 3 days
     critical = 604800,  -- 7 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:texted->managed_by->guild:demo;
+RELATE activity:texted->managed_by:mb_texted_demo->guild:demo;
 
-CREATE activity:games SET
+UPSERT activity:games SET
     name = "Played games",
     icon = "gamecontroller.fill",
     warn = 604800,     -- 7 days
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:games->managed_by->guild:demo;
+RELATE activity:games->managed_by:mb_games_demo->guild:demo;
 
-CREATE activity:coffee SET
+UPSERT activity:coffee SET
     name = "Coffee",
     icon = "cup.and.saucer.fill",
     warn = 604800,     -- 7 days
     critical = 1209600, -- 14 days
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:coffee->managed_by->guild:demo;
+RELATE activity:coffee->managed_by:mb_coffee_demo->guild:demo;
 
 -- ============================================================================
 -- PEOPLE (friends you want to stay in touch with)
 -- ============================================================================
 
-CREATE person:alex SET
+UPSERT person:alex SET
     name = "Alex Chen",
     nickname = "Alex",
     birthday = d"1990-03-15",
     notes = "Met at college, loves hiking",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:alex->part_of->guild:demo;
+RELATE person:alex->part_of:po_alex_demo->guild:demo;
 
-CREATE person:sam SET
+UPSERT person:sam SET
     name = "Sam Rivera",
     nickname = "Sam",
     birthday = d"1992-08-22",
     notes = "Coworker at previous job, into board games",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:sam->part_of->guild:demo;
+RELATE person:sam->part_of:po_sam_demo->guild:demo;
 
-CREATE person:jordan SET
+UPSERT person:jordan SET
     name = "Jordan Lee",
     notes = "Gym buddy",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:jordan->part_of->guild:demo;
+RELATE person:jordan->part_of:po_jordan_demo->guild:demo;
 
 -- ============================================================================
 -- TIMERS FOR ALEX (varied states for testing)
 -- ============================================================================
 
 -- Alex: Hung out - normal state (last met 3 days ago)
-CREATE timer:alex_hungout SET
+UPSERT timer:alex_hungout SET
     reset_date = time::now() - 3d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:alex->tracked_by->timer:alex_hungout;
-RELATE timer:alex_hungout->adheres_to->activity:hungout;
+RELATE person:alex->tracked_by:tb_alex_hungout->timer:alex_hungout;
+RELATE timer:alex_hungout->adheres_to:at_alex_hungout->activity:hungout;
 
 -- Alex: Texted - warning state (5 days ago)
-CREATE timer:alex_texted SET
+UPSERT timer:alex_texted SET
     reset_date = time::now() - 5d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:alex->tracked_by->timer:alex_texted;
-RELATE timer:alex_texted->adheres_to->activity:texted;
+RELATE person:alex->tracked_by:tb_alex_texted->timer:alex_texted;
+RELATE timer:alex_texted->adheres_to:at_alex_texted->activity:texted;
 
 -- Alex: Called - critical state (3 weeks ago)
-CREATE timer:alex_called SET
+UPSERT timer:alex_called SET
     reset_date = time::now() - 21d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:alex->tracked_by->timer:alex_called;
-RELATE timer:alex_called->adheres_to->activity:called;
+RELATE person:alex->tracked_by:tb_alex_called->timer:alex_called;
+RELATE timer:alex_called->adheres_to:at_alex_called->activity:called;
 
 -- ============================================================================
 -- TIMERS FOR SAM (all normal states)
 -- ============================================================================
 
 -- Sam: Games - recently played
-CREATE timer:sam_games SET
+UPSERT timer:sam_games SET
     reset_date = time::now() - 2d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:sam->tracked_by->timer:sam_games;
-RELATE timer:sam_games->adheres_to->activity:games;
+RELATE person:sam->tracked_by:tb_sam_games->timer:sam_games;
+RELATE timer:sam_games->adheres_to:at_sam_games->activity:games;
 
 -- Sam: Texted - recent
-CREATE timer:sam_texted SET
+UPSERT timer:sam_texted SET
     reset_date = time::now() - 1d,
     enabled = true,
     push = false,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:sam->tracked_by->timer:sam_texted;
-RELATE timer:sam_texted->adheres_to->activity:texted;
+RELATE person:sam->tracked_by:tb_sam_texted->timer:sam_texted;
+RELATE timer:sam_texted->adheres_to:at_sam_texted->activity:texted;
 
 -- ============================================================================
 -- TIMERS FOR JORDAN
 -- ============================================================================
 
 -- Jordan: Hung out - warning state (18 days ago)
-CREATE timer:jordan_hungout SET
+UPSERT timer:jordan_hungout SET
     reset_date = time::now() - 18d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:jordan->tracked_by->timer:jordan_hungout;
-RELATE timer:jordan_hungout->adheres_to->activity:hungout;
+RELATE person:jordan->tracked_by:tb_jordan_hungout->timer:jordan_hungout;
+RELATE timer:jordan_hungout->adheres_to:at_jordan_hungout->activity:hungout;
 
 -- ============================================================================
 -- SECOND USER (for multi-user/guild testing)
 -- ============================================================================
 
-CREATE user:second SET
+UPSERT user:second SET
     email = "second@forgo.software",
     username = "second",
     hash = "$2a$10$Uu16ncWz8w9YXs.wQUajr.qSfxTK2xt0RSZqL6F7M/VpQdnKMGp6m",
@@ -212,14 +212,14 @@ CREATE user:second SET
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE member:second SET
+UPSERT member:second SET
     name = "Second User",
     email = "second@forgo.software",
     user = user:second,
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE guild:second SET
+UPSERT guild:second SET
     name = "Work Buddies",
     description = "Former colleagues",
     icon = "briefcase.fill",
@@ -227,80 +227,80 @@ CREATE guild:second SET
     created_on = time::now(),
     updated_on = time::now();
 
-RELATE member:second->responsible_for->guild:second SET
+RELATE member:second->responsible_for:rf_second_second->guild:second SET
     pending_approval = false,
     role = "admin";
 
 -- Activities for second guild
-CREATE activity:hungout2 SET
+UPSERT activity:hungout2 SET
     name = "Hung out",
     icon = "person.2.fill",
     warn = 1209600,
     critical = 2592000,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:hungout2->managed_by->guild:second;
+RELATE activity:hungout2->managed_by:mb_hungout2_second->guild:second;
 
-CREATE activity:called2 SET
+UPSERT activity:called2 SET
     name = "Called",
     icon = "phone.fill",
     warn = 604800,
     critical = 1209600,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:called2->managed_by->guild:second;
+RELATE activity:called2->managed_by:mb_called2_second->guild:second;
 
-CREATE activity:lunch2 SET
+UPSERT activity:lunch2 SET
     name = "Lunch",
     icon = "fork.knife",
     warn = 1209600,
     critical = 2592000,
     created_on = time::now(),
     updated_on = time::now();
-RELATE activity:lunch2->managed_by->guild:second;
+RELATE activity:lunch2->managed_by:mb_lunch2_second->guild:second;
 
 -- Person for second guild
-CREATE person:taylor SET
+UPSERT person:taylor SET
     name = "Taylor Martinez",
     nickname = "Tay",
     notes = "Former manager, great mentor",
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:taylor->part_of->guild:second;
+RELATE person:taylor->part_of:po_taylor_second->guild:second;
 
 -- Timers for Taylor
-CREATE timer:taylor_hungout SET
+UPSERT timer:taylor_hungout SET
     reset_date = time::now() - 10d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:taylor->tracked_by->timer:taylor_hungout;
-RELATE timer:taylor_hungout->adheres_to->activity:hungout2;
+RELATE person:taylor->tracked_by:tb_taylor_hungout->timer:taylor_hungout;
+RELATE timer:taylor_hungout->adheres_to:at_taylor_hungout->activity:hungout2;
 
-CREATE timer:taylor_called SET
+UPSERT timer:taylor_called SET
     reset_date = time::now() - 5d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:taylor->tracked_by->timer:taylor_called;
-RELATE timer:taylor_called->adheres_to->activity:called2;
+RELATE person:taylor->tracked_by:tb_taylor_called->timer:taylor_called;
+RELATE timer:taylor_called->adheres_to:at_taylor_called->activity:called2;
 
-CREATE timer:taylor_lunch SET
+UPSERT timer:taylor_lunch SET
     reset_date = time::now() - 25d,
     enabled = true,
     push = true,
     created_on = time::now(),
     updated_on = time::now();
-RELATE person:taylor->tracked_by->timer:taylor_lunch;
-RELATE timer:taylor_lunch->adheres_to->activity:lunch2;
+RELATE person:taylor->tracked_by:tb_taylor_lunch->timer:taylor_lunch;
+RELATE timer:taylor_lunch->adheres_to:at_taylor_lunch->activity:lunch2;
 
 -- ============================================================================
 -- PENDING INVITE (for testing guild join flow)
 -- ============================================================================
 
-CREATE user:pending SET
+UPSERT user:pending SET
     email = "pending@forgo.software",
     username = "pending",
     hash = "$2a$10$Uu16ncWz8w9YXs.wQUajr.qSfxTK2xt0RSZqL6F7M/VpQdnKMGp6m",
@@ -310,7 +310,7 @@ CREATE user:pending SET
     created_on = time::now(),
     updated_on = time::now();
 
-CREATE member:pending SET
+UPSERT member:pending SET
     name = "Pending User",
     email = "pending@forgo.software",
     user = user:pending,
@@ -318,14 +318,14 @@ CREATE member:pending SET
     updated_on = time::now();
 
 -- Pending invite to Demo Circle (for testing approval flow)
-RELATE member:pending->responsible_for->guild:demo SET
+RELATE member:pending->responsible_for:rf_pending_demo->guild:demo SET
     pending_approval = true;
 
 -- ============================================================================
 -- SAMPLE EVENT (for testing events feature)
 -- ============================================================================
 
-CREATE event:gamenight SET
+UPSERT event:gamenight SET
     guild_id = guild:demo,
     title = "Board Game Night",
     description = "Monthly board game meetup at Alex's place. Bring snacks!",
@@ -338,6 +338,6 @@ CREATE event:gamenight SET
     updated_on = time::now();
 
 -- Demo user's RSVP
-RELATE member:demo->rsvp->event:gamenight SET
+RELATE member:demo->rsvp:rsvp_demo_gamenight->event:gamenight SET
     status = "yes",
     responded_on = time::now();

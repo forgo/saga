@@ -23,7 +23,7 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       ios: ${{ steps.filter.outputs.ios }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -44,7 +44,7 @@ jobs:
       run:
         working-directory: ./api
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -116,7 +116,7 @@ jobs:
       run:
         working-directory: ./ios/Saga
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Swift packages
         uses: actions/cache@v4

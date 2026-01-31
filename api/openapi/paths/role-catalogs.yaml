@@ -1,0 +1,588 @@
+# Role Catalog endpoints
+
+guild-role-catalogs:
+  get:
+    summary: List guild role catalogs
+    operationId: listGuildRoleCatalogs
+    tags: [role-catalogs]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: role_type
+        in: query
+        description: Filter by role type
+        schema:
+          type: string
+          enum: [event, rideshare]
+    responses:
+      '200':
+        description: List of role catalogs
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member
+      '404':
+        description: Guild not found
+
+  post:
+    summary: Create guild role catalog
+    description: Create a reusable role template for the guild. Requires guild admin.
+    operationId: createGuildRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateRoleCatalogRequest'
+    responses:
+      '201':
+        description: Role catalog created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Guild admin required
+      '404':
+        description: Guild not found
+      '409':
+        description: Role catalog with this name already exists
+
+guild-role-catalog:
+  get:
+    summary: Get guild role catalog
+    operationId: getGuildRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Role catalog details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member
+      '404':
+        description: Role catalog not found
+
+  patch:
+    summary: Update guild role catalog
+    operationId: updateGuildRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateRoleCatalogRequest'
+    responses:
+      '200':
+        description: Role catalog updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Guild admin required
+      '404':
+        description: Role catalog not found
+
+  delete:
+    summary: Delete guild role catalog
+    operationId: deleteGuildRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Role catalog deleted
+      '401':
+        description: Unauthorized
+      '403':
+        description: Guild admin required
+      '404':
+        description: Role catalog not found
+
+user-role-catalogs:
+  get:
+    summary: List my role catalogs
+    operationId: listMyRoleCatalogs
+    tags: [role-catalogs]
+    parameters:
+      - name: role_type
+        in: query
+        description: Filter by role type
+        schema:
+          type: string
+          enum: [event, rideshare]
+    responses:
+      '200':
+        description: List of role catalogs
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+
+  post:
+    summary: Create personal role catalog
+    description: Create a reusable role template for personal use
+    operationId: createMyRoleCatalog
+    tags: [role-catalogs]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateRoleCatalogRequest'
+    responses:
+      '201':
+        description: Role catalog created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '409':
+        description: Role catalog with this name already exists
+
+user-role-catalog:
+  get:
+    summary: Get my role catalog
+    operationId: getMyRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Role catalog details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Role catalog not found
+
+  patch:
+    summary: Update my role catalog
+    operationId: updateMyRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateRoleCatalogRequest'
+    responses:
+      '200':
+        description: Role catalog updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RoleCatalog'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Role catalog not found
+
+  delete:
+    summary: Delete my role catalog
+    operationId: deleteMyRoleCatalog
+    tags: [role-catalogs]
+    parameters:
+      - name: catalogId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Role catalog deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Role catalog not found
+
+event-roles-from-catalog:
+  post:
+    summary: Create event role from catalog
+    description: Create an event role using a catalog template
+    operationId: createEventRoleFromCatalog
+    tags: [role-catalogs, events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - catalog_id
+            properties:
+              catalog_id:
+                type: string
+                description: Role catalog ID to use as template
+              max_slots:
+                type: integer
+                minimum: 1
+                description: Override max slots from catalog
+    responses:
+      '201':
+        description: Event role created from catalog
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/EventRole'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not event organizer
+      '404':
+        description: Event or catalog not found
+
+rideshare-roles:
+  get:
+    summary: List rideshare roles
+    operationId: listRideshareRoles
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of rideshare roles with assignments
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RideshareRoleWithAssignments'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Rideshare not found
+
+  post:
+    summary: Create rideshare role
+    operationId: createRideshareRole
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateRideshareRoleRequest'
+    responses:
+      '201':
+        description: Rideshare role created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RideshareRole'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Rideshare not found
+
+rideshare-role:
+  patch:
+    summary: Update rideshare role
+    operationId: updateRideshareRole
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateRideshareRoleRequest'
+    responses:
+      '200':
+        description: Rideshare role updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RideshareRole'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Role not found
+
+  delete:
+    summary: Delete rideshare role
+    operationId: deleteRideshareRole
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Rideshare role deleted
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Role not found
+
+rideshare-role-assignments:
+  post:
+    summary: Assign user to rideshare role
+    operationId: assignRideshareRole
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+            properties:
+              user_id:
+                type: string
+              note:
+                type: string
+    responses:
+      '201':
+        description: User assigned to role
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RideshareRoleAssignment'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Role not found
+      '409':
+        description: User already assigned or role full
+
+rideshare-role-assignment:
+  delete:
+    summary: Remove user from rideshare role
+    operationId: unassignRideshareRole
+    tags: [rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: assignmentId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: User removed from role
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Assignment not found
+
+rideshare-roles-from-catalog:
+  post:
+    summary: Create rideshare role from catalog
+    operationId: createRideshareRoleFromCatalog
+    tags: [role-catalogs, rideshares]
+    parameters:
+      - name: rideshareId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - catalog_id
+            properties:
+              catalog_id:
+                type: string
+              max_slots:
+                type: integer
+                minimum: 1
+    responses:
+      '201':
+        description: Rideshare role created from catalog
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/RideshareRole'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not rideshare organizer
+      '404':
+        description: Rideshare or catalog not found

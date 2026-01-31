@@ -1,0 +1,324 @@
+# Trust Rating endpoints
+
+trust-ratings:
+  post:
+    summary: Create trust rating
+    description: |
+      Create a trust rating for another user. Requires an anchor (event or rideshare)
+      where both users had confirmed attendance. Limited to 10 ratings per day.
+    operationId: createTrustRating
+    tags: [trust-ratings]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateTrustRatingRequest'
+    responses:
+      '201':
+        description: Trust rating created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/TrustRating'
+      '400':
+        description: Invalid request (missing anchor, self-rating, etc.)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        description: Unauthorized
+      '429':
+        description: Rate limit exceeded (max 10 ratings per day)
+
+trust-rating:
+  get:
+    summary: Get trust rating details
+    operationId: getTrustRating
+    tags: [trust-ratings]
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Trust rating with endorsement counts
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/TrustRatingWithEndorsements'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Rating not found
+
+  patch:
+    summary: Update trust rating
+    description: |
+      Update an existing trust rating. Subject to 30-day cooldown period
+      after last change.
+    operationId: updateTrustRating
+    tags: [trust-ratings]
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateTrustRatingRequest'
+    responses:
+      '200':
+        description: Trust rating updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/TrustRating'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not the rating owner or cooldown period active
+      '404':
+        description: Rating not found
+
+  delete:
+    summary: Unset trust rating
+    description: |
+      Remove trust rating (return to neutral/undecided state).
+      The rating is deleted but history is preserved.
+    operationId: deleteTrustRating
+    tags: [trust-ratings]
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Rating removed (returned to neutral)
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not the rating owner
+      '404':
+        description: Rating not found
+
+user-trust-ratings-received:
+  get:
+    summary: Get trust ratings received by user
+    description: Returns public trust ratings about a user (distrust ratings hidden)
+    operationId: getUserTrustRatingsReceived
+    tags: [trust-ratings]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of trust ratings received
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/TrustRating'
+      '401':
+        description: Unauthorized
+
+user-trust-ratings-given:
+  get:
+    summary: Get trust ratings given by user
+    operationId: getUserTrustRatingsGiven
+    tags: [trust-ratings]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of trust ratings given
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/TrustRating'
+      '401':
+        description: Unauthorized
+
+user-trust-aggregate:
+  get:
+    summary: Get user trust aggregate
+    description: Returns aggregate trust statistics for a user
+    operationId: getUserTrustAggregate
+    tags: [trust-ratings]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Trust aggregate statistics
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/TrustAggregate'
+      '401':
+        description: Unauthorized
+
+endorsements:
+  post:
+    summary: Create endorsement
+    description: |
+      Endorse a trust rating. Only users who attended the same anchor event/rideshare
+      can endorse.
+    operationId: createEndorsement
+    tags: [trust-ratings]
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateEndorsementRequest'
+    responses:
+      '201':
+        description: Endorsement created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/TrustEndorsement'
+      '400':
+        description: Invalid request
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not eligible to endorse (didn't attend anchor event)
+      '409':
+        description: Already endorsed this rating
+
+  get:
+    summary: Get endorsements for rating
+    operationId: getEndorsements
+    tags: [trust-ratings]
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of endorsements
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/TrustEndorsement'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Rating not found
+
+admin-distrust-signals:
+  get:
+    summary: Get distrust signals (admin only)
+    description: |
+      Returns users with high distrust signal counts for moderation review.
+      Requires admin privileges.
+    operationId: getDistrustSignals
+    tags: [trust-ratings, admin]
+    parameters:
+      - name: min_distrust
+        in: query
+        schema:
+          type: integer
+          default: 3
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+    responses:
+      '200':
+        description: Users with high distrust signals
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/DistrustSignal'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Admin access required

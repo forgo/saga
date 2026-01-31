@@ -1,0 +1,390 @@
+# Pool endpoints for random matching groups
+
+guild-pools:
+  get:
+    summary: List pools in a guild
+    operationId: listGuildPools
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of pools
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Pool'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  post:
+    summary: Create a new pool
+    operationId: createPool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreatePoolRequest'
+    responses:
+      '201':
+        description: Pool created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Pool'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+guild-pool:
+  get:
+    summary: Get pool details
+    operationId: getPool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Pool with members
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PoolWithMembers'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  patch:
+    summary: Update a pool
+    operationId: updatePool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdatePoolRequest'
+    responses:
+      '200':
+        description: Pool updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Pool'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  delete:
+    summary: Delete a pool
+    operationId: deletePool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Pool deleted
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+pool-join:
+  post:
+    summary: Join a pool
+    operationId: joinPool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/JoinPoolRequest'
+    responses:
+      '201':
+        description: Joined pool
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PoolMember'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+      '409':
+        description: Already a member
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+pool-leave:
+  post:
+    summary: Leave a pool
+    operationId: leavePool
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Left pool
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+pool-members:
+  get:
+    summary: List pool members
+    operationId: getPoolMembers
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of members
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/PoolMember'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+pool-membership:
+  patch:
+    summary: Update membership settings
+    operationId: updatePoolMembership
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateMembershipRequest'
+    responses:
+      '200':
+        description: Membership updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PoolMember'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+pool-stats:
+  get:
+    summary: Get pool statistics
+    operationId: getPoolStats
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Pool statistics
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PoolStats'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+pool-matches:
+  get:
+    summary: Get match history
+    operationId: getPoolMatchHistory
+    tags: [pools]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+    responses:
+      '200':
+        description: Match history
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/PoolMatch'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+my-pending-matches:
+  get:
+    summary: Get user's pending matches
+    operationId: getPendingMatches
+    tags: [pools, profile]
+    responses:
+      '200':
+        description: Pending matches
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/PoolMatch'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+match:
+  patch:
+    summary: Update a match (schedule, status)
+    operationId: updateMatch
+    tags: [pools]
+    parameters:
+      - name: matchId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateMatchRequest'
+    responses:
+      '200':
+        description: Match updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PoolMatch'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Not a member of this match
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'

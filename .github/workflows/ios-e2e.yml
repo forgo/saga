@@ -1,0 +1,92 @@
+name: iOS E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_class:
+        description: 'Specific test class (e.g., TrustTests, VoteTests, or leave empty for all)'
+        required: false
+        default: ''
+
+env:
+  SURREALDB_VERSION: '3.0.0-beta.1'
+
+jobs:
+  e2e:
+    name: E2E Tests
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: ./ios/Saga
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: ios/Saga/.build
+          key: swift-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: swift-
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Start SurrealDB
+        run: |
+          docker run -d --name surrealdb -p 8000:8000 \
+            surrealdb/surrealdb:v${{ env.SURREALDB_VERSION }} \
+            start --user root --pass root --bind 0.0.0.0:8000 memory
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+        working-directory: .
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Start API
+        run: |
+          cd ../../api
+          go build -o server ./cmd/server
+          ./server &
+          sleep 5
+          curl -f http://localhost:8080/v1/health || exit 1
+        env:
+          DB_HOST: localhost
+          DB_PORT: 8000
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAMESPACE: saga
+          DB_DATABASE: saga
+          JWT_PRIVATE_KEY_PATH: ""
+          JWT_PUBLIC_KEY_PATH: ""
+
+      - name: Run Migrations and Seed
+        run: |
+          cd ../../api
+          make migrate
+          make db-seed
+
+      - name: Run E2E Tests
+        run: |
+          TEST_ARGS=""
+          if [ -n "${{ inputs.test_class }}" ]; then
+            TEST_ARGS="-only-testing:SagaUITests/${{ inputs.test_class }}"
+          fi
+          xcodebuild test \
+            -project Saga.xcodeproj \
+            -scheme Saga \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -only-testing:SagaUITests \
+            $TEST_ARGS \
+            -resultBundlePath E2EResults.xcresult
+        env:
+          API_BASE_URL: http://localhost:8080/v1
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: ios/Saga/E2EResults.xcresult

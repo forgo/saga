@@ -1,0 +1,247 @@
+# Interest endpoints for managing user interests
+
+interests:
+  get:
+    summary: List all interests
+    operationId: listInterests
+    tags: [interests]
+    parameters:
+      - name: category
+        in: query
+        schema:
+          type: string
+        description: Filter by category
+    responses:
+      '200':
+        description: List of interests
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Interest'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+interest-categories:
+  get:
+    summary: List interest categories
+    operationId: getInterestCategories
+    tags: [interests]
+    responses:
+      '200':
+        description: List of categories
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/InterestCategory'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+my-interests:
+  get:
+    summary: Get own interests
+    operationId: getMyInterests
+    tags: [interests, profile]
+    responses:
+      '200':
+        description: List of user interests
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/UserInterest'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  post:
+    summary: Add interest to profile
+    operationId: addInterest
+    tags: [interests, profile]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/AddInterestRequest'
+    responses:
+      '201':
+        description: Interest added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/UserInterest'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        description: Interest not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '409':
+        description: Interest already added
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+my-interest:
+  patch:
+    summary: Update interest settings
+    operationId: updateMyInterest
+    tags: [interests, profile]
+    parameters:
+      - name: interestId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateInterestRequest'
+    responses:
+      '204':
+        description: Interest updated
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+  delete:
+    summary: Remove interest from profile
+    operationId: removeInterest
+    tags: [interests, profile]
+    parameters:
+      - name: interestId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Interest removed
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+interest-matches-teaching:
+  get:
+    summary: Find people to teach
+    operationId: findTeachingMatches
+    tags: [interests, discovery]
+    description: Find people who want to learn what you want to teach
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of teaching matches
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/InterestMatch'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+interest-matches-learning:
+  get:
+    summary: Find teachers
+    operationId: findLearningMatches
+    tags: [interests, discovery]
+    description: Find people who want to teach what you want to learn
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of learning matches
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/InterestMatch'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+interests-shared:
+  get:
+    summary: Find users with shared interests
+    operationId: findSharedInterests
+    tags: [interests, discovery]
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of users with shared interests
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/SharedInterestUser'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+interest-stats:
+  get:
+    summary: Get user's interest statistics
+    operationId: getInterestStats
+    tags: [interests, profile]
+    responses:
+      '200':
+        description: Interest statistics
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/InterestStats'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

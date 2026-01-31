@@ -1,0 +1,390 @@
+# Availability endpoints for hangout scheduling
+
+availability:
+  post:
+    summary: Create availability window
+    operationId: createAvailability
+    tags: [availability]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateAvailabilityRequest'
+    responses:
+      '201':
+        description: Availability created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/AvailabilityResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+availability-item:
+  get:
+    summary: Get an availability
+    operationId: getAvailability
+    tags: [availability]
+    parameters:
+      - name: availabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Availability details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/AvailabilityResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  patch:
+    summary: Update availability
+    operationId: updateAvailability
+    tags: [availability]
+    parameters:
+      - name: availabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateAvailabilityRequest'
+    responses:
+      '200':
+        description: Availability updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/AvailabilityResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  delete:
+    summary: Delete availability
+    operationId: deleteAvailability
+    tags: [availability]
+    parameters:
+      - name: availabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Availability deleted
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+my-availability:
+  get:
+    summary: Get own availabilities
+    operationId: getMyAvailabilities
+    tags: [availability, profile]
+    responses:
+      '200':
+        description: List of availabilities
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Availability'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+discover-availability:
+  get:
+    summary: Find nearby available people
+    operationId: findNearbyAvailability
+    tags: [availability, discovery]
+    description: Requires user location to be set
+    parameters:
+      - name: radius_km
+        in: query
+        schema:
+          type: number
+          default: 25
+        description: Search radius in km
+      - name: start_time
+        in: query
+        schema:
+          type: string
+          format: date-time
+        description: Start of time window (default now)
+      - name: end_time
+        in: query
+        schema:
+          type: string
+          format: date-time
+        description: End of time window (default +24h)
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of nearby availabilities
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Availability'
+      '400':
+        description: Location required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+discover-availability-by-type:
+  get:
+    summary: Find availability by hangout type
+    operationId: findAvailabilityByType
+    tags: [availability, discovery]
+    parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: [talk_it_out, here_to_listen, concrete_activity, mutual_interest, meet_anyone]
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of availabilities by type
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Availability'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        description: Invalid hangout type
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+availability-request:
+  post:
+    summary: Request to join an availability
+    operationId: requestHangout
+    tags: [availability]
+    parameters:
+      - name: availabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [note]
+            properties:
+              note:
+                type: string
+                minLength: 20
+                description: Message to the person (min 20 chars)
+    responses:
+      '201':
+        description: Request created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/HangoutRequest'
+      '400':
+        description: Cannot request own availability
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+      '422':
+        description: Note too short
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+availability-requests:
+  get:
+    summary: Get pending requests for an availability
+    operationId: getAvailabilityRequests
+    tags: [availability]
+    parameters:
+      - name: availabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of pending requests
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/HangoutRequest'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+request-respond:
+  post:
+    summary: Respond to a hangout request
+    operationId: respondToHangoutRequest
+    tags: [availability]
+    parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [accept]
+            properties:
+              accept:
+                type: boolean
+    responses:
+      '200':
+        description: Hangout created (if accepted)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Hangout'
+      '204':
+        description: Request declined
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+hangout-types-list:
+  get:
+    summary: List hangout types
+    operationId: listHangoutTypes
+    tags: [availability]
+    security: []
+    responses:
+      '200':
+        description: List of hangout types
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/HangoutTypeInfo'
+
+my-hangouts:
+  get:
+    summary: Get user's hangouts
+    operationId: getMyHangouts
+    tags: [availability, profile]
+    parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of hangouts
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Hangout'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+hangout-status:
+  patch:
+    summary: Update hangout status
+    operationId: updateHangoutStatus
+    tags: [availability]
+    parameters:
+      - name: hangoutId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [status]
+            properties:
+              status:
+                type: string
+                enum: [scheduled, in_progress, completed, cancelled]
+    responses:
+      '204':
+        description: Status updated
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'

@@ -1,0 +1,250 @@
+# Questionnaire endpoints for compatibility matching
+
+questions:
+  get:
+    summary: List questions
+    operationId: listQuestions
+    tags: [questionnaire]
+    parameters:
+      - name: category
+        in: query
+        schema:
+          type: string
+        description: Filter by category
+    responses:
+      '200':
+        description: List of questions
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Question'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+question-categories:
+  get:
+    summary: List question categories
+    operationId: getQuestionCategories
+    tags: [questionnaire]
+    responses:
+      '200':
+        description: List of categories
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/QuestionCategory'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+question:
+  get:
+    summary: Get a specific question
+    operationId: getQuestion
+    tags: [questionnaire]
+    parameters:
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Question details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Question'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+my-answers:
+  get:
+    summary: Get own answers
+    operationId: getMyAnswers
+    tags: [questionnaire, profile]
+    responses:
+      '200':
+        description: List of answers
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Answer'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+my-answers-detailed:
+  get:
+    summary: Get answers with question details
+    operationId: getMyAnswersDetailed
+    tags: [questionnaire, profile]
+    responses:
+      '200':
+        description: Answers with questions
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/AnswerWithQuestion'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+question-progress:
+  get:
+    summary: Get question progress
+    operationId: getQuestionProgress
+    tags: [questionnaire, profile]
+    responses:
+      '200':
+        description: Progress summary
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/QuestionProgress'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+question-answer:
+  post:
+    summary: Answer a question
+    operationId: answerQuestion
+    tags: [questionnaire]
+    parameters:
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/AnswerQuestionRequest'
+    responses:
+      '201':
+        description: Answer created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Answer'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+  patch:
+    summary: Update an answer
+    operationId: updateAnswer
+    tags: [questionnaire]
+    parameters:
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateAnswerRequest'
+    responses:
+      '200':
+        description: Answer updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Answer'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  delete:
+    summary: Delete an answer
+    operationId: deleteAnswer
+    tags: [questionnaire]
+    parameters:
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Answer deleted
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+compatibility:
+  get:
+    summary: Get compatibility with another user
+    operationId: getCompatibility
+    tags: [questionnaire]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Compatibility score
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/CompatibilityScore'
+      '400':
+        description: Cannot compare with yourself
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+compatibility-yikes:
+  get:
+    summary: Get yikes flags (major incompatibilities)
+    operationId: getYikesSummary
+    tags: [questionnaire]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Yikes summary
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/YikesSummary'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

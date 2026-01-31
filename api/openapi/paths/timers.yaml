@@ -1,0 +1,237 @@
+# Timer endpoints (nested under person)
+
+timers:
+  get:
+    summary: List timers for person
+    operationId: listTimers
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of timers with activity info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timer:
+                        $ref: '../components/schemas/_index.yaml#/Timer'
+                      activity:
+                        $ref: '../components/schemas/_index.yaml#/Activity'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Person or guild not found
+
+  post:
+    summary: Create timer
+    operationId: createTimer
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateTimerRequest'
+    responses:
+      '201':
+        description: Timer created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Timer'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Person or guild not found
+      '409':
+        description: Timer for this activity already exists
+      '422':
+        description: Validation error or limit exceeded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+timer:
+  get:
+    summary: Get timer details
+    operationId: getTimer
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: timerId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Timer details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Timer'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Timer, person, or guild not found
+
+  patch:
+    summary: Update timer
+    operationId: updateTimer
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: timerId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateTimerRequest'
+    responses:
+      '200':
+        description: Timer updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Timer'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Timer, person, or guild not found
+      '422':
+        description: Validation error
+
+  delete:
+    summary: Delete timer
+    operationId: deleteTimer
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: timerId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Timer deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Timer, person, or guild not found
+
+reset:
+  post:
+    summary: Reset timer
+    description: Resets the timer's reset_date to the current time
+    operationId: resetTimer
+    tags: [timers]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: timerId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Timer reset
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/Timer'
+                _links:
+                  type: object
+      '401':
+        description: Unauthorized
+      '404':
+        description: Timer, person, or guild not found

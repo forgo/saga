@@ -1,0 +1,101 @@
+# Profile endpoints for managing user profiles
+
+profile:
+  get:
+    summary: Get own profile
+    operationId: getProfile
+    tags: [profile]
+    responses:
+      '200':
+        description: Profile details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProfileResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  patch:
+    summary: Update own profile
+    operationId: updateProfile
+    tags: [profile]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateProfileRequest'
+    responses:
+      '200':
+        description: Profile updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProfileResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+user-profile:
+  get:
+    summary: Get another user's public profile
+    operationId: getUserProfile
+    tags: [profile]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Public profile
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/PublicProfileResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+discover-people-nearby:
+  get:
+    summary: Find people nearby
+    operationId: discoverPeopleNearby
+    tags: [profile, discovery]
+    description: Requires user location to be set
+    parameters:
+      - name: radius_km
+        in: query
+        schema:
+          type: number
+          default: 25
+        description: Search radius in km
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          maximum: 50
+    responses:
+      '200':
+        description: List of nearby people
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/PublicProfileResponse'
+      '400':
+        description: Location required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

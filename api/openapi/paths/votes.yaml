@@ -1,0 +1,638 @@
+# Vote endpoints
+
+votes:
+  post:
+    summary: Create vote
+    description: |
+      Create a new vote. Guild votes require guild admin permission.
+      Global votes require sysadmin permission.
+    operationId: createVote
+    tags: [votes]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateVoteRequest'
+    responses:
+      '201':
+        description: Vote created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteWithDetails'
+      '400':
+        description: Invalid request
+      '401':
+        description: Unauthorized
+      '403':
+        description: Insufficient permissions
+
+vote:
+  get:
+    summary: Get vote details
+    operationId: getVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote with options and metadata
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteWithDetails'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Vote not found
+
+  patch:
+    summary: Update vote
+    description: Update vote details. Only allowed while vote is in draft status.
+    operationId: updateVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateVoteRequest'
+    responses:
+      '200':
+        description: Vote updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteWithDetails'
+      '400':
+        description: Cannot update vote in current status
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+  delete:
+    summary: Cancel vote
+    description: Cancel and archive the vote (votes are never fully deleted for audit trail)
+    operationId: deleteVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Vote cancelled
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+vote-open:
+  post:
+    summary: Open vote
+    description: Manually open voting (before scheduled opens_at time)
+    operationId: openVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote opened
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: opened
+      '400':
+        description: Vote already open or closed
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+vote-close:
+  post:
+    summary: Close vote
+    description: Manually close voting (before scheduled closes_at time)
+    operationId: closeVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote closed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: closed
+      '400':
+        description: Vote not open
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+vote-cancel:
+  post:
+    summary: Cancel vote
+    description: Cancel the vote at any stage
+    operationId: cancelVote
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote cancelled
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: cancelled
+      '400':
+        description: Vote already cancelled
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+vote-options:
+  get:
+    summary: List vote options
+    operationId: listVoteOptions
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of options
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/VoteOption'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Vote not found
+
+  post:
+    summary: Add vote option
+    description: Add an option to the vote. Only allowed while vote is in draft status.
+    operationId: createVoteOption
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateVoteOptionRequest'
+    responses:
+      '201':
+        description: Option added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteOption'
+      '400':
+        description: Cannot add options to vote in current status
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Vote not found
+
+vote-options-batch:
+  post:
+    summary: Batch add vote options
+    description: Add multiple options at once. Maximum 50 options per batch.
+    operationId: batchCreateVoteOptions
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - options
+            properties:
+              options:
+                type: array
+                maxItems: 50
+                items:
+                  $ref: '../components/schemas/_index.yaml#/CreateVoteOptionRequest'
+    responses:
+      '201':
+        description: Options added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/VoteOption'
+      '400':
+        description: Cannot add options or batch too large
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+
+vote-option:
+  patch:
+    summary: Update vote option
+    operationId: updateVoteOption
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: optionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateVoteOptionRequest'
+    responses:
+      '200':
+        description: Option updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteOption'
+      '400':
+        description: Cannot update options in current status
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Option not found
+
+  delete:
+    summary: Delete vote option
+    operationId: deleteVoteOption
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: optionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Option deleted
+      '400':
+        description: Cannot delete options in current status
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not vote creator
+      '404':
+        description: Option not found
+
+vote-ballot:
+  post:
+    summary: Cast ballot
+    description: |
+      Cast your vote. Ballots are immutable - once cast, they cannot be changed.
+      Format varies by vote type (FPTP, ranked choice, approval, multi-select).
+    operationId: castBallot
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CastBallotRequest'
+    responses:
+      '201':
+        description: Ballot cast
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteBallot'
+      '400':
+        description: Invalid ballot format for vote type
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not eligible to vote (guild votes require membership)
+      '404':
+        description: Vote not found
+      '409':
+        description: Already voted
+
+  get:
+    summary: Get my ballot
+    operationId: getMyBallot
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Your ballot
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteBallot'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Vote not found or haven't voted
+
+vote-ballots:
+  get:
+    summary: Get all ballots
+    description: |
+      Get all ballots for a vote (transparent ledger).
+      Shows who voted for what based on results_visibility setting.
+    operationId: getVoteBallots
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: All ballots
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/VoteBallot'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Results not yet visible (based on results_visibility)
+      '404':
+        description: Vote not found
+
+vote-results:
+  get:
+    summary: Get vote results
+    description: |
+      Get computed results for the vote.
+      Result format varies by vote type:
+      - FPTP: Winner and vote counts
+      - Ranked Choice: Elimination rounds and final winner
+      - Approval: All options ranked by approval count
+      - Multi-select: All options ranked by selection count
+    operationId: getVoteResults
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote results
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '../components/schemas/_index.yaml#/VoteResults'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Results not yet visible
+      '404':
+        description: Vote not found
+
+vote-stats:
+  get:
+    summary: Get vote statistics
+    operationId: getVoteStats
+    tags: [votes]
+    parameters:
+      - name: voteId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Vote statistics
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    vote_id:
+                      type: string
+                    ballot_count:
+                      type: integer
+                    status:
+                      type: string
+      '401':
+        description: Unauthorized
+      '404':
+        description: Vote not found
+
+guild-votes:
+  get:
+    summary: List guild votes
+    operationId: listGuildVotes
+    tags: [votes]
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [draft, open, closed, cancelled]
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of guild votes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Vote'
+      '401':
+        description: Unauthorized
+      '403':
+        description: Not a guild member
+      '404':
+        description: Guild not found
+
+global-votes:
+  get:
+    summary: List global votes
+    operationId: listGlobalVotes
+    tags: [votes]
+    parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [draft, open, closed, cancelled]
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          maximum: 100
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          default: 0
+    responses:
+      '200':
+        description: List of global votes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Vote'
+      '401':
+        description: Unauthorized

@@ -1,1 +1,54 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Go build artifacts
+api/bin/
+api/coverage.out
+api/coverage.html
+api/server
+api/dist/
+
+# Go keys (generated, sensitive)
+api/keys/
+
+# SurrealDB local data
+api/data/
+
+# Swift/Xcode build artifacts
+ios/Saga/.build/
+ios/Saga/.swiftpm/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Environment files
+.env
+.env.local
+*.env.local
+api/.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+*.coverprofile
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

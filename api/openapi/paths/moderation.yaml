@@ -1,0 +1,405 @@
+# Moderation endpoints for reports, actions, and blocks
+
+# Reports
+reports:
+  post:
+    summary: Create a report
+    operationId: createReport
+    tags: [moderation]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateReportRequest'
+    responses:
+      '201':
+        description: Report created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Report'
+      '400':
+        description: Cannot report yourself or invalid category
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+report:
+  get:
+    summary: Get a report
+    operationId: getReport
+    tags: [moderation]
+    parameters:
+      - name: reportId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Report details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Report'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+reports-pending:
+  get:
+    summary: Get pending reports (moderator/admin only)
+    operationId: getPendingReports
+    tags: [moderation, admin]
+    responses:
+      '200':
+        description: List of pending reports
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reports:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Report'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Moderator access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+report-review:
+  patch:
+    summary: Review a report (moderator/admin only)
+    operationId: reviewReport
+    tags: [moderation, admin]
+    parameters:
+      - name: reportId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/ReviewReportRequest'
+    responses:
+      '200':
+        description: Report reviewed
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Report'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Moderator access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+# Moderation Actions
+moderation-actions:
+  post:
+    summary: Take a moderation action
+    operationId: takeAction
+    tags: [moderation, admin]
+    description: |
+      Moderators can issue nudges and warnings.
+      Admins can issue suspensions and bans.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateModerationActionRequest'
+    responses:
+      '201':
+        description: Action taken
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ModerationAction'
+      '400':
+        description: Invalid level or reason required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Insufficient permissions for this action level
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+moderation-action:
+  get:
+    summary: Get a moderation action (moderator/admin only)
+    operationId: getAction
+    tags: [moderation, admin]
+    parameters:
+      - name: actionId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Action details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ModerationAction'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Moderator access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+moderation-action-lift:
+  post:
+    summary: Lift a moderation action (admin only)
+    operationId: liftAction
+    tags: [moderation, admin]
+    parameters:
+      - name: actionId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/LiftActionRequest'
+    responses:
+      '200':
+        description: Action lifted
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Admin access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+user-moderation-status:
+  get:
+    summary: Get user's moderation status
+    operationId: getUserModerationStatus
+    tags: [moderation]
+    description: Users can view their own status, moderators/admins can view anyone's
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Moderation status
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/UserModerationStatus'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Can only view your own status
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+user-moderation-actions:
+  get:
+    summary: Get user's moderation actions (moderator/admin only)
+    operationId: getUserModerationActions
+    tags: [moderation, admin]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: User's moderation history
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actions:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/ModerationAction'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Moderator access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+moderation-stats:
+  get:
+    summary: Get moderation statistics (admin only)
+    operationId: getModerationStats
+    tags: [moderation, admin]
+    responses:
+      '200':
+        description: Moderation statistics
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ModerationStats'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        description: Admin access required
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+# Blocks
+blocks:
+  get:
+    summary: Get blocked users
+    operationId: getBlockedUsers
+    tags: [moderation]
+    responses:
+      '200':
+        description: List of blocked users
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blocks:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/Block'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  post:
+    summary: Block a user
+    operationId: blockUser
+    tags: [moderation]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateBlockRequest'
+    responses:
+      '201':
+        description: User blocked
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/Block'
+      '400':
+        description: Cannot block yourself
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '409':
+        description: User already blocked
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+block:
+  delete:
+    summary: Unblock a user
+    operationId: unblockUser
+    tags: [moderation]
+    parameters:
+      - name: blockedUserId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: User unblocked
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        description: User not blocked
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+block-check:
+  get:
+    summary: Check if a block exists between users
+    operationId: checkBlock
+    tags: [moderation]
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Block status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blocked:
+                  type: boolean
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'

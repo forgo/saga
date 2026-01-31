@@ -1,0 +1,254 @@
+# Event role endpoints for managing roles within events
+
+event-roles:
+  get:
+    summary: List roles for an event
+    operationId: getEventRoles
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: List of event roles
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/EventRole'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+  post:
+    summary: Create a new role (host only)
+    operationId: createEventRole
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/CreateEventRoleRequest'
+    responses:
+      '201':
+        description: Role created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventRoleResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '422':
+        $ref: '../components/schemas/_index.yaml#/ValidationError'
+
+event-roles-overview:
+  get:
+    summary: Get roles with assignments overview
+    operationId: getEventRolesOverview
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Roles overview with assignments
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventRolesOverview'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+event-role:
+  patch:
+    summary: Update a role (host only)
+    operationId: updateEventRole
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/UpdateEventRoleRequest'
+    responses:
+      '200':
+        description: Role updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/EventRoleResponse'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+  delete:
+    summary: Delete a role (host only)
+    operationId: deleteEventRole
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: roleId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Role deleted
+      '400':
+        description: Cannot delete default role
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'
+
+event-roles-assign:
+  post:
+    summary: Assign self to a role
+    operationId: assignEventRole
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/_index.yaml#/AssignRoleRequest'
+    responses:
+      '201':
+        description: Role assigned
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/RoleAssignment'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '409':
+        description: Already assigned or role full
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/_index.yaml#/ProblemDetails'
+
+event-roles-mine:
+  get:
+    summary: Get my roles for an event
+    operationId: getMyEventRoles
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: My assigned roles
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RoleAssignment'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+event-roles-suggestions:
+  get:
+    summary: Get role suggestions based on interests
+    operationId: getEventRoleSuggestions
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Suggested roles
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/_index.yaml#/RoleSuggestion'
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+
+event-role-assignment:
+  delete:
+    summary: Cancel own assignment
+    operationId: cancelEventRoleAssignment
+    tags: [events]
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: assignmentId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Assignment cancelled
+      '401':
+        $ref: '../components/schemas/_index.yaml#/UnauthorizedError'
+      '403':
+        $ref: '../components/schemas/_index.yaml#/ForbiddenError'
+      '404':
+        $ref: '../components/schemas/_index.yaml#/NotFoundError'

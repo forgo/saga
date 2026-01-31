@@ -1,12 +1,12 @@
 module github.com/forgo/saga/api
 
-go 1.23
+go 1.24.0
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/stretchr/testify v1.8.4
-	github.com/surrealdb/surrealdb.go v1.0.0
-	golang.org/x/crypto v0.31.0
+	github.com/stretchr/testify v1.11.1
+	github.com/surrealdb/surrealdb.go v1.2.0
+	golang.org/x/crypto v0.47.0
 )
 
 require (

@@ -20,8 +20,8 @@ api/data/
 # Swift/Xcode build artifacts
 ios/Saga/.build/
 ios/Saga/.swiftpm/
-*.xcuserdata
-*.xcworkspace/xcuserdata/
+xcuserdata/
+*.xcuserstate
 DerivedData/
 *.ipa
 *.dSYM.zip

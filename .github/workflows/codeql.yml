@@ -33,6 +33,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Select Xcode 16.1
+        if: matrix.language == 'swift'
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:

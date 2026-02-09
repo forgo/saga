@@ -48,6 +48,13 @@ jobs:
       - name: Select Xcode 16.1
         run: sudo xcode-select -s /Applications/Xcode_16.1.app
 
+      - name: Configure netrc for Swift packages
+        uses: extractions/netrc@v2
+        with:
+          machine: github.com
+          username: oauth2
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
@@ -57,7 +64,12 @@ jobs:
 
       - name: Resolve Swift packages
         working-directory: ios/Saga
-        run: xcodebuild -resolvePackageDependencies -project Saga.xcodeproj -scheme Saga
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Saga.xcodeproj \
+            -scheme Saga \
+            -scmProvider system \
+            -packageAuthorizationProvider netrc
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -72,6 +84,8 @@ jobs:
             -project Saga.xcodeproj \
             -scheme Saga \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -scmProvider system \
+            -packageAuthorizationProvider netrc \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Perform CodeQL Analysis

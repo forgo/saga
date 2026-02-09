@@ -31,7 +31,7 @@ saga/
 | Component | Technology |
 |-----------|------------|
 | Backend | Go 1.23 with Chi router |
-| Database | SurrealDB 2.1.0 |
+| Database | SurrealDB 3.0.0-beta.3 |
 | Auth | JWT + Passkeys (WebAuthn) + OAuth |
 | iOS | SwiftUI, iOS 17+ |
 | CI/CD | GitHub Actions |

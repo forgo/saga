@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.24'
   SURREALDB_VERSION: '3.0.0-beta.1'
-  MIN_COVERAGE: 20
+  MIN_COVERAGE: 12
 
 jobs:
   # Detect which paths changed

@@ -58,7 +58,7 @@ jobs:
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
-          path: ios/Saga/.build
+          path: ios/Saga/SourcePackages
           key: swift-codeql-${{ hashFiles('ios/Saga/Saga.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: swift-codeql-
 
@@ -68,6 +68,7 @@ jobs:
           xcodebuild -resolvePackageDependencies \
             -project Saga.xcodeproj \
             -scheme Saga \
+            -clonedSourcePackagesDirPath SourcePackages \
             -scmProvider system \
             -packageAuthorizationProvider netrc
 
@@ -84,6 +85,7 @@ jobs:
             -project Saga.xcodeproj \
             -scheme Saga \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -clonedSourcePackagesDirPath SourcePackages \
             -scmProvider system \
             -packageAuthorizationProvider netrc \
             CODE_SIGNING_ALLOWED=NO

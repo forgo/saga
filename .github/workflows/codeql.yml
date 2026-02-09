@@ -56,7 +56,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Swift packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ios/Saga/SourcePackages
           key: swift-codeql-${{ hashFiles('ios/Saga/Saga.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}

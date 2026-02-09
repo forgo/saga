@@ -55,22 +55,16 @@ jobs:
           username: oauth2
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache Swift packages
+      - name: Cache Swift packages and DerivedData
         uses: actions/cache@v5
         with:
-          path: ios/Saga/SourcePackages
-          key: swift-codeql-${{ hashFiles('ios/Saga/Saga.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: swift-codeql-
-
-      - name: Resolve Swift packages
-        working-directory: ios/Saga
-        run: |
-          xcodebuild -resolvePackageDependencies \
-            -project Saga.xcodeproj \
-            -scheme Saga \
-            -clonedSourcePackagesDirPath SourcePackages \
-            -scmProvider system \
-            -packageAuthorizationProvider netrc
+          path: |
+            ios/Saga/SourcePackages
+            ~/Library/Developer/Xcode/DerivedData/Saga-*
+          key: swift-codeql-${{ runner.os }}-${{ hashFiles('ios/Saga/Saga.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ hashFiles('ios/Saga/**/*.swift') }}
+          restore-keys: |
+            swift-codeql-${{ runner.os }}-${{ hashFiles('ios/Saga/Saga.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
+            swift-codeql-${{ runner.os }}-
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -88,6 +82,9 @@ jobs:
             -clonedSourcePackagesDirPath SourcePackages \
             -scmProvider system \
             -packageAuthorizationProvider netrc \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallelizeTargets \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Perform CodeQL Analysis

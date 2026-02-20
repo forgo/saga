@@ -54,7 +54,7 @@ func main() {
 		slog.Error("failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	slog.Info("connected to database",
 		slog.String("host", cfg.Database.Host),

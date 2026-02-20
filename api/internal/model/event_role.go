@@ -6,13 +6,13 @@ import "time"
 type EventRole struct {
 	ID          string    `json:"id"`
 	EventID     string    `json:"event_id"`
-	Name        string    `json:"name"`                   // e.g., "Dessert-bringer", "DJ", "Guest"
-	Description *string   `json:"description,omitempty"`  // e.g., "Bring something sweet to share"
-	MaxSlots    int       `json:"max_slots"`              // Default 1, 0 = unlimited (for default Guest role)
-	FilledSlots int       `json:"filled_slots"`           // Computed from assignments
-	IsDefault   bool      `json:"is_default"`             // True for the default "Guest" role
-	SortOrder   int       `json:"sort_order"`             // Display ordering
-	CreatedBy   string    `json:"created_by"`             // Host who created this role
+	Name        string    `json:"name"`                  // e.g., "Dessert-bringer", "DJ", "Guest"
+	Description *string   `json:"description,omitempty"` // e.g., "Bring something sweet to share"
+	MaxSlots    int       `json:"max_slots"`             // Default 1, 0 = unlimited (for default Guest role)
+	FilledSlots int       `json:"filled_slots"`          // Computed from assignments
+	IsDefault   bool      `json:"is_default"`            // True for the default "Guest" role
+	SortOrder   int       `json:"sort_order"`            // Display ordering
+	CreatedBy   string    `json:"created_by"`            // Host who created this role
 	CreatedOn   time.Time `json:"created_on"`
 	UpdatedOn   time.Time `json:"updated_on"`
 	// Optional: suggest this role to users with matching interests
@@ -29,8 +29,8 @@ type EventRoleAssignment struct {
 	EventID    string    `json:"event_id"`
 	RoleID     string    `json:"role_id"`
 	UserID     string    `json:"user_id"`
-	Note       *string   `json:"note,omitempty"`   // User's note about their contribution
-	Status     string    `json:"status"`           // pending, confirmed, cancelled
+	Note       *string   `json:"note,omitempty"` // User's note about their contribution
+	Status     string    `json:"status"`         // pending, confirmed, cancelled
 	AssignedOn time.Time `json:"assigned_on"`
 	UpdatedOn  time.Time `json:"updated_on"`
 	// Populated by joins
@@ -80,17 +80,17 @@ const (
 
 // Constraints
 const (
-	MaxRolesPerEvent       = 20
-	MaxRoleNameLength      = 50
-	MaxRoleDescLength      = 500
-	MaxAssignmentNoteLen   = 200
+	MaxRolesPerEvent     = 20
+	MaxRoleNameLength    = 50
+	MaxRoleDescLength    = 500
+	MaxAssignmentNoteLen = 200
 )
 
 // CreateEventRoleRequest represents a request to create a role
 type CreateEventRoleRequest struct {
 	Name               string   `json:"name"`
 	Description        *string  `json:"description,omitempty"`
-	MaxSlots           int      `json:"max_slots,omitempty"`           // 0 = unlimited
+	MaxSlots           int      `json:"max_slots,omitempty"` // 0 = unlimited
 	SuggestedInterests []string `json:"suggested_interests,omitempty"`
 }
 
@@ -115,7 +115,7 @@ type UpdateAssignmentRequest struct {
 
 // RoleSuggestion represents a suggested role based on user interests
 type RoleSuggestion struct {
-	Role           EventRole `json:"role"`
-	MatchedInterest string   `json:"matched_interest"`
-	Reason         string    `json:"reason"` // e.g., "You're interested in baking"
+	Role            EventRole `json:"role"`
+	MatchedInterest string    `json:"matched_interest"`
+	Reason          string    `json:"reason"` // e.g., "You're interested in baking"
 }

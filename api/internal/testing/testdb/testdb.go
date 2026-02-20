@@ -182,13 +182,13 @@ func New(t *testing.T) *TestDB {
 	// Apply migrations
 	migs, err := loadMigrations()
 	if err != nil {
-		db.Close()
+		_ = db.Close()
 		t.Fatalf("testdb: failed to load migrations: %v", err)
 	}
 
 	for i, mig := range migs {
 		if err := db.Execute(ctx, mig, nil); err != nil {
-			db.Close()
+			_ = db.Close()
 			t.Fatalf("testdb: migration %d failed: %v", i+1, err)
 		}
 	}
@@ -209,7 +209,7 @@ func (tdb *TestDB) Close() {
 	query := fmt.Sprintf("REMOVE NAMESPACE %s", tdb.Namespace)
 	_ = tdb.DB.Execute(ctx, query, nil) // Ignore errors on cleanup
 
-	tdb.DB.Close()
+	_ = tdb.DB.Close()
 }
 
 // Reset clears all data from tables while preserving schema.
@@ -289,7 +289,7 @@ func NewShared(t *testing.T) *Shared {
 // Call this at the start of each t.Run() block.
 func (s *Shared) SetupSubtest(t *testing.T) *TestDB {
 	t.Helper()
-	s.TestDB.t = t
-	s.TestDB.Reset(t)
+	s.t = t
+	s.Reset(t)
 	return s.TestDB
 }

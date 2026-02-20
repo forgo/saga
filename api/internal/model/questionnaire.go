@@ -12,9 +12,9 @@ type Question struct {
 	SortOrder             int              `json:"sort_order"`
 	Active                bool             `json:"active"`
 	// Circle-specific question (nil = global question)
-	CircleID              *string          `json:"circle_id,omitempty"`
-	CreatedBy             *string          `json:"created_by,omitempty"` // For circle questions
-	CreatedOn             time.Time        `json:"created_on"`
+	CircleID  *string   `json:"circle_id,omitempty"`
+	CreatedBy *string   `json:"created_by,omitempty"` // For circle questions
+	CreatedOn time.Time `json:"created_on"`
 }
 
 // QuestionOption represents an answer option for a question
@@ -54,13 +54,13 @@ func GetQuestionCategories() []QuestionCategoryInfo {
 
 // Answer represents a user's answer to a question
 type Answer struct {
-	ID                string    `json:"id"`
-	UserID            string    `json:"user_id"`
-	QuestionID        string    `json:"question_id"`
-	SelectedOption    string    `json:"selected_option"`    // User's own answer
-	AcceptableOptions []string  `json:"acceptable_options"` // What they accept from others
-	Importance        string    `json:"importance"`         // How much this matters
-	IsDealBreaker     bool      `json:"is_dealbreaker"`     // Hard requirement
+	ID                string   `json:"id"`
+	UserID            string   `json:"user_id"`
+	QuestionID        string   `json:"question_id"`
+	SelectedOption    string   `json:"selected_option"`    // User's own answer
+	AcceptableOptions []string `json:"acceptable_options"` // What they accept from others
+	Importance        string   `json:"importance"`         // How much this matters
+	IsDealBreaker     bool     `json:"is_dealbreaker"`     // Hard requirement
 	// AlignmentWeight: how much you want others to answer similarly (0-1, default 0.5)
 	// 0 = don't care if they match, 1 = strongly prefer they match my answer
 	AlignmentWeight float64 `json:"alignment_weight"`
@@ -151,7 +151,7 @@ const (
 	BiasThresholdConcern = -10.0
 )
 
-// Required categories - user must answer at least one from each
+// RequiredCategories lists the categories a user must answer at least one question from.
 var RequiredCategories = []string{
 	QuestionCategoryValues,
 	QuestionCategorySocial,
@@ -226,17 +226,17 @@ type CircleValues struct {
 
 // CircleValuesResponse tracks a member's responses to circle values
 type CircleValuesResponse struct {
-	ID            string    `json:"id"`
-	CircleID      string    `json:"circle_id"`
-	UserID        string    `json:"user_id"`
-	ValuesID      string    `json:"values_id"` // Which CircleValues set
-	Answers       []Answer  `json:"answers"`
-	CompletedOn   time.Time `json:"completed_on"`
-	BiasScore     float64   `json:"-"` // Internal: accumulated bias for circle questions
-	ApprovedBy    *string   `json:"approved_by,omitempty"`    // Admin who approved (if manual review)
+	ID            string     `json:"id"`
+	CircleID      string     `json:"circle_id"`
+	UserID        string     `json:"user_id"`
+	ValuesID      string     `json:"values_id"` // Which CircleValues set
+	Answers       []Answer   `json:"answers"`
+	CompletedOn   time.Time  `json:"completed_on"`
+	BiasScore     float64    `json:"-"`                     // Internal: accumulated bias for circle questions
+	ApprovedBy    *string    `json:"approved_by,omitempty"` // Admin who approved (if manual review)
 	ApprovedOn    *time.Time `json:"approved_on,omitempty"`
-	RejectedBy    *string   `json:"rejected_by,omitempty"`    // Admin who rejected (if manual review)
-	RejectionNote *string   `json:"rejection_note,omitempty"` // Private note to user
+	RejectedBy    *string    `json:"rejected_by,omitempty"`    // Admin who rejected (if manual review)
+	RejectionNote *string    `json:"rejection_note,omitempty"` // Private note to user
 }
 
 // CircleValuesStatus constants
@@ -264,10 +264,10 @@ type CreateCircleQuestionRequest struct {
 
 // YikesSummary provides info about red flags in a compatibility match
 type YikesSummary struct {
-	HasYikes    bool     `json:"has_yikes"`
-	YikesCount  int      `json:"yikes_count"`
-	Categories  []string `json:"categories,omitempty"`  // Which categories have yikes
-	Severity    string   `json:"severity,omitempty"`    // mild, moderate, severe
+	HasYikes   bool     `json:"has_yikes"`
+	YikesCount int      `json:"yikes_count"`
+	Categories []string `json:"categories,omitempty"` // Which categories have yikes
+	Severity   string   `json:"severity,omitempty"`   // mild, moderate, severe
 }
 
 // YikesSeverity constants

@@ -13,17 +13,17 @@ type Forum struct {
 
 // ForumPost represents a post in a forum
 type ForumPost struct {
-	ID         string     `json:"id"`
-	ForumID    string     `json:"forum_id"`
-	AuthorID   string     `json:"author_id"` // User ID
-	Content    string     `json:"content"`
-	ReplyToID  *string    `json:"reply_to_id,omitempty"` // For threaded replies
-	IsPinned   bool       `json:"is_pinned"`
-	Reactions  map[string][]string `json:"reactions,omitempty"` // emoji -> user_ids
-	Mentions   []string   `json:"mentions,omitempty"`            // User IDs mentioned
-	CreatedOn  time.Time  `json:"created_on"`
-	UpdatedOn  time.Time  `json:"updated_on"`
-	DeletedOn  *time.Time `json:"deleted_on,omitempty"` // Soft delete
+	ID        string              `json:"id"`
+	ForumID   string              `json:"forum_id"`
+	AuthorID  string              `json:"author_id"` // User ID
+	Content   string              `json:"content"`
+	ReplyToID *string             `json:"reply_to_id,omitempty"` // For threaded replies
+	IsPinned  bool                `json:"is_pinned"`
+	Reactions map[string][]string `json:"reactions,omitempty"` // emoji -> user_ids
+	Mentions  []string            `json:"mentions,omitempty"`  // User IDs mentioned
+	CreatedOn time.Time           `json:"created_on"`
+	UpdatedOn time.Time           `json:"updated_on"`
+	DeletedOn *time.Time          `json:"deleted_on,omitempty"` // Soft delete
 }
 
 // ForumPostWithAuthor includes author information
@@ -58,11 +58,11 @@ type ForumWithPosts struct {
 
 // Constraints
 const (
-	MaxPostsPerForum       = 1000
-	MaxPostContentLength   = 5000
-	MaxMentionsPerPost     = 20
-	MaxReactionsPerPost    = 100
-	DefaultForumPageSize   = 50
+	MaxPostsPerForum     = 1000
+	MaxPostContentLength = 5000
+	MaxMentionsPerPost   = 20
+	MaxReactionsPerPost  = 100
+	DefaultForumPageSize = 50
 )
 
 // CreateForumPostRequest represents a request to create a forum post
@@ -91,7 +91,7 @@ type PinPostRequest struct {
 // ForumSearchFilters for searching forum posts
 type ForumSearchFilters struct {
 	AuthorID   *string `json:"author_id,omitempty"`
-	Query      *string `json:"query,omitempty"`      // Text search
+	Query      *string `json:"query,omitempty"` // Text search
 	PinnedOnly bool    `json:"pinned_only,omitempty"`
 	RootOnly   bool    `json:"root_only,omitempty"` // Only root posts, no replies
 }

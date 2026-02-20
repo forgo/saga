@@ -133,9 +133,9 @@ func (s *ModerationService) ReviewReport(ctx context.Context, reportID, reviewer
 	}
 
 	updates := map[string]interface{}{
-		"status":        req.Status,
+		"status":         req.Status,
 		"reviewed_by_id": reviewerID,
-		"reviewed_on":   time.Now(),
+		"reviewed_on":    time.Now(),
 	}
 	if req.Notes != nil {
 		updates["review_notes"] = *req.Notes

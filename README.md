@@ -16,6 +16,7 @@ Saga combines the best elements of community platforms:
 
 ```
 saga/
+├── admin/            # Deno Fresh admin web app
 ├── api/              # Go backend (SurrealDB, REST API, SSE)
 │   ├── cmd/          # Application entrypoints
 │   ├── internal/     # Private application code
@@ -34,6 +35,7 @@ saga/
 | Database | SurrealDB 3.0.0-beta.3 |
 | Auth | JWT + Passkeys (WebAuthn) + OAuth |
 | iOS | SwiftUI, iOS 17+ |
+| Admin | Deno Fresh (TypeScript) |
 | CI/CD | GitHub Actions |
 
 ## Quick Start
@@ -67,9 +69,10 @@ make test
 | `make setup` | First-time developer setup |
 | `make dev` | Start API and SurrealDB |
 | `make stop` | Stop all services |
-| `make test` | Run all tests (306 tests) |
-| `make lint` | Lint code |
-| `make test-coverage` | Run tests with coverage report |
+| `make test` | Run all tests |
+| `make lint` | Lint all code |
+| `make dev-admin` | Start admin dev server |
+| `make test-admin` | Run admin tests |
 
 ## Local Development
 
@@ -169,9 +172,30 @@ Trust:
 
 Real-time:
   GET  /v1/guilds/{id}/events - SSE event stream
+
+Admin:
+  GET    /v1/admin/users              - List users (paginated, search, filter)
+  GET    /v1/admin/users/{id}         - User detail with profile + moderation
+  PATCH  /v1/admin/users/{id}/role    - Update user role
+  DELETE /v1/admin/users/{id}         - Soft delete (ban) or hard delete
+  POST   /v1/admin/seed/*             - Seed test data
+  POST   /v1/admin/actions/*          - Trigger actions as users
 ```
 
 Full specification: [api/openapi/openapi.yaml](api/openapi/openapi.yaml)
+
+### Admin Console
+
+The admin console (`/admin`) is a Deno Fresh web app for managing the platform:
+
+- **Users** — Search, filter, and manage user accounts. Change roles, view profiles, suspend/ban users, and delete accounts via a slide-over detail panel.
+- **Data Seeder** — Generate mock users, guilds, and events for testing.
+- **Actions** — Trigger events as simulated users for real-time testing.
+- **Discovery Lab** — Test the discovery algorithm visually on a map.
+
+```bash
+make dev-admin    # Start admin dev server at http://localhost:5173
+```
 
 ## Testing
 

@@ -88,6 +88,56 @@ func GetClaims(ctx context.Context) *jwt.Claims {
 	return nil
 }
 
+// AdminAuth returns a middleware that validates JWT tokens and requires admin role
+func AdminAuth(authService AuthService) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Extract token from Authorization header
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				model.NewUnauthorizedError("missing authorization header").WriteJSON(w)
+				return
+			}
+
+			// Check Bearer prefix
+			parts := strings.SplitN(authHeader, " ", 2)
+			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+				model.NewUnauthorizedError("invalid authorization header format").WriteJSON(w)
+				return
+			}
+
+			token := parts[1]
+
+			// Validate token
+			claims, err := authService.ValidateAccessToken(token)
+			if err != nil {
+				switch err {
+				case jwt.ErrTokenExpired:
+					model.NewUnauthorizedError("token expired").WriteJSON(w)
+				case jwt.ErrInvalidSignature:
+					model.NewUnauthorizedError("invalid token signature").WriteJSON(w)
+				default:
+					model.NewUnauthorizedError("invalid token").WriteJSON(w)
+				}
+				return
+			}
+
+			// Check admin role
+			if !claims.IsAdmin() {
+				model.NewForbiddenError("admin access required").WriteJSON(w)
+				return
+			}
+
+			// Add claims to context
+			ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
+			ctx = context.WithValue(ctx, UserEmailKey, claims.Email)
+			ctx = context.WithValue(ctx, ClaimsKey, claims)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 // OptionalAuth is like Auth but doesn't require authentication
 // It will set user info in context if token is present and valid
 func OptionalAuth(authService AuthService) Middleware {

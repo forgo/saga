@@ -258,12 +258,12 @@ func (r *ReviewRepository) parseReviewResult(result interface{}) (*model.Review,
 	}
 
 	review := &model.Review{
-		ID:             convertSurrealID(data["id"]),
-		ReviewerID:     convertSurrealID(data["reviewer"]),
-		RevieweeID:     convertSurrealID(data["reviewee"]),
-		Context:        getString(data, "context"),
-		WouldMeetAgain: getBool(data, "would_meet_again"),
-		PositiveTags:   getStringSlice(data, "positive_tags"),
+		ID:              convertSurrealID(data["id"]),
+		ReviewerID:      convertSurrealID(data["reviewer"]),
+		RevieweeID:      convertSurrealID(data["reviewee"]),
+		Context:         getString(data, "context"),
+		WouldMeetAgain:  getBool(data, "would_meet_again"),
+		PositiveTags:    getStringSlice(data, "positive_tags"),
 		ImprovementTags: getStringSlice(data, "improvement_tags"),
 	}
 

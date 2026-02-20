@@ -187,8 +187,8 @@ func (h *ResonanceHandler) GetResonanceExplainer(w http.ResponseWriter, r *http.
 				"description": "Points for answering matching questions",
 				"daily_cap":   model.DailyCapAttunement,
 				"earning": map[string]int{
-					"answer_question":   model.PointsAttunementQuestion,
-					"monthly_refresh":   model.PointsAttunementProfileRefresh,
+					"answer_question": model.PointsAttunementQuestion,
+					"monthly_refresh": model.PointsAttunementProfileRefresh,
 				},
 			},
 			{

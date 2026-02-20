@@ -6,41 +6,41 @@ import "time"
 type ReportCategory string
 
 const (
-	ReportCategorySpam           ReportCategory = "spam"
-	ReportCategoryHarassment     ReportCategory = "harassment"
-	ReportCategoryHateSpeech     ReportCategory = "hate_speech"
-	ReportCategoryInappropriate  ReportCategory = "inappropriate_content"
-	ReportCategoryUncomfortable  ReportCategory = "made_uncomfortable" // Private, no public action
-	ReportCategoryOther          ReportCategory = "other"
+	ReportCategorySpam          ReportCategory = "spam"
+	ReportCategoryHarassment    ReportCategory = "harassment"
+	ReportCategoryHateSpeech    ReportCategory = "hate_speech"
+	ReportCategoryInappropriate ReportCategory = "inappropriate_content"
+	ReportCategoryUncomfortable ReportCategory = "made_uncomfortable" // Private, no public action
+	ReportCategoryOther         ReportCategory = "other"
 )
 
 // ReportStatus represents the state of a report
 type ReportStatus string
 
 const (
-	ReportStatusPending  ReportStatus = "pending"
-	ReportStatusReviewed ReportStatus = "reviewed"
-	ReportStatusResolved ReportStatus = "resolved"
+	ReportStatusPending   ReportStatus = "pending"
+	ReportStatusReviewed  ReportStatus = "reviewed"
+	ReportStatusResolved  ReportStatus = "resolved"
 	ReportStatusDismissed ReportStatus = "dismissed"
 )
 
 // Report represents a user report against another user or content
 type Report struct {
-	ID              string         `json:"id"`
-	ReporterUserID  string         `json:"reporter_user_id"`
-	ReportedUserID  string         `json:"reported_user_id"`
-	CircleID        *string        `json:"circle_id,omitempty"` // Optional context
-	Category        ReportCategory `json:"category"`
-	Description     *string        `json:"description,omitempty"`
-	ContentType     *string        `json:"content_type,omitempty"` // event, message, profile, etc.
-	ContentID       *string        `json:"content_id,omitempty"`   // ID of reported content
-	Status          ReportStatus   `json:"status"`
-	ReviewedByID    *string        `json:"reviewed_by_id,omitempty"` // Admin who reviewed
-	ReviewNotes     *string        `json:"review_notes,omitempty"`
-	ActionTaken     *string        `json:"action_taken,omitempty"` // Description of action
-	CreatedOn       time.Time      `json:"created_on"`
-	ReviewedOn      *time.Time     `json:"reviewed_on,omitempty"`
-	ResolvedOn      *time.Time     `json:"resolved_on,omitempty"`
+	ID             string         `json:"id"`
+	ReporterUserID string         `json:"reporter_user_id"`
+	ReportedUserID string         `json:"reported_user_id"`
+	CircleID       *string        `json:"circle_id,omitempty"` // Optional context
+	Category       ReportCategory `json:"category"`
+	Description    *string        `json:"description,omitempty"`
+	ContentType    *string        `json:"content_type,omitempty"` // event, message, profile, etc.
+	ContentID      *string        `json:"content_id,omitempty"`   // ID of reported content
+	Status         ReportStatus   `json:"status"`
+	ReviewedByID   *string        `json:"reviewed_by_id,omitempty"` // Admin who reviewed
+	ReviewNotes    *string        `json:"review_notes,omitempty"`
+	ActionTaken    *string        `json:"action_taken,omitempty"` // Description of action
+	CreatedOn      time.Time      `json:"created_on"`
+	ReviewedOn     *time.Time     `json:"reviewed_on,omitempty"`
+	ResolvedOn     *time.Time     `json:"resolved_on,omitempty"`
 }
 
 // ModerationLevel represents the graduated response level
@@ -90,7 +90,7 @@ type UserModerationStatus struct {
 	WarningExpiresOn  *time.Time         `json:"warning_expires_on,omitempty"`
 	Restrictions      []string           `json:"restrictions,omitempty"`
 	ActiveActions     []ModerationAction `json:"active_actions,omitempty"`
-	ReportCount       int                `json:"report_count"`       // Reports against this user
+	ReportCount       int                `json:"report_count"`        // Reports against this user
 	RecentReportCount int                `json:"recent_report_count"` // Reports in last 30 days
 }
 
@@ -177,7 +177,7 @@ type ModerationStats struct {
 	TotalBans         int `json:"total_bans"`
 }
 
-// Valid report categories
+// IsValidReportCategory checks whether the given string is a valid report category.
 func IsValidReportCategory(cat string) bool {
 	switch ReportCategory(cat) {
 	case ReportCategorySpam,
@@ -191,7 +191,7 @@ func IsValidReportCategory(cat string) bool {
 	return false
 }
 
-// Valid moderation levels
+// IsValidModerationLevel checks whether the given string is a valid moderation level.
 func IsValidModerationLevel(level string) bool {
 	switch ModerationLevel(level) {
 	case ModerationLevelNudge,
@@ -203,7 +203,7 @@ func IsValidModerationLevel(level string) bool {
 	return false
 }
 
-// Valid report statuses
+// IsValidReportStatus checks whether the given string is a valid report status.
 func IsValidReportStatus(status string) bool {
 	switch ReportStatus(status) {
 	case ReportStatusPending,

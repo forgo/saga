@@ -300,4 +300,3 @@ func convertDeviceTokenID(id interface{}) string {
 	}
 	return fmt.Sprintf("%v", id)
 }
-

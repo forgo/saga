@@ -177,10 +177,10 @@ func TestGetDistanceBucket_AllBuckets(t *testing.T) {
 		distance float64
 		expected model.DistanceBucket
 	}{
-		{0.5, model.DistanceNearby},   // < 1 km
-		{1.5, model.Distance2km},      // 1-2 km
-		{3.0, model.Distance5km},      // 2-5 km
-		{7.0, model.Distance10km},     // 5-10 km
+		{0.5, model.DistanceNearby},    // < 1 km
+		{1.5, model.Distance2km},       // 1-2 km
+		{3.0, model.Distance5km},       // 2-5 km
+		{7.0, model.Distance10km},      // 5-10 km
 		{25.0, model.Distance20kmPlus}, // > 20 km
 	}
 
@@ -420,9 +420,9 @@ func TestCalculateDistances_WithValidCenter_CalculatesAll(t *testing.T) {
 
 	center := &model.LocationInternal{Lat: 0, Lng: 0}
 	locations := []LocationWithDistance{
-		{Location: &model.LocationInternal{Lat: 0, Lng: 0.009}, UserID: "user1"},  // ~1km
-		{Location: &model.LocationInternal{Lat: 0, Lng: 0.045}, UserID: "user2"},  // ~5km
-		{Location: &model.LocationInternal{Lat: 0, Lng: 0.09}, UserID: "user3"},   // ~10km
+		{Location: &model.LocationInternal{Lat: 0, Lng: 0.009}, UserID: "user1"}, // ~1km
+		{Location: &model.LocationInternal{Lat: 0, Lng: 0.045}, UserID: "user2"}, // ~5km
+		{Location: &model.LocationInternal{Lat: 0, Lng: 0.09}, UserID: "user3"},  // ~10km
 	}
 
 	result := svc.CalculateDistances(center, locations)

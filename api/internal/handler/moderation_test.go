@@ -34,18 +34,18 @@ func (m *mockUserFetcher) GetByID(ctx context.Context, id string) (*model.User, 
 // ============================================================================
 
 type mockModerationService struct {
-	createReportFunc           func(ctx context.Context, reporterID string, req *model.CreateReportRequest) (*model.Report, error)
-	getReportFunc              func(ctx context.Context, reportID string) (*model.Report, error)
-	getPendingReportsFunc      func(ctx context.Context, limit int) ([]*model.Report, error)
-	reviewReportFunc           func(ctx context.Context, reportID, reviewerID string, req *model.ReviewReportRequest) (*model.Report, error)
-	takeActionFunc             func(ctx context.Context, adminID string, req *model.CreateModerationActionRequest) (*model.ModerationAction, error)
-	liftActionFunc             func(ctx context.Context, actionID, adminID string, req *model.LiftActionRequest) error
+	createReportFunc            func(ctx context.Context, reporterID string, req *model.CreateReportRequest) (*model.Report, error)
+	getReportFunc               func(ctx context.Context, reportID string) (*model.Report, error)
+	getPendingReportsFunc       func(ctx context.Context, limit int) ([]*model.Report, error)
+	reviewReportFunc            func(ctx context.Context, reportID, reviewerID string, req *model.ReviewReportRequest) (*model.Report, error)
+	takeActionFunc              func(ctx context.Context, adminID string, req *model.CreateModerationActionRequest) (*model.ModerationAction, error)
+	liftActionFunc              func(ctx context.Context, actionID, adminID string, req *model.LiftActionRequest) error
 	getUserModerationStatusFunc func(ctx context.Context, userID string) (*model.UserModerationStatus, error)
-	getModerationStatsFunc     func(ctx context.Context) (*model.ModerationStats, error)
-	blockUserFunc              func(ctx context.Context, blockerID string, req *model.CreateBlockRequest) (*model.Block, error)
-	getBlockedUsersFunc        func(ctx context.Context, userID string) ([]*model.BlockedUserInfo, error)
-	unblockUserFunc            func(ctx context.Context, blockerID, blockedID string) error
-	isBlockedEitherWayFunc     func(ctx context.Context, userID1, userID2 string) (bool, error)
+	getModerationStatsFunc      func(ctx context.Context) (*model.ModerationStats, error)
+	blockUserFunc               func(ctx context.Context, blockerID string, req *model.CreateBlockRequest) (*model.Block, error)
+	getBlockedUsersFunc         func(ctx context.Context, userID string) ([]*model.BlockedUserInfo, error)
+	unblockUserFunc             func(ctx context.Context, blockerID, blockedID string) error
+	isBlockedEitherWayFunc      func(ctx context.Context, userID1, userID2 string) (bool, error)
 }
 
 func (m *mockModerationService) CreateReport(ctx context.Context, reporterID string, req *model.CreateReportRequest) (*model.Report, error) {

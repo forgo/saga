@@ -13,22 +13,22 @@ const (
 
 // Rideshare represents transportation coordination attached to an Event or Adventure (formerly Commute)
 type Rideshare struct {
-	ID             string    `json:"id"`
-	EventID        *string   `json:"event_id,omitempty"`     // Attached to event
-	AdventureID    *string   `json:"adventure_id,omitempty"` // Attached to adventure (inter-event transport)
-	DriverID       string    `json:"driver_id"`              // User ID of driver
-	Title          string    `json:"title"`                  // e.g., "Ride to the hike"
-	Description    *string   `json:"description,omitempty"`
-	Origin         RideshareLocation  `json:"origin"`
-	Destination    RideshareLocation  `json:"destination"`
-	DepartureTime  time.Time `json:"departure_time"`
-	ArrivalTime    *time.Time `json:"arrival_time,omitempty"`
-	SeatsTotal     int       `json:"seats_total"`     // Total passenger seats
-	SeatsAvailable int       `json:"seats_available"` // Computed from bookings
-	Status         string    `json:"status"`          // open, full, departed, completed, cancelled
-	TrustRequired  bool      `json:"trust_required"`  // Requires mutual trust
-	CreatedOn      time.Time `json:"created_on"`
-	UpdatedOn      time.Time `json:"updated_on"`
+	ID             string            `json:"id"`
+	EventID        *string           `json:"event_id,omitempty"`     // Attached to event
+	AdventureID    *string           `json:"adventure_id,omitempty"` // Attached to adventure (inter-event transport)
+	DriverID       string            `json:"driver_id"`              // User ID of driver
+	Title          string            `json:"title"`                  // e.g., "Ride to the hike"
+	Description    *string           `json:"description,omitempty"`
+	Origin         RideshareLocation `json:"origin"`
+	Destination    RideshareLocation `json:"destination"`
+	DepartureTime  time.Time         `json:"departure_time"`
+	ArrivalTime    *time.Time        `json:"arrival_time,omitempty"`
+	SeatsTotal     int               `json:"seats_total"`     // Total passenger seats
+	SeatsAvailable int               `json:"seats_available"` // Computed from bookings
+	Status         string            `json:"status"`          // open, full, departed, completed, cancelled
+	TrustRequired  bool              `json:"trust_required"`  // Requires mutual trust
+	CreatedOn      time.Time         `json:"created_on"`
+	UpdatedOn      time.Time         `json:"updated_on"`
 }
 
 // RideshareLocation represents a location point for rideshares (privacy-safe)
@@ -46,13 +46,13 @@ type RideshareLocation struct {
 
 // RideshareSegment represents a leg of the journey with pick-up/drop-off points
 type RideshareSegment struct {
-	ID              string            `json:"id"`
-	RideshareID     string            `json:"rideshare_id"`
-	SequenceOrder   int               `json:"sequence_order"` // Order in the route
-	PickupPoint     RideshareLocation `json:"pickup_point"`
-	DropoffPoint    RideshareLocation `json:"dropoff_point"`
-	EstimatedMinutes *int    `json:"estimated_minutes,omitempty"` // Minutes for this segment
-	Notes           *string  `json:"notes,omitempty"`
+	ID               string            `json:"id"`
+	RideshareID      string            `json:"rideshare_id"`
+	SequenceOrder    int               `json:"sequence_order"` // Order in the route
+	PickupPoint      RideshareLocation `json:"pickup_point"`
+	DropoffPoint     RideshareLocation `json:"dropoff_point"`
+	EstimatedMinutes *int              `json:"estimated_minutes,omitempty"` // Minutes for this segment
+	Notes            *string           `json:"notes,omitempty"`
 }
 
 // RideshareSeatStatus constants
@@ -88,9 +88,9 @@ type RideshareMatch struct {
 
 // RideshareWithSeats includes full seat information
 type RideshareWithSeats struct {
-	Rideshare Rideshare        `json:"rideshare"`
+	Rideshare Rideshare          `json:"rideshare"`
 	Segments  []RideshareSegment `json:"segments"`
-	Seats     []RideshareSeat  `json:"seats"`
+	Seats     []RideshareSeat    `json:"seats"`
 }
 
 // Constraints
@@ -110,10 +110,10 @@ type CreateRideshareRequest struct {
 	Description   *string           `json:"description,omitempty"`
 	Origin        RideshareLocation `json:"origin"`
 	Destination   RideshareLocation `json:"destination"`
-	DepartureTime time.Time `json:"departure_time"`
-	ArrivalTime   *time.Time `json:"arrival_time,omitempty"`
-	SeatsTotal    int       `json:"seats_total"`
-	TrustRequired bool      `json:"trust_required"`
+	DepartureTime time.Time         `json:"departure_time"`
+	ArrivalTime   *time.Time        `json:"arrival_time,omitempty"`
+	SeatsTotal    int               `json:"seats_total"`
+	TrustRequired bool              `json:"trust_required"`
 }
 
 // UpdateRideshareRequest represents a request to update a rideshare
@@ -129,7 +129,7 @@ type UpdateRideshareRequest struct {
 	TrustRequired *bool              `json:"trust_required,omitempty"`
 }
 
-// AddSegmentRequest represents a request to add a route segment
+// AddRideshareSegmentRequest represents a request to add a route segment.
 type AddRideshareSegmentRequest struct {
 	PickupPoint      RideshareLocation `json:"pickup_point"`
 	DropoffPoint     RideshareLocation `json:"dropoff_point"`
@@ -161,7 +161,7 @@ type RideshareSearchFilters struct {
 	AvailableOnly   bool       `json:"available_only"` // Only show rideshares with open seats
 }
 
-// Backward compatibility type aliases (deprecated, will be removed)
+// Commute is a backward compatibility alias for Rideshare (deprecated).
 type Commute = Rideshare
 type CommuteLocation = RideshareLocation
 type CommuteSegment = RideshareSegment

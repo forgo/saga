@@ -75,6 +75,7 @@ func (s *TokenService) GenerateTokenPair(ctx context.Context, user *model.User) 
 		UserID:   user.ID,
 		Email:    user.Email,
 		Username: stringValue(user.Username),
+		Role:     string(user.Role),
 	}
 
 	accessToken, err := s.jwtService.Sign(claims)

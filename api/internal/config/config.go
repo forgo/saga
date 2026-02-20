@@ -92,7 +92,7 @@ func Load() (*Config, error) {
 			Env:            getEnv("SERVER_ENV", "development"),
 			ReadTimeout:    getDurationEnv("SERVER_READ_TIMEOUT", 15*time.Second),
 			WriteTimeout:   getDurationEnv("SERVER_WRITE_TIMEOUT", 15*time.Second),
-			AllowedOrigins: getSliceEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
+			AllowedOrigins: getSliceEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:8000"}),
 		},
 		Database: DatabaseConfig{
 			Host:      getEnv("DB_HOST", "localhost"),
@@ -198,12 +198,12 @@ func (c *Config) Validate() error {
 	// OAuth validation - if any provider field is set, validate required fields
 	if c.OAuth.Google.IsConfigured() {
 		if err := c.OAuth.Google.Validate(); err != nil {
-			errs = append(errs, fmt.Errorf("Google OAuth: %w", err))
+			errs = append(errs, fmt.Errorf("google oauth: %w", err))
 		}
 	}
 	if c.OAuth.Apple.IsConfigured() {
 		if err := c.OAuth.Apple.Validate(); err != nil {
-			errs = append(errs, fmt.Errorf("Apple OAuth: %w", err))
+			errs = append(errs, fmt.Errorf("apple oauth: %w", err))
 		}
 	}
 

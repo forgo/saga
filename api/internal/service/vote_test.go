@@ -13,26 +13,26 @@ import (
 // ============================================================================
 
 type mockVoteRepo struct {
-	createFunc             func(ctx context.Context, vote *model.Vote) error
-	getByIDFunc            func(ctx context.Context, id string) (*model.Vote, error)
-	getByGuildFunc         func(ctx context.Context, guildID string, status *model.VoteStatus, limit, offset int) ([]*model.Vote, error)
-	getGlobalVotesFunc     func(ctx context.Context, status *model.VoteStatus, limit, offset int) ([]*model.Vote, error)
-	getVotesToOpenFunc     func(ctx context.Context) ([]*model.Vote, error)
-	getVotesToCloseFunc    func(ctx context.Context) ([]*model.Vote, error)
-	updateFunc             func(ctx context.Context, id string, updates map[string]interface{}) (*model.Vote, error)
-	updateStatusFunc       func(ctx context.Context, id string, status model.VoteStatus) error
-	deleteFunc             func(ctx context.Context, id string) error
-	createOptionFunc       func(ctx context.Context, option *model.VoteOption) error
-	getOptionByIDFunc      func(ctx context.Context, id string) (*model.VoteOption, error)
-	getOptionsByVoteFunc   func(ctx context.Context, voteID string) ([]*model.VoteOption, error)
-	updateOptionFunc       func(ctx context.Context, id string, updates *model.UpdateVoteOptionRequest) (*model.VoteOption, error)
-	deleteOptionFunc       func(ctx context.Context, id string) error
-	createBallotFunc       func(ctx context.Context, ballot *model.VoteBallot) error
-	getBallotByVoterFunc   func(ctx context.Context, voteID, userID string) (*model.VoteBallot, error)
-	getBallotsByVoteFunc   func(ctx context.Context, voteID string) ([]*model.VoteBallot, error)
-	deleteBallotFunc       func(ctx context.Context, id string) error
-	hasVotedFunc           func(ctx context.Context, voteID, userID string) (bool, error)
-	countBallotsFunc       func(ctx context.Context, voteID string) (int, error)
+	createFunc           func(ctx context.Context, vote *model.Vote) error
+	getByIDFunc          func(ctx context.Context, id string) (*model.Vote, error)
+	getByGuildFunc       func(ctx context.Context, guildID string, status *model.VoteStatus, limit, offset int) ([]*model.Vote, error)
+	getGlobalVotesFunc   func(ctx context.Context, status *model.VoteStatus, limit, offset int) ([]*model.Vote, error)
+	getVotesToOpenFunc   func(ctx context.Context) ([]*model.Vote, error)
+	getVotesToCloseFunc  func(ctx context.Context) ([]*model.Vote, error)
+	updateFunc           func(ctx context.Context, id string, updates map[string]interface{}) (*model.Vote, error)
+	updateStatusFunc     func(ctx context.Context, id string, status model.VoteStatus) error
+	deleteFunc           func(ctx context.Context, id string) error
+	createOptionFunc     func(ctx context.Context, option *model.VoteOption) error
+	getOptionByIDFunc    func(ctx context.Context, id string) (*model.VoteOption, error)
+	getOptionsByVoteFunc func(ctx context.Context, voteID string) ([]*model.VoteOption, error)
+	updateOptionFunc     func(ctx context.Context, id string, updates *model.UpdateVoteOptionRequest) (*model.VoteOption, error)
+	deleteOptionFunc     func(ctx context.Context, id string) error
+	createBallotFunc     func(ctx context.Context, ballot *model.VoteBallot) error
+	getBallotByVoterFunc func(ctx context.Context, voteID, userID string) (*model.VoteBallot, error)
+	getBallotsByVoteFunc func(ctx context.Context, voteID string) ([]*model.VoteBallot, error)
+	deleteBallotFunc     func(ctx context.Context, id string) error
+	hasVotedFunc         func(ctx context.Context, voteID, userID string) (bool, error)
+	countBallotsFunc     func(ctx context.Context, voteID string) (int, error)
 }
 
 func (m *mockVoteRepo) Create(ctx context.Context, vote *model.Vote) error {
@@ -1001,9 +1001,10 @@ func TestProcessScheduledTransitions_OpensAndCloses(t *testing.T) {
 			return []*model.Vote{{ID: "vote-to-close"}}, nil
 		},
 		updateStatusFunc: func(ctx context.Context, id string, status model.VoteStatus) error {
-			if status == model.VoteStatusOpen {
+			switch status {
+			case model.VoteStatusOpen:
 				openedIDs[id] = true
-			} else if status == model.VoteStatusClosed {
+			case model.VoteStatusClosed:
 				closedIDs[id] = true
 			}
 			return nil

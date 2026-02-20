@@ -11,11 +11,11 @@ import (
 
 // NudgeService handles nudge generation and delivery
 type NudgeService struct {
-	availabilityRepo  AvailabilityRepository
-	poolRepo          PoolRepository
-	eventHub          *EventHub
-	pushService       *PushService
-	configs           map[model.NudgeType]model.NudgeConfig
+	availabilityRepo AvailabilityRepository
+	poolRepo         PoolRepository
+	eventHub         *EventHub
+	pushService      *PushService
+	configs          map[model.NudgeType]model.NudgeConfig
 }
 
 // NudgeServiceConfig holds configuration for the nudge service
@@ -234,9 +234,9 @@ func (s *NudgeService) buildNudge(nudgeType model.NudgeType, userID string, matc
 		Title:   template.Title,
 		Message: fmt.Sprintf(template.Message, partnersStr),
 		Data: model.NudgeData{
-			MatchID:       &match.ID,
-			PoolID:        &match.PoolID,
-			PartnerNames:  partnerNames,
+			MatchID:      &match.ID,
+			PoolID:       &match.PoolID,
+			PartnerNames: partnerNames,
 		},
 		SentAt: time.Now(),
 	}
@@ -266,7 +266,7 @@ func (s *NudgeService) buildHangoutNudge(nudgeType model.NudgeType, userID strin
 		Title:   template.Title,
 		Message: fmt.Sprintf(template.Message, partnersStr),
 		Data: model.NudgeData{
-			HangoutID:     &hangout.ID,
+			HangoutID:      &hangout.ID,
 			PartnerUserIDs: hangout.Participants,
 			ScheduledTime:  &hangout.ScheduledTime,
 		},

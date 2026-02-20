@@ -7,7 +7,7 @@ type Review struct {
 	ID              string    `json:"id"`
 	ReviewerID      string    `json:"reviewer_id"`
 	RevieweeID      string    `json:"reviewee_id"`
-	Context         string    `json:"context"` // hosted, was_guest, event, matched, hangout
+	Context         string    `json:"context"`                // hosted, was_guest, event, matched, hangout
 	ReferenceID     *string   `json:"reference_id,omitempty"` // event:xyz, hangout:abc
 	WouldMeetAgain  bool      `json:"would_meet_again"`
 	PositiveTags    []string  `json:"positive_tags,omitempty"`
@@ -18,44 +18,44 @@ type Review struct {
 
 // ReviewContext constants
 const (
-	ReviewContextHosted   = "hosted"   // You hosted an event
+	ReviewContextHosted   = "hosted"    // You hosted an event
 	ReviewContextWasGuest = "was_guest" // You attended someone's event
-	ReviewContextEvent    = "event"    // General event attendance
-	ReviewContextMatched  = "matched"  // Pool/Donut match
-	ReviewContextHangout  = "hangout"  // 1:1 or small group hangout
+	ReviewContextEvent    = "event"     // General event attendance
+	ReviewContextMatched  = "matched"   // Pool/Donut match
+	ReviewContextHangout  = "hangout"   // 1:1 or small group hangout
 )
 
 // PositiveTag constants - things that went well
 const (
-	TagWellOrganized       = "well_organized"
-	TagInclusive           = "inclusive"
-	TagGoodConversation    = "good_conversation"
-	TagGoodVenue           = "good_venue"
-	TagRightGroupSize      = "right_group_size"
-	TagOnTime              = "on_time"
-	TagGoodFood            = "good_food"
-	TagMadeConnections     = "made_connections"
-	TagWelcomingNewcomers  = "welcoming_newcomers"
-	TagGoodListener        = "good_listener"
-	TagReliable            = "reliable"
-	TagBringsSnacks        = "brings_snacks"
-	TagGreatHost           = "great_host"
-	TagInterestingPerson   = "interesting_person"
-	TagFunEnergy           = "fun_energy"
+	TagWellOrganized      = "well_organized"
+	TagInclusive          = "inclusive"
+	TagGoodConversation   = "good_conversation"
+	TagGoodVenue          = "good_venue"
+	TagRightGroupSize     = "right_group_size"
+	TagOnTime             = "on_time"
+	TagGoodFood           = "good_food"
+	TagMadeConnections    = "made_connections"
+	TagWelcomingNewcomers = "welcoming_newcomers"
+	TagGoodListener       = "good_listener"
+	TagReliable           = "reliable"
+	TagBringsSnacks       = "brings_snacks"
+	TagGreatHost          = "great_host"
+	TagInterestingPerson  = "interesting_person"
+	TagFunEnergy          = "fun_energy"
 )
 
 // ImprovementTag constants - suggestions for improvement
 const (
-	TagMoreStructure     = "more_structure"
-	TagBetterVenue       = "better_venue"
-	TagDifferentTime     = "different_time"
-	TagSmallerGroup      = "smaller_group"
-	TagLargerGroup       = "larger_group"
-	TagMoreLeadTime      = "more_lead_time"
+	TagMoreStructure       = "more_structure"
+	TagBetterVenue         = "better_venue"
+	TagDifferentTime       = "different_time"
+	TagSmallerGroup        = "smaller_group"
+	TagLargerGroup         = "larger_group"
+	TagMoreLeadTime        = "more_lead_time"
 	TagClearerExpectations = "clearer_expectations"
-	TagDietaryOptions    = "dietary_options"
+	TagDietaryOptions      = "dietary_options"
 	TagBetterCommunication = "better_communication"
-	TagMoreActivities    = "more_activities"
+	TagMoreActivities      = "more_activities"
 )
 
 // TagInfo provides display information for tags
@@ -104,13 +104,13 @@ func GetImprovementTags() []TagInfo {
 
 // Reputation represents aggregated feedback for a user
 type Reputation struct {
-	UserID           string         `json:"user_id"`
-	TotalReviews     int            `json:"total_reviews"`
-	WouldMeetAgain   int            `json:"would_meet_again"`   // Count of positive
-	WouldMeetAgainPct float64       `json:"would_meet_again_pct"` // Percentage
-	TopPositiveTags  []TagCount     `json:"top_positive_tags"`
-	EventsHosted     int            `json:"events_hosted"`
-	EventsAttended   int            `json:"events_attended"`
+	UserID            string     `json:"user_id"`
+	TotalReviews      int        `json:"total_reviews"`
+	WouldMeetAgain    int        `json:"would_meet_again"`     // Count of positive
+	WouldMeetAgainPct float64    `json:"would_meet_again_pct"` // Percentage
+	TopPositiveTags   []TagCount `json:"top_positive_tags"`
+	EventsHosted      int        `json:"events_hosted"`
+	EventsAttended    int        `json:"events_attended"`
 }
 
 // TagCount represents a tag with its count
@@ -123,7 +123,7 @@ type TagCount struct {
 // ReputationDisplay is what's shown on profiles (not star ratings!)
 type ReputationDisplay struct {
 	EventsHosted     int        `json:"events_hosted"`
-	TopTags          []TagCount `json:"top_tags"` // Top 5 positive tags with counts
+	TopTags          []TagCount `json:"top_tags"`           // Top 5 positive tags with counts
 	WouldReturnRatio string     `json:"would_return_ratio"` // "11 of 12 attendees would return"
 }
 
@@ -146,8 +146,8 @@ type CreateReviewRequest struct {
 
 // EventFeedbackFlow represents the post-event feedback questions
 type EventFeedbackFlow struct {
-	EventID     string `json:"event_id"`
-	Attended    string `json:"attended"` // yes, no, partial
+	EventID  string `json:"event_id"`
+	Attended string `json:"attended"` // yes, no, partial
 	// Then positive tags, improvement tags, would_attend_again, optional private note
 }
 

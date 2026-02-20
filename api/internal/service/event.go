@@ -383,9 +383,9 @@ func (s *EventService) RSVP(ctx context.Context, userID, eventID string, req *mo
 	// Create or update RSVP
 	if existingRSVP != nil {
 		updates := map[string]interface{}{
-			"status":        status,
-			"rsvp_type":     req.RSVPType,
-			"plus_ones":     req.PlusOnes,
+			"status":         status,
+			"rsvp_type":      req.RSVPType,
+			"plus_ones":      req.PlusOnes,
 			"plus_one_names": req.PlusOneNames,
 		}
 		if waitingReason != nil {

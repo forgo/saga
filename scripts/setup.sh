@@ -96,6 +96,12 @@ echo "Installing Go development tools..."
 make -C api tools 2>/dev/null || true
 echo -e "${GREEN}[ok]${NC} Go tools installed"
 
+# Install git hooks
+echo "Installing git hooks..."
+cp scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+echo -e "${GREEN}[ok]${NC} Git hooks installed"
+
 # Start services
 echo ""
 echo "Starting services..."

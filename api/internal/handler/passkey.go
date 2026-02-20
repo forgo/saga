@@ -22,16 +22,16 @@ func NewPasskeyHandler(passkeyService *service.PasskeyService) *PasskeyHandler {
 	}
 }
 
-// RegisterStartRequest represents the register start request body
+// PasskeyRegisterStartResponse represents the register start response.
 type PasskeyRegisterStartResponse struct {
-	Challenge            string                          `json:"challenge"`
-	RP                   service.RelyingPartyInfo        `json:"rp"`
-	User                 service.WebAuthnUserInfo        `json:"user"`
-	PubKeyCredParams     []service.PubKeyCredParam       `json:"pubKeyCredParams"`
-	Timeout              int                             `json:"timeout"`
-	Attestation          string                          `json:"attestation"`
+	Challenge              string                          `json:"challenge"`
+	RP                     service.RelyingPartyInfo        `json:"rp"`
+	User                   service.WebAuthnUserInfo        `json:"user"`
+	PubKeyCredParams       []service.PubKeyCredParam       `json:"pubKeyCredParams"`
+	Timeout                int                             `json:"timeout"`
+	Attestation            string                          `json:"attestation"`
 	AuthenticatorSelection *service.AuthenticatorSelection `json:"authenticatorSelection,omitempty"`
-	ExcludeCredentials   []service.CredentialDescriptor  `json:"excludeCredentials,omitempty"`
+	ExcludeCredentials     []service.CredentialDescriptor  `json:"excludeCredentials,omitempty"`
 }
 
 // RegisterStart handles POST /v1/auth/passkey/register/start
@@ -56,20 +56,20 @@ func (h *PasskeyHandler) RegisterStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := PasskeyRegisterStartResponse{
-		Challenge:            result.Challenge,
-		RP:                   result.RP,
-		User:                 result.User,
-		PubKeyCredParams:     result.PubKeyCredParams,
-		Timeout:              result.Timeout,
-		Attestation:          result.Attestation,
+		Challenge:              result.Challenge,
+		RP:                     result.RP,
+		User:                   result.User,
+		PubKeyCredParams:       result.PubKeyCredParams,
+		Timeout:                result.Timeout,
+		Attestation:            result.Attestation,
 		AuthenticatorSelection: result.AuthenticatorSelection,
-		ExcludeCredentials:   result.ExcludeCredentials,
+		ExcludeCredentials:     result.ExcludeCredentials,
 	}
 
 	WriteData(w, http.StatusOK, response, nil)
 }
 
-// RegisterFinishRequest represents the register finish request body
+// PasskeyRegisterFinishRequest represents the register finish request body.
 type PasskeyRegisterFinishRequest struct {
 	Credential *service.CredentialResponse `json:"credential"`
 	Name       string                      `json:"name"`
@@ -127,7 +127,7 @@ func (h *PasskeyHandler) RegisterFinish(w http.ResponseWriter, r *http.Request) 
 	WriteData(w, http.StatusCreated, response, nil)
 }
 
-// LoginStartRequest represents the login start request body
+// PasskeyLoginStartRequest represents the login start request body.
 type PasskeyLoginStartRequest struct {
 	Email string `json:"email,omitempty"`
 }
@@ -154,7 +154,7 @@ func (h *PasskeyHandler) LoginStart(w http.ResponseWriter, r *http.Request) {
 	WriteData(w, http.StatusOK, result, nil)
 }
 
-// LoginFinishRequest represents the login finish request body
+// PasskeyLoginFinishRequest represents the login finish request body.
 type PasskeyLoginFinishRequest struct {
 	Credential *service.AssertionResponse `json:"credential"`
 }

@@ -14,29 +14,29 @@ import (
 // ============================================================================
 
 type mockPoolRepo struct {
-	createPoolFunc             func(ctx context.Context, pool *model.MatchingPool) error
-	getPoolFunc                func(ctx context.Context, poolID string) (*model.MatchingPool, error)
-	getPoolsByGuildFunc        func(ctx context.Context, guildID string) ([]*model.MatchingPool, error)
-	updatePoolFunc             func(ctx context.Context, poolID string, updates map[string]interface{}) (*model.MatchingPool, error)
-	deletePoolFunc             func(ctx context.Context, poolID string) error
-	countPoolsByGuildFunc      func(ctx context.Context, guildID string) (int, error)
-	addMemberFunc              func(ctx context.Context, member *model.PoolMember) error
-	getMemberFunc              func(ctx context.Context, poolID, memberID string) (*model.PoolMember, error)
-	getMemberByUserFunc        func(ctx context.Context, poolID, userID string) (*model.PoolMember, error)
-	getPoolMembersFunc         func(ctx context.Context, poolID string) ([]*model.PoolMember, error)
-	updateMemberFunc           func(ctx context.Context, membershipID string, updates map[string]interface{}) (*model.PoolMember, error)
-	removeMemberFunc           func(ctx context.Context, membershipID string) error
-	getUserPoolMembershipsFunc func(ctx context.Context, userID string) ([]*model.PoolMember, error)
-	createMatchResultFunc      func(ctx context.Context, match *model.MatchResult) error
-	getMatchResultFunc         func(ctx context.Context, matchID string) (*model.MatchResult, error)
-	getMatchesByPoolFunc       func(ctx context.Context, poolID string, limit int) ([]*model.MatchResult, error)
-	getMatchesByRoundFunc      func(ctx context.Context, poolID, round string) ([]*model.MatchResult, error)
-	getUserPendingMatchesFunc  func(ctx context.Context, userID string) ([]*model.MatchResult, error)
+	createPoolFunc              func(ctx context.Context, pool *model.MatchingPool) error
+	getPoolFunc                 func(ctx context.Context, poolID string) (*model.MatchingPool, error)
+	getPoolsByGuildFunc         func(ctx context.Context, guildID string) ([]*model.MatchingPool, error)
+	updatePoolFunc              func(ctx context.Context, poolID string, updates map[string]interface{}) (*model.MatchingPool, error)
+	deletePoolFunc              func(ctx context.Context, poolID string) error
+	countPoolsByGuildFunc       func(ctx context.Context, guildID string) (int, error)
+	addMemberFunc               func(ctx context.Context, member *model.PoolMember) error
+	getMemberFunc               func(ctx context.Context, poolID, memberID string) (*model.PoolMember, error)
+	getMemberByUserFunc         func(ctx context.Context, poolID, userID string) (*model.PoolMember, error)
+	getPoolMembersFunc          func(ctx context.Context, poolID string) ([]*model.PoolMember, error)
+	updateMemberFunc            func(ctx context.Context, membershipID string, updates map[string]interface{}) (*model.PoolMember, error)
+	removeMemberFunc            func(ctx context.Context, membershipID string) error
+	getUserPoolMembershipsFunc  func(ctx context.Context, userID string) ([]*model.PoolMember, error)
+	createMatchResultFunc       func(ctx context.Context, match *model.MatchResult) error
+	getMatchResultFunc          func(ctx context.Context, matchID string) (*model.MatchResult, error)
+	getMatchesByPoolFunc        func(ctx context.Context, poolID string, limit int) ([]*model.MatchResult, error)
+	getMatchesByRoundFunc       func(ctx context.Context, poolID, round string) ([]*model.MatchResult, error)
+	getUserPendingMatchesFunc   func(ctx context.Context, userID string) ([]*model.MatchResult, error)
 	getRecentMatchesBetweenFunc func(ctx context.Context, memberIDs []string, days int) ([]*model.MatchResult, error)
-	updateMatchResultFunc      func(ctx context.Context, matchID string, updates map[string]interface{}) (*model.MatchResult, error)
-	getPoolsDueForMatchingFunc func(ctx context.Context) ([]*model.MatchingPool, error)
-	getPoolStatsFunc           func(ctx context.Context, poolID string) (*model.PoolStats, error)
-	getStaleMatchesFunc        func(ctx context.Context, cutoff time.Time, status string) ([]*model.MatchResult, error)
+	updateMatchResultFunc       func(ctx context.Context, matchID string, updates map[string]interface{}) (*model.MatchResult, error)
+	getPoolsDueForMatchingFunc  func(ctx context.Context) ([]*model.MatchingPool, error)
+	getPoolStatsFunc            func(ctx context.Context, poolID string) (*model.PoolStats, error)
+	getStaleMatchesFunc         func(ctx context.Context, cutoff time.Time, status string) ([]*model.MatchResult, error)
 }
 
 func (m *mockPoolRepo) CreatePool(ctx context.Context, pool *model.MatchingPool) error {
@@ -204,7 +204,7 @@ type mockGuildRepo struct {
 	getByIDFunc func(ctx context.Context, id string) (*model.Guild, error)
 }
 
-func (m *mockGuildRepo) Create(ctx context.Context, guild *model.Guild) error        { return nil }
+func (m *mockGuildRepo) Create(ctx context.Context, guild *model.Guild) error { return nil }
 func (m *mockGuildRepo) GetByID(ctx context.Context, id string) (*model.Guild, error) {
 	if m.getByIDFunc != nil {
 		return m.getByIDFunc(ctx, id)
@@ -252,7 +252,7 @@ func (m *mockGuildRepo) UpdateMemberRole(ctx context.Context, userID, guildID st
 
 type mockMemberRepo struct{}
 
-func (m *mockMemberRepo) Create(ctx context.Context, member *model.Member) error     { return nil }
+func (m *mockMemberRepo) Create(ctx context.Context, member *model.Member) error { return nil }
 func (m *mockMemberRepo) GetByID(ctx context.Context, id string) (*model.Member, error) {
 	return nil, nil
 }

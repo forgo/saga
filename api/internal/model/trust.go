@@ -5,9 +5,9 @@ import "time"
 // TrustRelation represents trust status between two users
 type TrustRelation struct {
 	ID        string    `json:"id"`
-	UserAID   string    `json:"user_a_id"`   // The user who granted trust
-	UserBID   string    `json:"user_b_id"`   // The user being trusted
-	Status    string    `json:"status"`      // pending, active, revoked
+	UserAID   string    `json:"user_a_id"` // The user who granted trust
+	UserBID   string    `json:"user_b_id"` // The user being trusted
+	Status    string    `json:"status"`    // pending, active, revoked
 	CreatedOn time.Time `json:"created_on"`
 	UpdatedOn time.Time `json:"updated_on"`
 }
@@ -21,15 +21,15 @@ const (
 
 // IRLVerification represents confirmed in-person interaction
 type IRLVerification struct {
-	ID           string    `json:"id"`
-	UserAID      string    `json:"user_a_id"`
-	UserBID      string    `json:"user_b_id"`
-	VerifiedOn   time.Time `json:"verified_on"`
-	Context      string    `json:"context"`                // event, hangout, introduced
-	ReferenceID  *string   `json:"reference_id,omitempty"` // event_id if from event
+	ID          string    `json:"id"`
+	UserAID     string    `json:"user_a_id"`
+	UserBID     string    `json:"user_b_id"`
+	VerifiedOn  time.Time `json:"verified_on"`
+	Context     string    `json:"context"`                // event, hangout, introduced
+	ReferenceID *string   `json:"reference_id,omitempty"` // event_id if from event
 	// Both users must confirm
-	UserAConfirmed bool       `json:"user_a_confirmed"`
-	UserBConfirmed bool       `json:"user_b_confirmed"`
+	UserAConfirmed   bool       `json:"user_a_confirmed"`
+	UserBConfirmed   bool       `json:"user_b_confirmed"`
 	UserAConfirmedOn *time.Time `json:"user_a_confirmed_on,omitempty"`
 	UserBConfirmedOn *time.Time `json:"user_b_confirmed_on,omitempty"`
 }
@@ -44,12 +44,12 @@ const (
 
 // TrustSummary provides a summary of trust status between two users
 type TrustSummary struct {
-	UserAID       string `json:"user_a_id"`
-	UserBID       string `json:"user_b_id"`
-	IRLConfirmed  bool   `json:"irl_confirmed"`   // Both confirmed IRL meeting
-	MutualTrust   bool   `json:"mutual_trust"`    // Both trust each other
-	CanCommute    bool   `json:"can_commute"`     // Unlocked commute features
-	TrustLevel    string `json:"trust_level"`     // none, irl_only, trusted
+	UserAID      string `json:"user_a_id"`
+	UserBID      string `json:"user_b_id"`
+	IRLConfirmed bool   `json:"irl_confirmed"` // Both confirmed IRL meeting
+	MutualTrust  bool   `json:"mutual_trust"`  // Both trust each other
+	CanCommute   bool   `json:"can_commute"`   // Unlocked commute features
+	TrustLevel   string `json:"trust_level"`   // none, irl_only, trusted
 }
 
 // TrustLevel constants
@@ -85,9 +85,9 @@ type RequestTrustRequest struct {
 
 // ConfirmIRLRequest represents a request to confirm IRL meeting
 type ConfirmIRLRequest struct {
-	UserID      string  `json:"user_id"`                 // User you met
-	Context     string  `json:"context"`                 // event, hangout, introduced, other
-	ReferenceID *string `json:"reference_id,omitempty"`  // Event ID if applicable
+	UserID      string  `json:"user_id"`                // User you met
+	Context     string  `json:"context"`                // event, hangout, introduced, other
+	ReferenceID *string `json:"reference_id,omitempty"` // Event ID if applicable
 }
 
 // TrustAction represents actions on trust relations
@@ -114,7 +114,7 @@ type TrustedUser struct {
 
 // TrustDirection constants for display
 const (
-	TrustDirectionITrustThem = "i_trust_them"
+	TrustDirectionITrustThem  = "i_trust_them"
 	TrustDirectionTheyTrustMe = "they_trust_me"
 	TrustDirectionMutual      = "mutual"
 )

@@ -48,6 +48,17 @@ npm-debug.log*
 coverage/
 *.coverprofile
 
+# Node/Deno build artifacts
+node_modules/
+admin/node_modules/
+admin/.vite/
+
+# Auth tokens (local dev)
+api/admin-token
+
+# Shell history
+history.txt
+
 # Temporary files
 *.tmp
 *.temp

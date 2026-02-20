@@ -30,7 +30,7 @@ type EventRoleRepositoryInterface interface {
 	GetRolesWithAssignments(ctx context.Context, eventID string) ([]model.EventRoleWithAssignments, error)
 }
 
-// InterestServiceInterface for suggesting roles based on interests
+// InterestServiceForRoles provides interest lookups for suggesting roles.
 type InterestServiceForRoles interface {
 	GetUserInterests(ctx context.Context, userID string) ([]*model.UserInterest, error)
 }

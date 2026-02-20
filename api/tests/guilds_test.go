@@ -179,29 +179,29 @@ func TestGuild_CreateNameValidation(t *testing.T) {
 	user := f.CreateUser(t)
 
 	tests := []struct {
-		name    string
+		name      string
 		guildName string
-		wantErr error
+		wantErr   error
 	}{
 		{
-			name:    "empty name",
+			name:      "empty name",
 			guildName: "",
-			wantErr: service.ErrGuildNameRequired,
+			wantErr:   service.ErrGuildNameRequired,
 		},
 		{
-			name:    "whitespace only name",
+			name:      "whitespace only name",
 			guildName: "   ",
-			wantErr: service.ErrGuildNameRequired,
+			wantErr:   service.ErrGuildNameRequired,
 		},
 		{
-			name:    "name too long",
+			name:      "name too long",
 			guildName: strings.Repeat("a", model.MaxGuildNameLength+1),
-			wantErr: service.ErrGuildNameTooLong,
+			wantErr:   service.ErrGuildNameTooLong,
 		},
 		{
-			name:    "exactly max length is valid",
+			name:      "exactly max length is valid",
 			guildName: strings.Repeat("a", model.MaxGuildNameLength),
-			wantErr: nil,
+			wantErr:   nil,
 		},
 	}
 

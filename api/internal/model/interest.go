@@ -75,7 +75,7 @@ const (
 // AddInterestRequest represents a request to add an interest
 type AddInterestRequest struct {
 	InterestID   string  `json:"interest_id"`
-	Level        string  `json:"level,omitempty"`         // Default: interested
+	Level        string  `json:"level,omitempty"` // Default: interested
 	WantsToTeach *bool   `json:"wants_to_teach,omitempty"`
 	WantsToLearn *bool   `json:"wants_to_learn,omitempty"`
 	Intent       *string `json:"intent,omitempty"`
@@ -97,19 +97,19 @@ type InterestFilter struct {
 
 // SharedInterests represents common interests between two users
 type SharedInterests struct {
-	UserAID    string                    `json:"user_a_id"`
-	UserBID    string                    `json:"user_b_id"`
-	Shared     []SharedInterestDetail    `json:"shared"`
-	TeachLearn []TeachLearnOpportunity   `json:"teach_learn,omitempty"`
+	UserAID    string                  `json:"user_a_id"`
+	UserBID    string                  `json:"user_b_id"`
+	Shared     []SharedInterestDetail  `json:"shared"`
+	TeachLearn []TeachLearnOpportunity `json:"teach_learn,omitempty"`
 }
 
 // SharedInterestDetail shows how two users share an interest
 type SharedInterestDetail struct {
-	Interest     Interest      `json:"interest"`
-	UserALevel   InterestLevel `json:"user_a_level"`
-	UserBLevel   InterestLevel `json:"user_b_level"`
-	UserAIntent  *string       `json:"user_a_intent,omitempty"`
-	UserBIntent  *string       `json:"user_b_intent,omitempty"`
+	Interest    Interest      `json:"interest"`
+	UserALevel  InterestLevel `json:"user_a_level"`
+	UserBLevel  InterestLevel `json:"user_b_level"`
+	UserAIntent *string       `json:"user_a_intent,omitempty"`
+	UserBIntent *string       `json:"user_b_intent,omitempty"`
 }
 
 // TeachLearnOpportunity represents a teaching/learning match opportunity

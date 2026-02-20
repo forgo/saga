@@ -92,10 +92,10 @@ type DiscoveryResult struct {
 	Availability *model.AvailabilityPublic `json:"availability,omitempty"`
 
 	// Scoring components
-	CompatibilityScore float64                `json:"compatibility_score"` // 0-100
-	SharedInterests    []SharedInterestBrief  `json:"shared_interests,omitempty"`
-	Distance           model.DistanceBucket   `json:"distance,omitempty"`
-	ActivityRecency    model.FreshnessBucket  `json:"activity_recency,omitempty"`
+	CompatibilityScore float64               `json:"compatibility_score"` // 0-100
+	SharedInterests    []SharedInterestBrief `json:"shared_interests,omitempty"`
+	Distance           model.DistanceBucket  `json:"distance,omitempty"`
+	ActivityRecency    model.FreshnessBucket `json:"activity_recency,omitempty"`
 
 	// Aggregate score used for ranking
 	MatchScore float64 `json:"match_score"` // Combined weighted score
@@ -112,11 +112,11 @@ type SharedInterestBrief struct {
 
 // DiscoveryResponse wraps results with metadata
 type DiscoveryResponse struct {
-	Results     []DiscoveryResult `json:"results"`
-	TotalCount  int               `json:"total_count"`
-	HasMore     bool              `json:"has_more"`
-	Offset      int               `json:"offset"`
-	SearchedAt  time.Time         `json:"searched_at"`
+	Results    []DiscoveryResult `json:"results"`
+	TotalCount int               `json:"total_count"`
+	HasMore    bool              `json:"has_more"`
+	Offset     int               `json:"offset"`
+	SearchedAt time.Time         `json:"searched_at"`
 }
 
 // DiscoverPeople finds compatible people based on the filter criteria

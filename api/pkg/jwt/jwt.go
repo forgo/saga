@@ -40,6 +40,12 @@ type Claims struct {
 	Email    string `json:"email,omitempty"`
 	UserID   string `json:"user_id,omitempty"`
 	Username string `json:"username,omitempty"`
+	Role     string `json:"role,omitempty"` // user, moderator, admin
+}
+
+// IsAdmin returns true if the claims indicate admin role
+func (c *Claims) IsAdmin() bool {
+	return c.Role == "admin"
 }
 
 // Valid checks if the claims are valid

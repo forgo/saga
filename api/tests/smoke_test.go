@@ -4,14 +4,15 @@
 // database behavior including triggers, constraints, and functions.
 //
 // To run tests:
-//   1. Start SurrealDB: surreal start memory -A --user root --pass root
-//   2. Run tests: go test ./tests/...
+//  1. Start SurrealDB: surreal start memory -A --user root --pass root
+//  2. Run tests: go test ./tests/...
 //
 // Environment variables:
-//   TEST_DB_HOST     - SurrealDB host (default: localhost)
-//   TEST_DB_PORT     - SurrealDB port (default: 8000)
-//   TEST_DB_USER     - SurrealDB username (default: root)
-//   TEST_DB_PASSWORD - SurrealDB password (default: root)
+//
+//	TEST_DB_HOST     - SurrealDB host (default: localhost)
+//	TEST_DB_PORT     - SurrealDB port (default: 8000)
+//	TEST_DB_USER     - SurrealDB username (default: root)
+//	TEST_DB_PASSWORD - SurrealDB password (default: root)
 package tests
 
 import (

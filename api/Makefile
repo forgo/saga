@@ -1,9 +1,10 @@
-.PHONY: all build run test lint clean dev db-start db-stop migrate db-seed db-reset-seed generate-ios generate-web generate-server
+.PHONY: all build run test lint clean dev db-start db-stop migrate db-seed db-reset-seed generate-ios generate-web generate-server admin-token dev-full
 
 # Variables
 BINARY_NAME=saga-api
 GO=go
 GOFLAGS=-ldflags="-s -w"
+GOLANGCI_LINT_VERSION=v2.10.1
 
 # Default target
 all: build
@@ -32,7 +33,7 @@ test-coverage:
 
 # Lint the code (requires golangci-lint)
 lint:
-	@which golangci-lint > /dev/null || (echo "Installing golangci-lint..." && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+	@command -v golangci-lint > /dev/null || (echo "Installing golangci-lint..." && curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $$(go env GOPATH)/bin $(GOLANGCI_LINT_VERSION))
 	golangci-lint run ./...
 
 # Clean build artifacts
@@ -168,9 +169,49 @@ check: fmt vet lint test
 
 # Install development tools
 tools:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $$(go env GOPATH)/bin $(GOLANGCI_LINT_VERSION)
 	go install github.com/air-verse/air@latest
 	@echo "Tools installed"
+
+# Generate an admin JWT token for testing admin endpoints
+admin-token:
+	@if [ ! -f keys/private.pem ]; then \
+		echo "Keys not found. Generating..."; \
+		$(MAKE) keys-generate; \
+	fi
+	@$(GO) run ./cmd/admin-token
+
+# Generate admin token and output just the token (for scripting)
+admin-token-raw:
+	@if [ ! -f keys/private.pem ]; then $(MAKE) keys-generate; fi
+	@$(GO) run ./cmd/admin-token -json | jq -r .access_token
+
+# Full development setup: start DB, run migrations, seed, start API with hot reload
+dev-full:
+	@echo "Starting full development environment..."
+	@if ! docker ps | grep -q saga-surrealdb; then \
+		echo "Starting SurrealDB via Docker..."; \
+		docker run -d --name saga-surrealdb --rm \
+			-p 8000:8000 \
+			surrealdb/surrealdb:v3.0.0-beta.3 \
+			start --user root --pass root --bind 0.0.0.0:8000 memory; \
+		sleep 3; \
+	fi
+	@$(MAKE) migrate
+	@$(MAKE) db-seed
+	@echo ""
+	@echo "Starting API server with hot reload..."
+	@echo "Admin token:"
+	@$(MAKE) admin-token-raw 2>/dev/null || $(MAKE) admin-token
+	@echo ""
+	@$(MAKE) dev
+
+# Stop dev environment
+dev-stop:
+	@echo "Stopping development environment..."
+	@-docker stop saga-surrealdb 2>/dev/null || true
+	@-pkill -f "air" 2>/dev/null || true
+	@echo "Development environment stopped"
 
 # Help
 help:
@@ -180,6 +221,10 @@ help:
 	@echo "  build           - Build the binary"
 	@echo "  run             - Build and run the server"
 	@echo "  dev             - Run with hot reload (requires air)"
+	@echo "  dev-full        - Full dev setup: DB + migrations + seed + API"
+	@echo "  dev-stop        - Stop dev environment (DB + API)"
+	@echo "  admin-token     - Generate admin JWT token for testing"
+	@echo "  admin-token-raw - Output just the admin token (for scripts)"
 	@echo "  test            - Run tests"
 	@echo "  test-coverage   - Run tests with coverage report"
 	@echo "  bench           - Run benchmarks"

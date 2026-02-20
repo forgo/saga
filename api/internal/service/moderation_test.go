@@ -14,25 +14,25 @@ import (
 // ============================================================================
 
 type mockModerationRepo struct {
-	createReportFunc            func(ctx context.Context, report *model.Report) error
-	getReportFunc               func(ctx context.Context, id string) (*model.Report, error)
-	getReportsByStatusFunc      func(ctx context.Context, status model.ReportStatus, limit int) ([]*model.Report, error)
-	getReportsAgainstUserFunc   func(ctx context.Context, userID string) ([]*model.Report, error)
-	getRecentReportsFunc        func(ctx context.Context, userID string, days int) ([]*model.Report, error)
-	updateReportFunc            func(ctx context.Context, id string, updates map[string]interface{}) (*model.Report, error)
-	createActionFunc            func(ctx context.Context, action *model.ModerationAction) error
-	getActionFunc               func(ctx context.Context, id string) (*model.ModerationAction, error)
-	getActiveActionsFunc        func(ctx context.Context, userID string) ([]*model.ModerationAction, error)
-	getAllActionsFunc           func(ctx context.Context, userID string) ([]*model.ModerationAction, error)
-	updateActionFunc            func(ctx context.Context, id string, updates map[string]interface{}) error
-	expireOldActionsFunc        func(ctx context.Context) error
-	createBlockFunc             func(ctx context.Context, block *model.Block) error
-	getBlockFunc                func(ctx context.Context, blockerID, blockedID string) (*model.Block, error)
-	getBlocksByBlockerFunc      func(ctx context.Context, blockerID string) ([]*model.Block, error)
-	isBlockedFunc               func(ctx context.Context, blockerID, blockedID string) (bool, error)
-	isBlockedEitherWayFunc      func(ctx context.Context, userID1, userID2 string) (bool, error)
-	deleteBlockFunc             func(ctx context.Context, blockerID, blockedID string) error
-	getModerationStatsFunc      func(ctx context.Context) (*model.ModerationStats, error)
+	createReportFunc          func(ctx context.Context, report *model.Report) error
+	getReportFunc             func(ctx context.Context, id string) (*model.Report, error)
+	getReportsByStatusFunc    func(ctx context.Context, status model.ReportStatus, limit int) ([]*model.Report, error)
+	getReportsAgainstUserFunc func(ctx context.Context, userID string) ([]*model.Report, error)
+	getRecentReportsFunc      func(ctx context.Context, userID string, days int) ([]*model.Report, error)
+	updateReportFunc          func(ctx context.Context, id string, updates map[string]interface{}) (*model.Report, error)
+	createActionFunc          func(ctx context.Context, action *model.ModerationAction) error
+	getActionFunc             func(ctx context.Context, id string) (*model.ModerationAction, error)
+	getActiveActionsFunc      func(ctx context.Context, userID string) ([]*model.ModerationAction, error)
+	getAllActionsFunc         func(ctx context.Context, userID string) ([]*model.ModerationAction, error)
+	updateActionFunc          func(ctx context.Context, id string, updates map[string]interface{}) error
+	expireOldActionsFunc      func(ctx context.Context) error
+	createBlockFunc           func(ctx context.Context, block *model.Block) error
+	getBlockFunc              func(ctx context.Context, blockerID, blockedID string) (*model.Block, error)
+	getBlocksByBlockerFunc    func(ctx context.Context, blockerID string) ([]*model.Block, error)
+	isBlockedFunc             func(ctx context.Context, blockerID, blockedID string) (bool, error)
+	isBlockedEitherWayFunc    func(ctx context.Context, userID1, userID2 string) (bool, error)
+	deleteBlockFunc           func(ctx context.Context, blockerID, blockedID string) error
+	getModerationStatsFunc    func(ctx context.Context) (*model.ModerationStats, error)
 }
 
 func (m *mockModerationRepo) CreateReport(ctx context.Context, report *model.Report) error {

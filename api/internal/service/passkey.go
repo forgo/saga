@@ -24,11 +24,11 @@ const (
 
 // PasskeyConfig holds passkey/WebAuthn configuration
 type PasskeyConfig struct {
-	RPID          string // Relying Party ID (e.g., "saga.forgo.software")
-	RPName        string // Relying Party display name
-	RPOrigins     []string
-	Timeout       time.Duration
-	RequireUV     bool // Require user verification
+	RPID            string // Relying Party ID (e.g., "saga.forgo.software")
+	RPName          string // Relying Party display name
+	RPOrigins       []string
+	Timeout         time.Duration
+	RequireUV       bool // Require user verification
 	AttestationType string
 }
 
@@ -133,14 +133,14 @@ type RegistrationStartRequest struct {
 
 // RegistrationStartResponse is returned to start passkey registration
 type RegistrationStartResponse struct {
-	Challenge        string                  `json:"challenge"`
-	RP               RelyingPartyInfo        `json:"rp"`
-	User             WebAuthnUserInfo        `json:"user"`
-	PubKeyCredParams []PubKeyCredParam       `json:"pubKeyCredParams"`
-	Timeout          int                     `json:"timeout"`
-	Attestation      string                  `json:"attestation"`
+	Challenge              string                  `json:"challenge"`
+	RP                     RelyingPartyInfo        `json:"rp"`
+	User                   WebAuthnUserInfo        `json:"user"`
+	PubKeyCredParams       []PubKeyCredParam       `json:"pubKeyCredParams"`
+	Timeout                int                     `json:"timeout"`
+	Attestation            string                  `json:"attestation"`
 	AuthenticatorSelection *AuthenticatorSelection `json:"authenticatorSelection,omitempty"`
-	ExcludeCredentials []CredentialDescriptor `json:"excludeCredentials,omitempty"`
+	ExcludeCredentials     []CredentialDescriptor  `json:"excludeCredentials,omitempty"`
 }
 
 type RelyingPartyInfo struct {
@@ -161,9 +161,9 @@ type PubKeyCredParam struct {
 
 type AuthenticatorSelection struct {
 	AuthenticatorAttachment string `json:"authenticatorAttachment,omitempty"`
-	ResidentKey            string `json:"residentKey,omitempty"`
-	RequireResidentKey     bool   `json:"requireResidentKey,omitempty"`
-	UserVerification       string `json:"userVerification,omitempty"`
+	ResidentKey             string `json:"residentKey,omitempty"`
+	RequireResidentKey      bool   `json:"requireResidentKey,omitempty"`
+	UserVerification        string `json:"userVerification,omitempty"`
 }
 
 type CredentialDescriptor struct {
@@ -253,9 +253,9 @@ type RegistrationFinishRequest struct {
 }
 
 type CredentialResponse struct {
-	ID       string            `json:"id"`
-	RawID    string            `json:"rawId"`
-	Type     string            `json:"type"`
+	ID       string              `json:"id"`
+	RawID    string              `json:"rawId"`
+	Type     string              `json:"type"`
 	Response AttestationResponse `json:"response"`
 }
 
@@ -317,11 +317,11 @@ type LoginStartRequest struct {
 
 // LoginStartResponse is returned to start passkey login
 type LoginStartResponse struct {
-	Challenge          string                 `json:"challenge"`
-	Timeout            int                    `json:"timeout"`
-	RPID               string                 `json:"rpId"`
-	AllowCredentials   []CredentialDescriptor `json:"allowCredentials,omitempty"`
-	UserVerification   string                 `json:"userVerification,omitempty"`
+	Challenge        string                 `json:"challenge"`
+	Timeout          int                    `json:"timeout"`
+	RPID             string                 `json:"rpId"`
+	AllowCredentials []CredentialDescriptor `json:"allowCredentials,omitempty"`
+	UserVerification string                 `json:"userVerification,omitempty"`
 }
 
 // StartLogin initiates passkey login
@@ -380,9 +380,9 @@ type LoginFinishRequest struct {
 }
 
 type AssertionResponse struct {
-	ID       string           `json:"id"`
-	RawID    string           `json:"rawId"`
-	Type     string           `json:"type"`
+	ID       string                         `json:"id"`
+	RawID    string                         `json:"rawId"`
+	Type     string                         `json:"type"`
 	Response AuthenticatorAssertionResponse `json:"response"`
 }
 

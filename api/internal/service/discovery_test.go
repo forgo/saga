@@ -132,7 +132,7 @@ func TestCalculateCompatibilityFromAnswers_DealBreakerViolated_ReturnsZero(t *te
 
 	answers := map[string][2]*model.Answer{
 		"q1": {
-			makeAnswer("a", []string{"a"}, model.ImportanceSomewhat, true, 1.0, nil), // dealbreaker: only accepts "a"
+			makeAnswer("a", []string{"a"}, model.ImportanceSomewhat, true, 1.0, nil),       // dealbreaker: only accepts "a"
 			makeAnswer("b", []string{"a", "b"}, model.ImportanceSomewhat, false, 1.0, nil), // selected "b"
 		},
 	}
@@ -152,7 +152,7 @@ func TestCalculateCompatibilityFromAnswers_PartialMatch(t *testing.T) {
 	answers := map[string][2]*model.Answer{
 		"q1": {
 			makeAnswer("a", []string{"a", "b"}, model.ImportanceSomewhat, false, 1.0, nil), // accepts b
-			makeAnswer("b", []string{"b"}, model.ImportanceSomewhat, false, 1.0, nil), // only accepts b
+			makeAnswer("b", []string{"b"}, model.ImportanceSomewhat, false, 1.0, nil),      // only accepts b
 		},
 	}
 

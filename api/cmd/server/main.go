@@ -54,7 +54,7 @@ func main() {
 		slog.Error("failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	slog.Info("connected to database",
 		slog.String("host", cfg.Database.Host),
@@ -228,6 +228,12 @@ func main() {
 		ProfileRepo:       profileRepo,
 	})
 
+	// Initialize seeder service for admin tools
+	seederService := service.NewSeederService(db)
+
+	// Initialize admin actions service (will be connected to eventHub after it's created)
+	var adminActionsService *service.AdminActionsService
+
 	// Initialize rate limiter
 	rateLimiter := middleware.NewRateLimiter(middleware.RateLimitConfig{
 		Rate:   100, // 100 requests per minute
@@ -247,8 +253,17 @@ func main() {
 	eventHub := service.NewEventHub()
 	defer eventHub.Close()
 
+	// Initialize admin actions service (now that eventHub exists)
+	adminActionsService = service.NewAdminActionsService(db, eventHub)
+
 	// Initialize moderation service
 	moderationService := service.NewModerationService(moderationRepo, eventHub)
+
+	// Initialize admin users service
+	adminUsersService := service.NewAdminUsersService(db, userRepo, profileRepo, moderationService)
+
+	// Initialize admin discovery service
+	adminDiscoveryService := service.NewAdminDiscoveryService(db, discoveryService, compatibilityService)
 
 	poolMatcher := jobs.NewPoolMatcher(poolService, 1*time.Hour)
 	poolMatcher.Start()
@@ -316,6 +331,10 @@ func main() {
 	discoveryHandler := handler.NewDiscoveryHandler(discoveryService)
 	moderationHandler := handler.NewModerationHandler(moderationService, userRepo)
 	deviceHandler := handler.NewDeviceHandler(deviceTokenRepo)
+	adminSeederHandler := handler.NewAdminSeederHandler(seederService)
+	adminActionsHandler := handler.NewAdminActionsHandler(adminActionsService)
+	adminUsersHandler := handler.NewAdminUsersHandler(adminUsersService)
+	adminDiscoveryHandler := handler.NewAdminDiscoveryHandler(adminDiscoveryService)
 
 	// Create router and register routes
 	mux := http.NewServeMux()
@@ -338,6 +357,7 @@ func main() {
 
 	// Auth endpoints (protected)
 	authMiddleware := middleware.Auth(tokenService)
+	adminMiddleware := middleware.AdminAuth(tokenService)
 	mux.Handle("POST /v1/auth/logout", authMiddleware(http.HandlerFunc(authHandler.Logout)))
 	mux.Handle("GET /v1/auth/me", authMiddleware(http.HandlerFunc(authHandler.Me)))
 
@@ -505,7 +525,7 @@ func main() {
 	mux.Handle("GET /v1/users/{userId}/trust-aggregate", authMiddleware(http.HandlerFunc(trustRatingHandler.GetAggregate)))
 	mux.Handle("POST /v1/trust-ratings/{ratingId}/endorsements", authMiddleware(http.HandlerFunc(trustRatingHandler.CreateEndorsement)))
 	mux.Handle("GET /v1/trust-ratings/{ratingId}/endorsements", authMiddleware(http.HandlerFunc(trustRatingHandler.GetEndorsements)))
-	mux.Handle("GET /v1/admin/distrust-signals", authMiddleware(http.HandlerFunc(trustRatingHandler.GetDistrustSignals)))
+	mux.Handle("GET /v1/admin/distrust-signals", adminMiddleware(http.HandlerFunc(trustRatingHandler.GetDistrustSignals)))
 
 	// Role Catalog endpoints - Guild catalogs
 	mux.Handle("GET /v1/guilds/{guildId}/role-catalogs", authMiddleware(http.HandlerFunc(roleCatalogHandler.GetGuildCatalogs)))
@@ -571,6 +591,35 @@ func main() {
 	// Vote scoped query endpoints
 	mux.Handle("GET /v1/guilds/{guildId}/votes", authMiddleware(http.HandlerFunc(voteHandler.GetGuildVotes)))
 	mux.Handle("GET /v1/votes/global", authMiddleware(http.HandlerFunc(voteHandler.GetGlobalVotes)))
+
+	// Admin seeder endpoints (for development/testing) - requires admin role
+	mux.Handle("GET /v1/admin/seed/scenarios", adminMiddleware(http.HandlerFunc(adminSeederHandler.ListScenarios)))
+	mux.Handle("POST /v1/admin/seed/users", adminMiddleware(http.HandlerFunc(adminSeederHandler.SeedUsers)))
+	mux.Handle("POST /v1/admin/seed/guilds", adminMiddleware(http.HandlerFunc(adminSeederHandler.SeedGuilds)))
+	mux.Handle("POST /v1/admin/seed/events", adminMiddleware(http.HandlerFunc(adminSeederHandler.SeedEvents)))
+	mux.Handle("POST /v1/admin/seed/scenario", adminMiddleware(http.HandlerFunc(adminSeederHandler.SeedScenario)))
+	mux.Handle("DELETE /v1/admin/seed/cleanup", adminMiddleware(http.HandlerFunc(adminSeederHandler.Cleanup)))
+
+	// Admin user management endpoints - requires admin role
+	mux.Handle("GET /v1/admin/users", adminMiddleware(http.HandlerFunc(adminUsersHandler.ListUsers)))
+	mux.Handle("GET /v1/admin/users/{userId}", adminMiddleware(http.HandlerFunc(adminUsersHandler.GetUser)))
+	mux.Handle("PATCH /v1/admin/users/{userId}/role", adminMiddleware(http.HandlerFunc(adminUsersHandler.UpdateRole)))
+	mux.Handle("DELETE /v1/admin/users/{userId}", adminMiddleware(http.HandlerFunc(adminUsersHandler.DeleteUser)))
+
+	// Admin discovery lab endpoints - requires admin role
+	mux.Handle("GET /v1/admin/discovery/users", adminMiddleware(http.HandlerFunc(adminDiscoveryHandler.GetUsersWithLocations)))
+	mux.Handle("POST /v1/admin/discovery/simulate", adminMiddleware(http.HandlerFunc(adminDiscoveryHandler.SimulateDiscovery)))
+	mux.Handle("GET /v1/admin/discovery/compatibility/{userAId}/{userBId}", adminMiddleware(http.HandlerFunc(adminDiscoveryHandler.GetCompatibility)))
+
+	// Admin action endpoints (for triggering events as users) - requires admin role
+	mux.Handle("GET /v1/admin/actions/users", adminMiddleware(http.HandlerFunc(adminActionsHandler.GetUsers)))
+	mux.Handle("GET /v1/admin/actions/guilds", adminMiddleware(http.HandlerFunc(adminActionsHandler.GetGuilds)))
+	mux.Handle("GET /v1/admin/actions/events", adminMiddleware(http.HandlerFunc(adminActionsHandler.GetEvents)))
+	mux.Handle("POST /v1/admin/actions/location", adminMiddleware(http.HandlerFunc(adminActionsHandler.UpdateLocation)))
+	mux.Handle("POST /v1/admin/actions/trust-rating", adminMiddleware(http.HandlerFunc(adminActionsHandler.CreateTrustRating)))
+	mux.Handle("POST /v1/admin/actions/guild-join", adminMiddleware(http.HandlerFunc(adminActionsHandler.JoinGuild)))
+	mux.Handle("POST /v1/admin/actions/rsvp", adminMiddleware(http.HandlerFunc(adminActionsHandler.RSVP)))
+	mux.Handle("POST /v1/admin/actions/event-create", adminMiddleware(http.HandlerFunc(adminActionsHandler.CreateEvent)))
 
 	// Moderation endpoints
 	moderationHandler.RegisterRoutes(mux)

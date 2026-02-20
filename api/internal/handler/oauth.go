@@ -20,14 +20,14 @@ func NewOAuthHandler(oauthService *service.OAuthService) *OAuthHandler {
 	}
 }
 
-// OAuthRequest represents an OAuth callback request body
+// OAuthCallbackRequest represents an OAuth callback request body.
 type OAuthCallbackRequest struct {
 	Code         string `json:"code"`
 	CodeVerifier string `json:"code_verifier"`
 	State        string `json:"state,omitempty"`
 }
 
-// OAuthResponse represents a successful OAuth response
+// OAuthSuccessResponse represents a successful OAuth response.
 type OAuthSuccessResponse struct {
 	User      UserResponse  `json:"user"`
 	Token     TokenResponse `json:"token"`

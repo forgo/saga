@@ -375,7 +375,7 @@ func (f *Factory) CreateEvent(t *testing.T, guild *model.Guild, host *model.User
 	return parseEventResult(t, results)
 }
 
-// CreateEvent creates an event in a guild (overload that takes adventure as first parameter)
+// CreateEventForAdventure creates an event in a guild with an adventure context.
 func (f *Factory) CreateEventForAdventure(t *testing.T, adventure *model.Adventure, guild *model.Guild, host *model.User, opts ...func(*EventOpts)) *model.Event {
 	t.Helper()
 
@@ -589,13 +589,13 @@ func (f *Factory) CreateTrustRating(t *testing.T, rater, ratee *model.User, anch
 
 // VoteOpts customizes vote creation
 type VoteOpts struct {
-	Title       string
-	VoteType    model.VoteType
-	ScopeType   model.VoteScopeType
-	OpensAt     time.Time
-	ClosesAt    time.Time
-	Status      model.VoteStatus
-	AllowAbstain bool
+	Title                string
+	VoteType             model.VoteType
+	ScopeType            model.VoteScopeType
+	OpensAt              time.Time
+	ClosesAt             time.Time
+	Status               model.VoteStatus
+	AllowAbstain         bool
 	MaxOptionsSelectable *int
 }
 
@@ -604,12 +604,12 @@ func (f *Factory) CreateVote(t *testing.T, creator *model.User, guild *model.Gui
 	t.Helper()
 
 	o := &VoteOpts{
-		Title:     fmt.Sprintf("Vote %s", randomID()),
-		VoteType:  model.VoteTypeFPTP,
-		ScopeType: model.VoteScopeGuild,
-		OpensAt:   time.Now(),
-		ClosesAt:  time.Now().Add(7 * 24 * time.Hour),
-		Status:    model.VoteStatusDraft,
+		Title:        fmt.Sprintf("Vote %s", randomID()),
+		VoteType:     model.VoteTypeFPTP,
+		ScopeType:    model.VoteScopeGuild,
+		OpensAt:      time.Now(),
+		ClosesAt:     time.Now().Add(7 * 24 * time.Hour),
+		Status:       model.VoteStatusDraft,
 		AllowAbstain: false,
 	}
 	for _, fn := range opts {
@@ -845,18 +845,18 @@ func parseEventResult(t *testing.T, results []interface{}) *model.Event {
 	t.Helper()
 	data := extractFirstResult(t, results)
 	return &model.Event{
-		ID:                   getString(data, "id"),
-		Title:                getString(data, "title"),
-		Template:             getString(data, "template"),
-		Visibility:           getString(data, "visibility"),
-		Status:               getString(data, "status"),
-		CreatedBy:            getString(data, "created_by"),
-		StartTime:            getTime(data, "starts_at"),
-		CompletionVerified:   getBool(data, "completion_verified"),
-		ConfirmedCount:       getInt(data, "confirmed_count"),
-		AttendeeCount:        getInt(data, "attendee_count"),
-		CreatedOn:            getTime(data, "created_on"),
-		UpdatedOn:            getTime(data, "updated_on"),
+		ID:                 getString(data, "id"),
+		Title:              getString(data, "title"),
+		Template:           getString(data, "template"),
+		Visibility:         getString(data, "visibility"),
+		Status:             getString(data, "status"),
+		CreatedBy:          getString(data, "created_by"),
+		StartTime:          getTime(data, "starts_at"),
+		CompletionVerified: getBool(data, "completion_verified"),
+		ConfirmedCount:     getInt(data, "confirmed_count"),
+		AttendeeCount:      getInt(data, "attendee_count"),
+		CreatedOn:          getTime(data, "created_on"),
+		UpdatedOn:          getTime(data, "updated_on"),
 	}
 }
 

@@ -150,7 +150,7 @@ type UpdateMemberRoleRequest struct {
 	Role GuildRole `json:"role"`
 }
 
-// Backward compatibility type aliases (deprecated, will be removed)
+// Circle is a backward compatibility alias for Guild (deprecated).
 type Circle = Guild
 type CircleMembership = GuildMembership
 type CircleData = GuildData

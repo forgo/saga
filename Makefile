@@ -1,4 +1,4 @@
-.PHONY: help setup dev stop logs test test-api test-ios lint fmt check db-seed db-reset clean keys
+.PHONY: help setup dev stop restart logs dev-api dev-ios dev-admin test test-api test-ios test-admin lint lint-api lint-admin fmt check db-seed db-reset clean keys install-hooks
 
 # Default target
 .DEFAULT_GOAL := help
@@ -26,6 +26,24 @@ dev: ## Start all services (API + SurrealDB)
 stop: ## Stop all services
 	@$(MAKE) -C api compose-down
 
+restart: ## Stop, rebuild, and restart everything from scratch
+	@echo "Stopping all services..."
+	@$(MAKE) -C api compose-down 2>/dev/null || true
+	@echo "Removing database volume..."
+	@docker volume rm saga_surrealdb_data 2>/dev/null || true
+	@echo "Rebuilding and starting services..."
+	@cd api && docker compose up -d --build
+	@echo "Waiting for SurrealDB to be ready..."
+	@sleep 5
+	@echo "Running migrations..."
+	@$(MAKE) -C api migrate
+	@echo "Seeding database..."
+	@$(MAKE) -C api db-seed
+	@echo ""
+	@echo "Restart complete! Services running:"
+	@echo "  API:       http://localhost:8080"
+	@echo "  SurrealDB: http://localhost:8000"
+
 logs: ## View service logs
 	@$(MAKE) -C api compose-logs
 
@@ -35,11 +53,14 @@ dev-api: ## Run API with hot reload (requires running db)
 dev-ios: ## Open iOS project in Xcode
 	@open ios/Saga/Saga.xcodeproj
 
+dev-admin: ## Start admin dev server
+	@$(MAKE) -C admin dev
+
 # ============================================================================
 # Testing
 # ============================================================================
 
-test: test-api test-ios ## Run all tests
+test: test-api test-ios test-admin ## Run all tests
 
 test-api: ## Run API tests
 	@$(MAKE) -C api test
@@ -47,18 +68,28 @@ test-api: ## Run API tests
 test-ios: ## Run iOS tests
 	@cd ios/Saga && swift test
 
+test-admin: ## Run admin tests
+	@$(MAKE) -C admin test
+
 # ============================================================================
 # Linting & Formatting
 # ============================================================================
 
-lint: ## Lint all code
+lint: lint-api lint-admin ## Lint all code
+
+lint-api: ## Lint API code
 	@$(MAKE) -C api lint
+
+lint-admin: ## Lint admin code
+	@$(MAKE) -C admin lint
 
 fmt: ## Format all code
 	@$(MAKE) -C api fmt
+	@$(MAKE) -C admin fmt
 
 check: ## Run all checks (lint, fmt, test)
 	@$(MAKE) -C api check
+	@$(MAKE) -C admin check
 
 # ============================================================================
 # Database
@@ -84,11 +115,21 @@ db-reset: ## Reset database (drop and recreate with seed data)
 	@echo "Database reset complete!"
 
 # ============================================================================
+# Git Hooks
+# ============================================================================
+
+install-hooks: ## Install git pre-commit hooks
+	@cp scripts/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Git hooks installed"
+
+# ============================================================================
 # Misc
 # ============================================================================
 
 clean: ## Clean all build artifacts
 	@$(MAKE) -C api clean
+	@$(MAKE) -C admin clean
 	@rm -rf ios/Saga/.build
 
 keys: ## Generate JWT keys

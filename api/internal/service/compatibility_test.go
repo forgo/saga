@@ -14,8 +14,8 @@ import (
 // ============================================================================
 
 type mockQuestionnaireRepo struct {
-	getSharedAnswersFunc  func(ctx context.Context, userAID, userBID string) (map[string][2]*model.Answer, error)
-	getAllQuestionsFunc   func(ctx context.Context) ([]*model.Question, error)
+	getSharedAnswersFunc func(ctx context.Context, userAID, userBID string) (map[string][2]*model.Answer, error)
+	getAllQuestionsFunc  func(ctx context.Context) ([]*model.Question, error)
 }
 
 func (m *mockQuestionnaireRepo) GetAllQuestions(ctx context.Context) ([]*model.Question, error) {

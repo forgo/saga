@@ -8,8 +8,8 @@ type MatchingPool struct {
 	GuildID            string     `json:"guild_id"`
 	Name               string     `json:"name"`
 	Description        *string    `json:"description,omitempty"`
-	Frequency          string     `json:"frequency"`           // weekly, biweekly, monthly
-	MatchSize          int        `json:"match_size"`          // 2 for pairs, 3+ for groups
+	Frequency          string     `json:"frequency"`  // weekly, biweekly, monthly
+	MatchSize          int        `json:"match_size"` // 2 for pairs, 3+ for groups
 	ActivitySuggestion *string    `json:"activity_suggestion,omitempty"`
 	NextMatchOn        time.Time  `json:"next_match_on"`
 	LastMatchOn        *time.Time `json:"last_match_on,omitempty"`
@@ -59,10 +59,10 @@ type PoolMember struct {
 type MatchResult struct {
 	ID             string     `json:"id"`
 	PoolID         string     `json:"pool_id"`
-	Members        []string   `json:"members"`         // Member IDs
-	MemberUserIDs  []string   `json:"member_user_ids"` // User IDs for notifications
-	Status         string     `json:"status"`          // pending, scheduled, completed, skipped
-	MatchRound     string     `json:"match_round"`     // e.g., "2026-W02"
+	Members        []string   `json:"members"`                   // Member IDs
+	MemberUserIDs  []string   `json:"member_user_ids"`           // User IDs for notifications
+	Status         string     `json:"status"`                    // pending, scheduled, completed, skipped
+	MatchRound     string     `json:"match_round"`               // e.g., "2026-W02"
 	ScheduledEvent *string    `json:"scheduled_event,omitempty"` // Event ID if created
 	ScheduledTime  *time.Time `json:"scheduled_time,omitempty"`
 	CreatedOn      time.Time  `json:"created_on"`
@@ -155,24 +155,24 @@ type UpdateMatchRequest struct {
 
 // MatchRoundInfo provides info about a matching round
 type MatchRoundInfo struct {
-	PoolID      string        `json:"pool_id"`
-	PoolName    string        `json:"pool_name"`
-	Round       string        `json:"round"` // e.g., "2026-W02"
-	RanOn       time.Time     `json:"ran_on"`
-	MatchCount  int           `json:"match_count"`
-	Matches     []MatchResult `json:"matches"`
+	PoolID     string        `json:"pool_id"`
+	PoolName   string        `json:"pool_name"`
+	Round      string        `json:"round"` // e.g., "2026-W02"
+	RanOn      time.Time     `json:"ran_on"`
+	MatchCount int           `json:"match_count"`
+	Matches    []MatchResult `json:"matches"`
 }
 
 // PendingMatch is a match waiting for the user to act on
 type PendingMatch struct {
-	Match       MatchResult `json:"match"`
-	PoolName    string      `json:"pool_name"`
-	GuildID     string      `json:"guild_id"`
-	GuildName   string      `json:"guild_name"`
-	PartnerIDs  []string    `json:"partner_ids"`   // Other member IDs in the match
-	PartnerNames []string   `json:"partner_names"` // Other member names
-	Suggestion  *string     `json:"suggestion,omitempty"`
-	DueBy       *time.Time  `json:"due_by,omitempty"` // When next round happens
+	Match        MatchResult `json:"match"`
+	PoolName     string      `json:"pool_name"`
+	GuildID      string      `json:"guild_id"`
+	GuildName    string      `json:"guild_name"`
+	PartnerIDs   []string    `json:"partner_ids"`   // Other member IDs in the match
+	PartnerNames []string    `json:"partner_names"` // Other member names
+	Suggestion   *string     `json:"suggestion,omitempty"`
+	DueBy        *time.Time  `json:"due_by,omitempty"` // When next round happens
 }
 
 // MatchingConfig holds configuration for the matching algorithm

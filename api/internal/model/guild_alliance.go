@@ -13,15 +13,15 @@ const (
 
 // GuildAlliance represents a bidirectional partnership between two guilds
 type GuildAlliance struct {
-	ID           string         `json:"id"`
-	GuildAID     string         `json:"guild_a_id"`
-	GuildBID     string         `json:"guild_b_id"`
-	Status       AllianceStatus `json:"status"`
-	InitiatedByID string        `json:"initiated_by_id"` // User ID who initiated
-	ApprovedByID  *string       `json:"approved_by_id,omitempty"` // User ID who approved
-	CreatedOn    time.Time      `json:"created_on"`
-	ApprovedOn   *time.Time     `json:"approved_on,omitempty"`
-	RevokedOn    *time.Time     `json:"revoked_on,omitempty"`
+	ID            string         `json:"id"`
+	GuildAID      string         `json:"guild_a_id"`
+	GuildBID      string         `json:"guild_b_id"`
+	Status        AllianceStatus `json:"status"`
+	InitiatedByID string         `json:"initiated_by_id"`          // User ID who initiated
+	ApprovedByID  *string        `json:"approved_by_id,omitempty"` // User ID who approved
+	CreatedOn     time.Time      `json:"created_on"`
+	ApprovedOn    *time.Time     `json:"approved_on,omitempty"`
+	RevokedOn     *time.Time     `json:"revoked_on,omitempty"`
 }
 
 // GuildAllianceWithGuilds includes full guild information
@@ -41,7 +41,7 @@ type GuildSummary struct {
 	MemberCount int    `json:"member_count,omitempty"`
 }
 
-// AllianceRequest represents a request to create an alliance
+// CreateAllianceRequest represents a request to create an alliance.
 type CreateAllianceRequest struct {
 	TargetGuildID string `json:"target_guild_id"`
 }
@@ -65,10 +65,10 @@ type AllianceSearchFilters struct {
 
 // AlliedGuild represents a guild that is allied with another
 type AlliedGuild struct {
-	Guild      GuildSummary `json:"guild"`
-	AllianceID string       `json:"alliance_id"`
+	Guild      GuildSummary   `json:"guild"`
+	AllianceID string         `json:"alliance_id"`
 	Status     AllianceStatus `json:"status"`
-	SinceDate  time.Time    `json:"since_date"`
+	SinceDate  time.Time      `json:"since_date"`
 }
 
 // Constraints

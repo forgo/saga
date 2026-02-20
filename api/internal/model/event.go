@@ -4,31 +4,31 @@ import "time"
 
 // Event represents a scheduled gathering (can be standalone or nested in Adventure)
 type Event struct {
-	ID               string  `json:"id"`
-	GuildID          *string `json:"guild_id,omitempty"`          // nil = public event
-	AdventureID      *string `json:"adventure_id,omitempty"`      // If part of an adventure
-	OrderInAdventure *int    `json:"order_in_adventure,omitempty"` // Sequence within adventure
-	Title            string  `json:"title"`
-	Description *string    `json:"description,omitempty"`
-	Location    *EventLocation `json:"location,omitempty"`
-	StartTime   time.Time  `json:"start_time"`
-	EndTime     *time.Time `json:"end_time,omitempty"`
+	ID               string         `json:"id"`
+	GuildID          *string        `json:"guild_id,omitempty"`           // nil = public event
+	AdventureID      *string        `json:"adventure_id,omitempty"`       // If part of an adventure
+	OrderInAdventure *int           `json:"order_in_adventure,omitempty"` // Sequence within adventure
+	Title            string         `json:"title"`
+	Description      *string        `json:"description,omitempty"`
+	Location         *EventLocation `json:"location,omitempty"`
+	StartTime        time.Time      `json:"start_time"`
+	EndTime          *time.Time     `json:"end_time,omitempty"`
 	// Event configuration
-	Template         string `json:"template"`                  // casual, dinner_party, activity, etc.
-	Visibility       string `json:"visibility"`                // public, circle, invite_only
+	Template         string `json:"template"`   // casual, dinner_party, activity, etc.
+	Visibility       string `json:"visibility"` // public, circle, invite_only
 	MaxAttendees     *int   `json:"max_attendees,omitempty"`
 	WaitlistEnabled  bool   `json:"waitlist_enabled"`
-	RequiresApproval bool   `json:"requires_approval"`         // Host must approve all RSVPs
-	AllowPlusOnes    bool   `json:"allow_plus_ones"`           // Guests can bring +1
-	MaxPlusOnes      int    `json:"max_plus_ones"`             // Per guest (default 1)
+	RequiresApproval bool   `json:"requires_approval"` // Host must approve all RSVPs
+	AllowPlusOnes    bool   `json:"allow_plus_ones"`   // Guests can bring +1
+	MaxPlusOnes      int    `json:"max_plus_ones"`     // Per guest (default 1)
 	// Styling
-	CoverImage  *string `json:"cover_image,omitempty"`
-	ThemeColor  *string `json:"theme_color,omitempty"`
+	CoverImage *string `json:"cover_image,omitempty"`
+	ThemeColor *string `json:"theme_color,omitempty"`
 	// Values alignment settings
-	ValuesRequired     bool     `json:"values_required"`      // Must pass values check
+	ValuesRequired     bool     `json:"values_required"`            // Must pass values check
 	ValuesQuestions    []string `json:"values_questions,omitempty"` // Specific question IDs
-	AutoApproveAligned bool     `json:"auto_approve_aligned"` // Auto-RSVP if aligned
-	YikesThreshold     int      `json:"yikes_threshold"`      // Max yikes before waiting room (0=any)
+	AutoApproveAligned bool     `json:"auto_approve_aligned"`       // Auto-RSVP if aligned
+	YikesThreshold     int      `json:"yikes_threshold"`            // Max yikes before waiting room (0=any)
 	// Support/listening event
 	IsSupportEvent bool `json:"is_support_event"` // For Mana scoring
 
@@ -127,27 +127,27 @@ func (e *Event) IsWithinConfirmationDeadline() bool {
 
 // EventRSVP represents a user's response to an event
 type EventRSVP struct {
-	ID             string     `json:"id"`
-	EventID        string     `json:"event_id"`
-	UserID         string     `json:"user_id"`
-	Status         string     `json:"status"`         // pending, approved, waitlisted, declined, cancelled
-	RSVPType       string     `json:"rsvp_type"`      // going, maybe, not_going
+	ID       string `json:"id"`
+	EventID  string `json:"event_id"`
+	UserID   string `json:"user_id"`
+	Status   string `json:"status"`    // pending, approved, waitlisted, declined, cancelled
+	RSVPType string `json:"rsvp_type"` // going, maybe, not_going
 	// Values alignment results (internal, not exposed)
-	ValuesAligned  bool       `json:"-"`
-	AlignmentScore float64    `json:"-"`
-	YikesCount     int        `json:"-"`
+	ValuesAligned  bool    `json:"-"`
+	AlignmentScore float64 `json:"-"`
+	YikesCount     int     `json:"-"`
 	// Waiting room info (only for pending)
-	WaitingReason  *string    `json:"waiting_reason,omitempty"` // "values_review", "capacity", "host_approval"
+	WaitingReason *string `json:"waiting_reason,omitempty"` // "values_review", "capacity", "host_approval"
 	// Host response
-	HostNote       *string    `json:"host_note,omitempty"`      // Private message to RSVP'er
-	RespondedBy    *string    `json:"responded_by,omitempty"`   // Host who responded
-	RespondedOn    *time.Time `json:"responded_on,omitempty"`
+	HostNote    *string    `json:"host_note,omitempty"`    // Private message to RSVP'er
+	RespondedBy *string    `json:"responded_by,omitempty"` // Host who responded
+	RespondedOn *time.Time `json:"responded_on,omitempty"`
 	// Timestamps
-	RequestedOn    time.Time  `json:"requested_on"`
-	UpdatedOn      time.Time  `json:"updated_on"`
+	RequestedOn time.Time `json:"requested_on"`
+	UpdatedOn   time.Time `json:"updated_on"`
 	// Plus ones
-	PlusOnes       int        `json:"plus_ones"`
-	PlusOneNames   []string   `json:"plus_one_names,omitempty"`
+	PlusOnes     int      `json:"plus_ones"`
+	PlusOneNames []string `json:"plus_one_names,omitempty"`
 	// Resonance tracking (completion verification, checkin, support feedback)
 	CompletionConfirmed *time.Time `json:"completion_confirmed,omitempty"`
 	CheckinTime         *time.Time `json:"checkin_time,omitempty"`
@@ -181,12 +181,12 @@ const (
 
 // EventHost represents a host/organizer of an event
 type EventHost struct {
-	ID        string    `json:"id"`
-	EventID   string    `json:"event_id"`
-	UserID    string    `json:"user_id"`
-	Role      string    `json:"role"`      // primary, co_host
-	AddedOn   time.Time `json:"added_on"`
-	AddedBy   string    `json:"added_by"`
+	ID      string    `json:"id"`
+	EventID string    `json:"event_id"`
+	UserID  string    `json:"user_id"`
+	Role    string    `json:"role"` // primary, co_host
+	AddedOn time.Time `json:"added_on"`
+	AddedBy string    `json:"added_by"`
 }
 
 // HostRole constants
@@ -199,44 +199,44 @@ const (
 
 // EventValuesCheck holds the result of checking a user's values against event requirements
 type EventValuesCheck struct {
-	UserID          string   `json:"user_id"`
-	EventID         string   `json:"event_id"`
-	IsAligned       bool     `json:"is_aligned"`
-	AlignmentScore  float64  `json:"alignment_score"`  // 0-100
-	YikesCount      int      `json:"yikes_count"`
-	YikesCategories []string `json:"yikes_categories,omitempty"`
+	UserID           string   `json:"user_id"`
+	EventID          string   `json:"event_id"`
+	IsAligned        bool     `json:"is_aligned"`
+	AlignmentScore   float64  `json:"alignment_score"` // 0-100
+	YikesCount       int      `json:"yikes_count"`
+	YikesCategories  []string `json:"yikes_categories,omitempty"`
 	MissingQuestions []string `json:"missing_questions,omitempty"` // Questions user hasn't answered
-	Recommendation  string   `json:"recommendation"` // auto_approve, needs_review, decline_suggested
+	Recommendation   string   `json:"recommendation"`              // auto_approve, needs_review, decline_suggested
 }
 
 // ValuesRecommendation constants
 const (
-	ValuesRecommendAutoApprove    = "auto_approve"
-	ValuesRecommendNeedsReview    = "needs_review"
+	ValuesRecommendAutoApprove      = "auto_approve"
+	ValuesRecommendNeedsReview      = "needs_review"
 	ValuesRecommendDeclineSuggested = "decline_suggested"
 )
 
 // EventWithDetails includes full event information
 type EventWithDetails struct {
-	Event        Event              `json:"event"`
-	Hosts        []EventHost        `json:"hosts"`
-	Roles        []EventRole        `json:"roles,omitempty"`
-	AttendeesCount int              `json:"attendees_count"`
-	WaitlistCount  int              `json:"waitlist_count"`
-	UserRSVP     *EventRSVP         `json:"user_rsvp,omitempty"` // Current user's RSVP
-	UserRole     *EventRoleAssignment `json:"user_role,omitempty"`
+	Event          Event                `json:"event"`
+	Hosts          []EventHost          `json:"hosts"`
+	Roles          []EventRole          `json:"roles,omitempty"`
+	AttendeesCount int                  `json:"attendees_count"`
+	WaitlistCount  int                  `json:"waitlist_count"`
+	UserRSVP       *EventRSVP           `json:"user_rsvp,omitempty"` // Current user's RSVP
+	UserRole       *EventRoleAssignment `json:"user_role,omitempty"`
 }
 
 // EventSummary provides minimal event info for lists
 type EventSummary struct {
-	ID            string     `json:"id"`
-	Title         string     `json:"title"`
-	StartTime     time.Time  `json:"start_time"`
-	Location      *EventLocation `json:"location,omitempty"`
-	Template      string     `json:"template"`
-	AttendeesCount int       `json:"attendees_count"`
-	IsFull        bool       `json:"is_full"`
-	UserRSVP      *string    `json:"user_rsvp,omitempty"` // User's current status
+	ID             string         `json:"id"`
+	Title          string         `json:"title"`
+	StartTime      time.Time      `json:"start_time"`
+	Location       *EventLocation `json:"location,omitempty"`
+	Template       string         `json:"template"`
+	AttendeesCount int            `json:"attendees_count"`
+	IsFull         bool           `json:"is_full"`
+	UserRSVP       *string        `json:"user_rsvp,omitempty"` // User's current status
 }
 
 // Constraints
@@ -330,9 +330,9 @@ type EventSearchFilters struct {
 	GuildID     *string    `json:"guild_id,omitempty"`
 	AdventureID *string    `json:"adventure_id,omitempty"`
 	Template    *string    `json:"template,omitempty"`
-	StartAfter *time.Time `json:"start_after,omitempty"`
+	StartAfter  *time.Time `json:"start_after,omitempty"`
 	StartBefore *time.Time `json:"start_before,omitempty"`
-	City       *string    `json:"city,omitempty"`
-	Visibility *string    `json:"visibility,omitempty"`
-	HostID     *string    `json:"host_id,omitempty"`
+	City        *string    `json:"city,omitempty"`
+	Visibility  *string    `json:"visibility,omitempty"`
+	HostID      *string    `json:"host_id,omitempty"`
 }

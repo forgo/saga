@@ -571,4 +571,3 @@ func (r *InterestRepository) parseSharedInterestsResult(result []interface{}) ([
 
 	return users, nil
 }
-

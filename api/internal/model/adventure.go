@@ -45,9 +45,9 @@ type Adventure struct {
 	Visibility  AdventureVisibility `json:"visibility"`
 	CreatedByID string              `json:"created_by_id"` // User ID who created
 	// Organizer fields (v2)
-	OrganizerType   AdventureOrganizerType `json:"organizer_type"`             // guild or user
-	OrganizerID     string                 `json:"organizer_id"`               // "guild:<id>" or "user:<id>"
-	OrganizerUserID string                 `json:"organizer_user_id"`          // User ID of the organizer
+	OrganizerType   AdventureOrganizerType `json:"organizer_type"`    // guild or user
+	OrganizerID     string                 `json:"organizer_id"`      // "guild:<id>" or "user:<id>"
+	OrganizerUserID string                 `json:"organizer_user_id"` // User ID of the organizer
 	// Frozen state (when organizer loses guild membership)
 	FreezeReason *string    `json:"freeze_reason,omitempty"`
 	FrozenOn     *time.Time `json:"frozen_on,omitempty"`
@@ -144,9 +144,9 @@ type Destination struct {
 
 // DestinationVote represents a user's vote on a destination
 type DestinationVote struct {
-	ID            string    `json:"id"`
-	DestinationID string    `json:"destination_id"`
-	UserID        string    `json:"user_id"`
+	ID            string `json:"id"`
+	DestinationID string `json:"destination_id"`
+	UserID        string `json:"user_id"`
 	// Ranked choice: 1 = first choice, 2 = second, etc.
 	Rank int `json:"rank"`
 	// Veto means hard no (if allowed)
@@ -403,8 +403,8 @@ type AdventureAdmission struct {
 	ID              string                        `json:"id"`
 	AdventureID     string                        `json:"adventure_id"`
 	UserID          string                        `json:"user_id"`
-	Status          AdventureAdmissionStatus      `json:"status"`         // requested, admitted, rejected
-	RequestedBy     AdventureAdmissionRequestedBy `json:"requested_by"`   // self or invited
+	Status          AdventureAdmissionStatus      `json:"status"`       // requested, admitted, rejected
+	RequestedBy     AdventureAdmissionRequestedBy `json:"requested_by"` // self or invited
 	InvitedByID     *string                       `json:"invited_by_id,omitempty"`
 	RejectionReason *string                       `json:"rejection_reason,omitempty"`
 	RequestedOn     time.Time                     `json:"requested_on"`
@@ -500,7 +500,7 @@ type AdventureAdmissionWithUser struct {
 	Username    string             `json:"username,omitempty"`
 }
 
-// Backward compatibility type aliases (deprecated, will be removed)
+// Trip is a backward compatibility alias for Adventure (deprecated).
 type Trip = Adventure
 type TripStatus = AdventureStatus
 type TripParticipant = AdventureParticipant

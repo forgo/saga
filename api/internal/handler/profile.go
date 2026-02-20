@@ -38,15 +38,15 @@ type ProfileResponse struct {
 
 // PublicProfileResponse is what other users see
 type PublicProfileResponse struct {
-	UserID         string  `json:"user_id"`
-	Firstname      *string `json:"firstname,omitempty"`
-	Bio            *string `json:"bio,omitempty"`
-	Tagline        *string `json:"tagline,omitempty"`
+	UserID         string   `json:"user_id"`
+	Firstname      *string  `json:"firstname,omitempty"`
+	Bio            *string  `json:"bio,omitempty"`
+	Tagline        *string  `json:"tagline,omitempty"`
 	Languages      []string `json:"languages,omitempty"`
-	City           string  `json:"city,omitempty"`
-	Country        string  `json:"country,omitempty"`
-	Distance       string  `json:"distance,omitempty"`
-	ActivityStatus string  `json:"activity_status,omitempty"`
+	City           string   `json:"city,omitempty"`
+	Country        string   `json:"country,omitempty"`
+	Distance       string   `json:"distance,omitempty"`
+	ActivityStatus string   `json:"activity_status,omitempty"`
 	Compatibility  *float64 `json:"compatibility,omitempty"`
 }
 

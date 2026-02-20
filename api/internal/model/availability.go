@@ -6,11 +6,11 @@ import "time"
 type HangoutType string
 
 const (
-	HangoutTypeTalkItOut       HangoutType = "talk_it_out"       // Need a listening ear
-	HangoutTypeHereToListen    HangoutType = "here_to_listen"    // Ready to support someone
+	HangoutTypeTalkItOut        HangoutType = "talk_it_out"       // Need a listening ear
+	HangoutTypeHereToListen     HangoutType = "here_to_listen"    // Ready to support someone
 	HangoutTypeConcreteActivity HangoutType = "concrete_activity" // Specific activity/venue
-	HangoutTypeMutualInterest  HangoutType = "mutual_interest"   // Connect over shared interest
-	HangoutTypeMeetAnyone      HangoutType = "meet_anyone"       // Open to anyone
+	HangoutTypeMutualInterest   HangoutType = "mutual_interest"   // Connect over shared interest
+	HangoutTypeMeetAnyone       HangoutType = "meet_anyone"       // Open to anyone
 )
 
 // HangoutTypeInfo provides display information for hangout types
@@ -82,22 +82,22 @@ type HangoutLocation struct {
 
 // Availability represents a user's availability window
 type Availability struct {
-	ID                  string               `json:"id"`
-	UserID              string               `json:"user_id"`
-	Status              AvailabilityStatus   `json:"status"`
-	StartTime           time.Time            `json:"start_time"`
-	EndTime             time.Time            `json:"end_time"`
+	ID                  string                `json:"id"`
+	UserID              string                `json:"user_id"`
+	Status              AvailabilityStatus    `json:"status"`
+	StartTime           time.Time             `json:"start_time"`
+	EndTime             time.Time             `json:"end_time"`
 	Location            *AvailabilityLocation `json:"-"` // Never expose exact location
-	HangoutType         HangoutType          `json:"hangout_type"`
-	ActivityDescription *string              `json:"activity_description,omitempty"` // For concrete_activity
-	ActivityVenue       *string              `json:"activity_venue,omitempty"`       // Specific venue
-	InterestID          *string              `json:"interest_id,omitempty"`          // For mutual_interest
-	MaxPeople           int                  `json:"max_people"`
-	Note                *string              `json:"note,omitempty"`
-	Visibility          string               `json:"visibility"` // circles, public
-	ExpiresAt           time.Time            `json:"expires_at"`
-	CreatedOn           time.Time            `json:"created_on"`
-	UpdatedOn           time.Time            `json:"updated_on"`
+	HangoutType         HangoutType           `json:"hangout_type"`
+	ActivityDescription *string               `json:"activity_description,omitempty"` // For concrete_activity
+	ActivityVenue       *string               `json:"activity_venue,omitempty"`       // Specific venue
+	InterestID          *string               `json:"interest_id,omitempty"`          // For mutual_interest
+	MaxPeople           int                   `json:"max_people"`
+	Note                *string               `json:"note,omitempty"`
+	Visibility          string                `json:"visibility"` // circles, public
+	ExpiresAt           time.Time             `json:"expires_at"`
+	CreatedOn           time.Time             `json:"created_on"`
+	UpdatedOn           time.Time             `json:"updated_on"`
 }
 
 // AvailabilityPublic is what other users see (with distance bucket, not coordinates)
@@ -126,7 +126,7 @@ type HangoutRequest struct {
 	ID             string     `json:"id"`
 	AvailabilityID string     `json:"availability_id"`
 	RequesterID    string     `json:"requester_id"`
-	Note           string     `json:"note"` // Required, min 20 chars
+	Note           string     `json:"note"`   // Required, min 20 chars
 	Status         string     `json:"status"` // pending, accepted, declined, cancelled
 	RespondedOn    *time.Time `json:"responded_on,omitempty"`
 	CreatedOn      time.Time  `json:"created_on"`
@@ -165,8 +165,8 @@ const (
 
 // Availability constraints
 const (
-	MinNoteLength          = 20  // Minimum note length for friction
-	MinHangoutNoteLength   = 20  // Alias for clarity
+	MinNoteLength          = 20 // Minimum note length for friction
+	MinHangoutNoteLength   = 20 // Alias for clarity
 	MaxNoteLength          = 500
 	MaxActivityDescLength  = 200
 	MaxVenueLength         = 200
@@ -205,12 +205,12 @@ type CreateAvailabilityRequest struct {
 
 // UpdateAvailabilityRequest represents a request to update availability
 type UpdateAvailabilityRequest struct {
-	Status              *string  `json:"status,omitempty"`
-	EndTime             *string  `json:"end_time,omitempty"`
-	ActivityDescription *string  `json:"activity_description,omitempty"`
-	ActivityVenue       *string  `json:"activity_venue,omitempty"`
-	MaxPeople           *int     `json:"max_people,omitempty"`
-	Note                *string  `json:"note,omitempty"`
+	Status              *string `json:"status,omitempty"`
+	EndTime             *string `json:"end_time,omitempty"`
+	ActivityDescription *string `json:"activity_description,omitempty"`
+	ActivityVenue       *string `json:"activity_venue,omitempty"`
+	MaxPeople           *int    `json:"max_people,omitempty"`
+	Note                *string `json:"note,omitempty"`
 }
 
 // CreateHangoutRequestRequest represents a request to join someone's availability
@@ -221,13 +221,13 @@ type CreateHangoutRequestRequest struct {
 
 // RespondToRequestRequest represents accepting/declining a hangout request
 type RespondToRequestRequest struct {
-	Status      string  `json:"status"` // accepted, declined
+	Status      string  `json:"status"`                // accepted, declined
 	Alternative *string `json:"alternative,omitempty"` // Suggest alternative if declining
 }
 
 // ActivitySuggestion represents a suggested concrete activity
 type ActivitySuggestion struct {
-	Category    string `json:"category"`    // nearby_now, popular, your_interests
+	Category    string `json:"category"` // nearby_now, popular, your_interests
 	Icon        string `json:"icon"`
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`

@@ -57,10 +57,10 @@ func (s *GeoService) IsWithinRadius(centerLat, centerLng, pointLat, pointLng, ra
 // BoundingBox calculates a rough bounding box for initial filtering
 // before applying Haversine for accuracy (optimization for database queries)
 type BoundingBox struct {
-	MinLat float64
-	MaxLat float64
-	MinLng float64
-	MaxLng float64
+	MinLat float64 `json:"min_lat"`
+	MaxLat float64 `json:"max_lat"`
+	MinLng float64 `json:"min_lng"`
+	MaxLng float64 `json:"max_lng"`
 }
 
 // GetBoundingBox returns a bounding box around a center point with given radius
@@ -82,13 +82,13 @@ func (s *GeoService) GetBoundingBox(lat, lng, radiusKm float64) BoundingBox {
 
 // NearbySearchConfig holds configuration for nearby searches
 type NearbySearchConfig struct {
-	CenterLat   float64
-	CenterLng   float64
-	RadiusKm    float64
-	MaxResults  int
+	CenterLat  float64
+	CenterLng  float64
+	RadiusKm   float64
+	MaxResults int
 }
 
-// SortByDistance is a helper interface for sorting locations by distance
+// LocationWithDistance pairs a location with its computed distance for sorting.
 type LocationWithDistance struct {
 	Location *model.LocationInternal
 	Distance float64

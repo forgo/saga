@@ -52,7 +52,7 @@ func (h *EventsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	defer h.eventHub.Unsubscribe(guildID, subscriberID)
 
 	// Send initial connection event
-	fmt.Fprintf(w, "event: connected\ndata: {\"subscriber_id\":\"%s\"}\n\n", subscriberID)
+	_, _ = fmt.Fprintf(w, "event: connected\ndata: {\"subscriber_id\":\"%s\"}\n\n", subscriberID)
 	flusher.Flush()
 
 	// Stream events
@@ -62,7 +62,7 @@ func (h *EventsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			fmt.Fprint(w, event.Format())
+			_, _ = fmt.Fprint(w, event.Format())
 			flusher.Flush()
 
 		case <-sub.Done:

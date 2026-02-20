@@ -21,10 +21,10 @@ const (
 // RoleCatalog represents a reusable role template
 type RoleCatalog struct {
 	ID          string               `json:"id"`
-	ScopeType   RoleCatalogScopeType `json:"scope_type"`   // guild or user
-	ScopeID     string               `json:"scope_id"`     // guild:<id> or user:<id>
-	RoleType    RoleCatalogRoleType  `json:"role_type"`    // event or rideshare
-	Name        string               `json:"name"`         // e.g., "DJ", "Dessert Bringer"
+	ScopeType   RoleCatalogScopeType `json:"scope_type"` // guild or user
+	ScopeID     string               `json:"scope_id"`   // guild:<id> or user:<id>
+	RoleType    RoleCatalogRoleType  `json:"role_type"`  // event or rideshare
+	Name        string               `json:"name"`       // e.g., "DJ", "Dessert Bringer"
 	Description *string              `json:"description,omitempty"`
 	Icon        *string              `json:"icon,omitempty"` // Emoji or icon name
 	IsActive    bool                 `json:"is_active"`
@@ -81,16 +81,16 @@ type RideshareRolesOverview struct {
 
 // Constraints
 const (
-	MaxRoleCatalogsPerScope     = 50
-	MaxRoleCatalogNameLength    = 50
-	MaxRoleCatalogDescLength    = 500
+	MaxRoleCatalogsPerScope       = 50
+	MaxRoleCatalogNameLength      = 50
+	MaxRoleCatalogDescLength      = 500
 	MaxRideshareRolesPerRideshare = 20
-	MaxRideshareRoleNoteLength  = 200
+	MaxRideshareRoleNoteLength    = 200
 )
 
 // CreateRoleCatalogRequest represents a request to create a role template
 type CreateRoleCatalogRequest struct {
-	RoleType    string  `json:"role_type"`              // event or rideshare
+	RoleType    string  `json:"role_type"` // event or rideshare
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	Icon        *string `json:"icon,omitempty"`
@@ -145,9 +145,9 @@ func (r *UpdateRoleCatalogRequest) Validate() []FieldError {
 
 // CreateRoleFromCatalogRequest represents a request to create a role from a catalog template
 type CreateRoleFromCatalogRequest struct {
-	CatalogRoleID string  `json:"catalog_role_id"`
-	MaxSlots      *int    `json:"max_slots,omitempty"` // Override catalog default
-	SortOrder     *int    `json:"sort_order,omitempty"`
+	CatalogRoleID string `json:"catalog_role_id"`
+	MaxSlots      *int   `json:"max_slots,omitempty"` // Override catalog default
+	SortOrder     *int   `json:"sort_order,omitempty"`
 }
 
 // Validate checks if the request is valid

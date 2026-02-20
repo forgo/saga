@@ -533,11 +533,11 @@ func (r *ResonanceRepository) parseDailyCapResult(result interface{}) (*model.Re
 	}
 
 	cap := &model.ResonanceDailyCap{
-		UserID:          convertSurrealID(data["user"]),
-		Date:            getString(data, "date"),
-		QuestingEarned:  getInt(data, "questing_earned"),
-		ManaEarned:      getInt(data, "mana_earned"),
-		WayfinderEarned: getInt(data, "wayfinder_earned"),
+		UserID:           convertSurrealID(data["user"]),
+		Date:             getString(data, "date"),
+		QuestingEarned:   getInt(data, "questing_earned"),
+		ManaEarned:       getInt(data, "mana_earned"),
+		WayfinderEarned:  getInt(data, "wayfinder_earned"),
 		AttunementEarned: getInt(data, "attunement_earned"),
 	}
 

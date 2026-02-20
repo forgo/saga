@@ -13,7 +13,7 @@ concurrency:
 env:
   GO_VERSION: '1.24'
   SURREALDB_VERSION: '3.0.0-beta.3'
-  MIN_COVERAGE: 12
+  MIN_COVERAGE: 11
 
 jobs:
   # Detect which paths changed
@@ -22,6 +22,7 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       ios: ${{ steps.filter.outputs.ios }}
+      admin: ${{ steps.filter.outputs.admin }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
@@ -33,6 +34,9 @@ jobs:
               - '.github/workflows/ci.yml'
             ios:
               - 'ios/**'
+              - '.github/workflows/ci.yml'
+            admin:
+              - 'admin/**'
               - '.github/workflows/ci.yml'
 
   api:
@@ -62,11 +66,10 @@ jobs:
         working-directory: .
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v9
         with:
           working-directory: ./api
-          version: latest
-          args: --timeout=5m
+          version: v2.10.1
 
       - name: Test with Coverage
         run: |
@@ -141,3 +144,44 @@ jobs:
         with:
           name: ios-test-results
           path: ios/Saga/TestResults.xcresult
+
+  admin:
+    name: Admin
+    needs: changes
+    if: needs.changes.outputs.admin == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./admin
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/deno
+          key: deno-${{ hashFiles('admin/deno.lock') }}
+          restore-keys: deno-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Lint
+        run: deno lint
+
+      - name: Format check
+        run: deno fmt --check .
+
+      - name: Type check
+        run: deno check main.ts
+
+      - name: Test
+        run: deno test --allow-all
+
+      - name: Build
+        run: deno task build

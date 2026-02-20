@@ -767,10 +767,10 @@ func (r *QuestionnaireRepository) parseCircleValuesResult(result interface{}) (*
 	}
 
 	cv := &model.CircleValues{
-		ID:       convertSurrealID(data["id"]),
-		CircleID: convertSurrealID(data["circle_id"]),
-		Name:     getString(data, "name"),
-		Required: getBool(data, "required"),
+		ID:        convertSurrealID(data["id"]),
+		CircleID:  convertSurrealID(data["circle_id"]),
+		Name:      getString(data, "name"),
+		Required:  getBool(data, "required"),
 		CreatedBy: convertSurrealID(data["created_by"]),
 	}
 

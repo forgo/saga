@@ -42,12 +42,12 @@ const (
 // Vote represents a voting poll
 type Vote struct {
 	ID                   string            `json:"id"`
-	ScopeType            VoteScopeType     `json:"scope_type"`              // guild or global
-	ScopeID              *string           `json:"scope_id,omitempty"`      // Guild ID for guild votes
-	CreatedBy            string            `json:"created_by"`              // User ID
+	ScopeType            VoteScopeType     `json:"scope_type"`         // guild or global
+	ScopeID              *string           `json:"scope_id,omitempty"` // Guild ID for guild votes
+	CreatedBy            string            `json:"created_by"`         // User ID
 	Title                string            `json:"title"`
 	Description          *string           `json:"description,omitempty"`
-	VoteType             VoteType          `json:"vote_type"`               // fptp, ranked_choice, approval, multi_select
+	VoteType             VoteType          `json:"vote_type"` // fptp, ranked_choice, approval, multi_select
 	OpensAt              time.Time         `json:"opens_at"`
 	ClosesAt             time.Time         `json:"closes_at"`
 	Status               VoteStatus        `json:"status"`
@@ -57,9 +57,9 @@ type Vote struct {
 	CreatedOn            time.Time         `json:"created_on"`
 	UpdatedOn            time.Time         `json:"updated_on"`
 	// Computed fields
-	OptionCount  int `json:"option_count,omitempty"`
-	BallotCount  int `json:"ballot_count,omitempty"`
-	VoterCount   int `json:"voter_count,omitempty"`
+	OptionCount int `json:"option_count,omitempty"`
+	BallotCount int `json:"ballot_count,omitempty"`
+	VoterCount  int `json:"voter_count,omitempty"`
 }
 
 // VoteOption represents a choice in a vote
@@ -107,34 +107,34 @@ type VoteWithOptions struct {
 
 // VoteWithDetails includes full vote information including ballots
 type VoteWithDetails struct {
-	Vote       Vote         `json:"vote"`
-	Options    []VoteOption `json:"options"`
-	Ballots    []VoteBallot `json:"ballots,omitempty"`    // Only if results visible
-	MyBallot   *VoteBallot  `json:"my_ballot,omitempty"`  // Current user's ballot
-	HasVoted   bool         `json:"has_voted"`
-	CanVote    bool         `json:"can_vote"`
+	Vote     Vote         `json:"vote"`
+	Options  []VoteOption `json:"options"`
+	Ballots  []VoteBallot `json:"ballots,omitempty"`   // Only if results visible
+	MyBallot *VoteBallot  `json:"my_ballot,omitempty"` // Current user's ballot
+	HasVoted bool         `json:"has_voted"`
+	CanVote  bool         `json:"can_vote"`
 }
 
 // VoteResult represents the computed results of a vote
 type VoteResult struct {
-	VoteID        string              `json:"vote_id"`
-	VoteType      VoteType            `json:"vote_type"`
-	TotalBallots  int                 `json:"total_ballots"`
-	TotalAbstains int                 `json:"total_abstains"`
-	OptionResults []OptionResult      `json:"option_results"`
-	Winner        *string             `json:"winner,omitempty"` // Option ID of winner (if any)
-	RoundDetails  []RoundDetail       `json:"round_details,omitempty"` // For ranked choice
+	VoteID        string         `json:"vote_id"`
+	VoteType      VoteType       `json:"vote_type"`
+	TotalBallots  int            `json:"total_ballots"`
+	TotalAbstains int            `json:"total_abstains"`
+	OptionResults []OptionResult `json:"option_results"`
+	Winner        *string        `json:"winner,omitempty"`        // Option ID of winner (if any)
+	RoundDetails  []RoundDetail  `json:"round_details,omitempty"` // For ranked choice
 }
 
 // OptionResult contains results for a single option
 type OptionResult struct {
-	OptionID    string  `json:"option_id"`
-	OptionText  string  `json:"option_text"`
-	VoteCount   int     `json:"vote_count"`
-	Percentage  float64 `json:"percentage"`
-	Rank        int     `json:"rank"` // 1 = first place
-	IsWinner    bool    `json:"is_winner"`
-	IsEliminated bool   `json:"is_eliminated,omitempty"` // For ranked choice
+	OptionID     string  `json:"option_id"`
+	OptionText   string  `json:"option_text"`
+	VoteCount    int     `json:"vote_count"`
+	Percentage   float64 `json:"percentage"`
+	Rank         int     `json:"rank"` // 1 = first place
+	IsWinner     bool    `json:"is_winner"`
+	IsEliminated bool    `json:"is_eliminated,omitempty"` // For ranked choice
 }
 
 // RoundDetail contains details of each round in ranked choice voting
@@ -157,15 +157,15 @@ const (
 
 // CreateVoteRequest represents a request to create a vote
 type CreateVoteRequest struct {
-	ScopeType            string  `json:"scope_type"`                        // guild or global
-	ScopeID              *string `json:"scope_id,omitempty"`                // Guild ID for guild votes
+	ScopeType            string  `json:"scope_type"`         // guild or global
+	ScopeID              *string `json:"scope_id,omitempty"` // Guild ID for guild votes
 	Title                string  `json:"title"`
 	Description          *string `json:"description,omitempty"`
-	VoteType             string  `json:"vote_type"`                         // fptp, ranked_choice, approval, multi_select
-	OpensAt              string  `json:"opens_at"`                          // RFC3339 datetime
-	ClosesAt             string  `json:"closes_at"`                         // RFC3339 datetime
-	ResultsVisibility    *string `json:"results_visibility,omitempty"`      // live, after_close, admin_only
-	MaxOptionsSelectable *int    `json:"max_options_selectable,omitempty"`  // For multi_select
+	VoteType             string  `json:"vote_type"`                        // fptp, ranked_choice, approval, multi_select
+	OpensAt              string  `json:"opens_at"`                         // RFC3339 datetime
+	ClosesAt             string  `json:"closes_at"`                        // RFC3339 datetime
+	ResultsVisibility    *string `json:"results_visibility,omitempty"`     // live, after_close, admin_only
+	MaxOptionsSelectable *int    `json:"max_options_selectable,omitempty"` // For multi_select
 	AllowAbstain         bool    `json:"allow_abstain,omitempty"`
 }
 
@@ -320,7 +320,7 @@ type CastBallotRequest struct {
 	IsAbstain bool `json:"is_abstain,omitempty"`
 }
 
-// Validate checks if the ballot is valid for the given vote type
+// ValidateForVoteType checks if the ballot is valid for the given vote type.
 func (r *CastBallotRequest) ValidateForVoteType(voteType VoteType, maxSelectable *int, allowAbstain bool) []FieldError {
 	var errors []FieldError
 

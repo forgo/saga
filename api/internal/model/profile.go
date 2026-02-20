@@ -18,10 +18,10 @@ type UserProfile struct {
 
 	// Discovery eligibility tracking
 	// User must answer 3+ questions from required categories (values, social, lifestyle, communication)
-	DiscoveryEligible       bool     `json:"discovery_eligible"`
-	CategoriesCompleted     []string `json:"categories_completed,omitempty"`
-	QuestionCount           int      `json:"question_count"`
-	ProfileCompletionScore  float64  `json:"profile_completion_score"`
+	DiscoveryEligible      bool     `json:"discovery_eligible"`
+	CategoriesCompleted    []string `json:"categories_completed,omitempty"`
+	QuestionCount          int      `json:"question_count"`
+	ProfileCompletionScore float64  `json:"profile_completion_score"`
 
 	// Optional populated fields
 	Username  *string `json:"username,omitempty"`
@@ -163,18 +163,18 @@ func GetDistanceBucket(distanceKm float64) DistanceBucket {
 
 // PublicProfile is what other users see (with privacy protections)
 type PublicProfile struct {
-	UserID            string          `json:"user_id"`
-	Username          *string         `json:"username,omitempty"`
-	Firstname         *string         `json:"firstname,omitempty"`
-	Bio               *string         `json:"bio,omitempty"`
-	Tagline           *string         `json:"tagline,omitempty"`
-	Languages         []string        `json:"languages,omitempty"`
-	City              string          `json:"city,omitempty"`
-	Country           string          `json:"country,omitempty"`
-	Distance          DistanceBucket  `json:"distance,omitempty"`       // Approximate only
-	ActivityStatus    ActivityStatus  `json:"activity_status,omitempty"`
-	Compatibility     *float64        `json:"compatibility,omitempty"`  // 0-100% if calculated
-	DiscoveryEligible bool            `json:"discovery_eligible"`       // Eligible for discovery
+	UserID            string         `json:"user_id"`
+	Username          *string        `json:"username,omitempty"`
+	Firstname         *string        `json:"firstname,omitempty"`
+	Bio               *string        `json:"bio,omitempty"`
+	Tagline           *string        `json:"tagline,omitempty"`
+	Languages         []string       `json:"languages,omitempty"`
+	City              string         `json:"city,omitempty"`
+	Country           string         `json:"country,omitempty"`
+	Distance          DistanceBucket `json:"distance,omitempty"` // Approximate only
+	ActivityStatus    ActivityStatus `json:"activity_status,omitempty"`
+	Compatibility     *float64       `json:"compatibility,omitempty"` // 0-100% if calculated
+	DiscoveryEligible bool           `json:"discovery_eligible"`      // Eligible for discovery
 }
 
 // IsEligibleForDiscovery checks if a user profile meets discovery requirements
@@ -214,8 +214,7 @@ const (
 	MaxLanguages     = 10
 )
 
-// Required question categories for discovery eligibility
-// User must answer at least 1 question from each category
+// RequiredQuestionCategories lists the question categories required for discovery eligibility.
 var RequiredQuestionCategories = []string{
 	"values",
 	"social",

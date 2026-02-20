@@ -159,12 +159,12 @@ func (s *TrustService) ConfirmIRL(ctx context.Context, userID string, req *model
 
 	// Create new IRL verification
 	irl := &model.IRLVerification{
-		UserAID:        userID,
-		UserBID:        req.UserID,
-		Context:        req.Context,
-		ReferenceID:    req.ReferenceID,
-		UserAConfirmed: true,
-		UserBConfirmed: false,
+		UserAID:          userID,
+		UserBID:          req.UserID,
+		Context:          req.Context,
+		ReferenceID:      req.ReferenceID,
+		UserAConfirmed:   true,
+		UserBConfirmed:   false,
 		UserAConfirmedOn: &now,
 	}
 

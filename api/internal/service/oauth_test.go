@@ -563,8 +563,8 @@ func TestOAuthService_ParseGoogleIDToken_InvalidFormat(t *testing.T) {
 	oauthService, _, _, _ := setupOAuthService(t, nil)
 
 	tests := []struct {
-		name    string
-		token   string
+		name  string
+		token string
 	}{
 		{"empty", ""},
 		{"single part", "onlyonepart"},

@@ -7,13 +7,13 @@ type NudgeType string
 
 const (
 	// Hangout-related nudges
-	NudgeTypePendingMatch     NudgeType = "pending_match"     // Match created, no action taken
-	NudgeTypeStaleHangout     NudgeType = "stale_hangout"     // Hangout scheduled but no follow-up
-	NudgeTypeUpcomingHangout  NudgeType = "upcoming_hangout"  // Reminder for scheduled hangout
-	NudgeTypeHangoutFollowUp  NudgeType = "hangout_followup"  // Post-hangout feedback reminder
+	NudgeTypePendingMatch    NudgeType = "pending_match"    // Match created, no action taken
+	NudgeTypeStaleHangout    NudgeType = "stale_hangout"    // Hangout scheduled but no follow-up
+	NudgeTypeUpcomingHangout NudgeType = "upcoming_hangout" // Reminder for scheduled hangout
+	NudgeTypeHangoutFollowUp NudgeType = "hangout_followup" // Post-hangout feedback reminder
 
 	// Availability-related nudges
-	NudgeTypePendingRequest   NudgeType = "pending_request"   // Someone wants to hang out
+	NudgeTypePendingRequest     NudgeType = "pending_request"     // Someone wants to hang out
 	NudgeTypeUnrespondedRequest NudgeType = "unresponded_request" // Requester hasn't heard back
 
 	// Pool-related nudges
@@ -47,33 +47,33 @@ type Nudge struct {
 // NudgeData contains type-specific context
 type NudgeData struct {
 	// For hangout/match nudges
-	HangoutID        *string `json:"hangout_id,omitempty"`
-	MatchID          *string `json:"match_id,omitempty"`
-	AvailabilityID   *string `json:"availability_id,omitempty"`
-	PoolID           *string `json:"pool_id,omitempty"`
+	HangoutID      *string `json:"hangout_id,omitempty"`
+	MatchID        *string `json:"match_id,omitempty"`
+	AvailabilityID *string `json:"availability_id,omitempty"`
+	PoolID         *string `json:"pool_id,omitempty"`
 
 	// For partner-related nudges
-	PartnerUserID    *string   `json:"partner_user_id,omitempty"`
-	PartnerUserIDs   []string  `json:"partner_user_ids,omitempty"`
-	PartnerNames     []string  `json:"partner_names,omitempty"`
+	PartnerUserID  *string  `json:"partner_user_id,omitempty"`
+	PartnerUserIDs []string `json:"partner_user_ids,omitempty"`
+	PartnerNames   []string `json:"partner_names,omitempty"`
 
 	// For activity nudges
-	ActivityDesc     *string    `json:"activity_desc,omitempty"`
-	ScheduledTime    *time.Time `json:"scheduled_time,omitempty"`
+	ActivityDesc  *string    `json:"activity_desc,omitempty"`
+	ScheduledTime *time.Time `json:"scheduled_time,omitempty"`
 
 	// Deep link info
-	ActionURL        *string `json:"action_url,omitempty"` // e.g., "/hangout/123"
+	ActionURL *string `json:"action_url,omitempty"` // e.g., "/hangout/123"
 }
 
 // NudgeConfig defines when and how nudges are triggered
 type NudgeConfig struct {
-	Type             NudgeType     `json:"type"`
-	Enabled          bool          `json:"enabled"`
-	DelayAfter       time.Duration `json:"delay_after"`        // How long to wait before nudging
-	RepeatInterval   time.Duration `json:"repeat_interval"`    // How often to re-nudge
-	MaxRepeat        int           `json:"max_repeat"`         // Max times to nudge (0 = unlimited)
-	CooldownPeriod   time.Duration `json:"cooldown_period"`    // Min time between nudges of any type
-	Channel          NudgeChannel  `json:"channel"`
+	Type           NudgeType     `json:"type"`
+	Enabled        bool          `json:"enabled"`
+	DelayAfter     time.Duration `json:"delay_after"`     // How long to wait before nudging
+	RepeatInterval time.Duration `json:"repeat_interval"` // How often to re-nudge
+	MaxRepeat      int           `json:"max_repeat"`      // Max times to nudge (0 = unlimited)
+	CooldownPeriod time.Duration `json:"cooldown_period"` // Min time between nudges of any type
+	Channel        NudgeChannel  `json:"channel"`
 }
 
 // DefaultNudgeConfigs provides sensible defaults for each nudge type
@@ -81,17 +81,17 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypePendingMatch: {
 		Type:           NudgeTypePendingMatch,
 		Enabled:        true,
-		DelayAfter:     24 * time.Hour,       // Wait 24h after match created
-		RepeatInterval: 48 * time.Hour,       // Remind every 48h
-		MaxRepeat:      2,                    // Max 2 reminders
+		DelayAfter:     24 * time.Hour, // Wait 24h after match created
+		RepeatInterval: 48 * time.Hour, // Remind every 48h
+		MaxRepeat:      2,              // Max 2 reminders
 		CooldownPeriod: 6 * time.Hour,
 		Channel:        NudgeChannelSSE,
 	},
 	NudgeTypeStaleHangout: {
 		Type:           NudgeTypeStaleHangout,
 		Enabled:        true,
-		DelayAfter:     72 * time.Hour,       // Wait 3 days
-		RepeatInterval: 168 * time.Hour,      // Weekly reminder
+		DelayAfter:     72 * time.Hour,  // Wait 3 days
+		RepeatInterval: 168 * time.Hour, // Weekly reminder
 		MaxRepeat:      1,
 		CooldownPeriod: 24 * time.Hour,
 		Channel:        NudgeChannelSSE,
@@ -99,8 +99,8 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypeUpcomingHangout: {
 		Type:           NudgeTypeUpcomingHangout,
 		Enabled:        true,
-		DelayAfter:     0,                    // Triggered before event
-		RepeatInterval: 0,                    // No repeat
+		DelayAfter:     0, // Triggered before event
+		RepeatInterval: 0, // No repeat
 		MaxRepeat:      0,
 		CooldownPeriod: 0,
 		Channel:        NudgeChannelPush,
@@ -108,7 +108,7 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypeHangoutFollowUp: {
 		Type:           NudgeTypeHangoutFollowUp,
 		Enabled:        true,
-		DelayAfter:     2 * time.Hour,        // 2h after scheduled time
+		DelayAfter:     2 * time.Hour, // 2h after scheduled time
 		RepeatInterval: 24 * time.Hour,
 		MaxRepeat:      1,
 		CooldownPeriod: 6 * time.Hour,
@@ -117,7 +117,7 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypePendingRequest: {
 		Type:           NudgeTypePendingRequest,
 		Enabled:        true,
-		DelayAfter:     0,                    // Immediate
+		DelayAfter:     0, // Immediate
 		RepeatInterval: 4 * time.Hour,
 		MaxRepeat:      2,
 		CooldownPeriod: 2 * time.Hour,
@@ -126,7 +126,7 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypeUnrespondedRequest: {
 		Type:           NudgeTypeUnrespondedRequest,
 		Enabled:        true,
-		DelayAfter:     12 * time.Hour,       // Wait 12h for response
+		DelayAfter:     12 * time.Hour, // Wait 12h for response
 		RepeatInterval: 24 * time.Hour,
 		MaxRepeat:      1,
 		CooldownPeriod: 12 * time.Hour,
@@ -135,7 +135,7 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypePoolMatchCreated: {
 		Type:           NudgeTypePoolMatchCreated,
 		Enabled:        true,
-		DelayAfter:     0,                    // Immediate
+		DelayAfter:     0, // Immediate
 		RepeatInterval: 0,
 		MaxRepeat:      0,
 		CooldownPeriod: 0,
@@ -144,8 +144,8 @@ var DefaultNudgeConfigs = map[NudgeType]NudgeConfig{
 	NudgeTypePoolMatchStale: {
 		Type:           NudgeTypePoolMatchStale,
 		Enabled:        true,
-		DelayAfter:     48 * time.Hour,       // 2 days after match
-		RepeatInterval: 72 * time.Hour,       // Every 3 days
+		DelayAfter:     48 * time.Hour, // 2 days after match
+		RepeatInterval: 72 * time.Hour, // Every 3 days
 		MaxRepeat:      2,
 		CooldownPeriod: 24 * time.Hour,
 		Channel:        NudgeChannelSSE,
@@ -163,10 +163,10 @@ type NudgeHistory struct {
 
 // NudgePreference allows users to control nudge settings
 type NudgePreference struct {
-	UserID           string        `json:"user_id"`
-	Type             NudgeType     `json:"type"`
-	Enabled          bool          `json:"enabled"`
-	Channel          *NudgeChannel `json:"channel,omitempty"` // Override default channel
+	UserID  string        `json:"user_id"`
+	Type    NudgeType     `json:"type"`
+	Enabled bool          `json:"enabled"`
+	Channel *NudgeChannel `json:"channel,omitempty"` // Override default channel
 }
 
 // NudgeSummary provides a summary of pending nudges for a user

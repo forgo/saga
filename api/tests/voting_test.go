@@ -682,7 +682,7 @@ func TestVoting_RankedChoiceResults(t *testing.T) {
 	_, _ = voteService.CastBallot(ctx, vote.ID, voter5.ID, &model.CastBallotRequest{Rankings: []string{optC.ID, optB.ID, optA.ID}})
 
 	// Close vote
-	voteService.Close(ctx, vote.ID, user.ID)
+	_ = voteService.Close(ctx, vote.ID, user.ID)
 
 	// Get results
 	results, err := voteService.GetResults(ctx, vote.ID, user.ID)
@@ -754,7 +754,7 @@ func TestVoting_TransparentBallotLedger(t *testing.T) {
 	assert.Contains(t, err.Error(), "not yet visible")
 
 	// Close vote
-	voteService.Close(ctx, vote.ID, user.ID)
+	_ = voteService.Close(ctx, vote.ID, user.ID)
 
 	// Now ballots are visible
 	ballots, err := voteService.GetBallots(ctx, vote.ID, voter1.ID)
@@ -818,7 +818,7 @@ func TestVoting_CannotVoteWhenClosed(t *testing.T) {
 
 	// Open and immediately close
 	_ = voteService.Open(ctx, vote.ID, user.ID)
-	voteService.Close(ctx, vote.ID, user.ID)
+	_ = voteService.Close(ctx, vote.ID, user.ID)
 
 	// Try to vote
 	_, err := voteService.CastBallot(ctx, vote.ID, voter.ID, &model.CastBallotRequest{
@@ -873,7 +873,7 @@ func TestVoting_Abstain(t *testing.T) {
 	assert.True(t, ballot.IsAbstain)
 
 	// Close and check results
-	voteService.Close(ctx, vote.ID, user.ID)
+	_ = voteService.Close(ctx, vote.ID, user.ID)
 	results, err := voteService.GetResults(ctx, vote.ID, user.ID)
 	require.NoError(t, err)
 	assert.Equal(t, 1, results.TotalAbstains)

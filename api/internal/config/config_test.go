@@ -260,8 +260,8 @@ func TestConfig_Validate_PartialGoogleOAuth(t *testing.T) {
 	if err == nil {
 		t.Error("expected error for partial Google OAuth config")
 	}
-	if !strings.Contains(err.Error(), "Google OAuth") {
-		t.Errorf("expected error to mention Google OAuth, got: %v", err)
+	if !strings.Contains(err.Error(), "google oauth") {
+		t.Errorf("expected error to mention google oauth, got: %v", err)
 	}
 }
 
@@ -273,8 +273,8 @@ func TestConfig_Validate_PartialAppleOAuth(t *testing.T) {
 	if err == nil {
 		t.Error("expected error for partial Apple OAuth config")
 	}
-	if !strings.Contains(err.Error(), "Apple OAuth") {
-		t.Errorf("expected error to mention Apple OAuth, got: %v", err)
+	if !strings.Contains(err.Error(), "apple oauth") {
+		t.Errorf("expected error to mention apple oauth, got: %v", err)
 	}
 }
 

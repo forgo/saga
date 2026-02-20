@@ -452,7 +452,7 @@ func TestCompress_AcceptsGzip_CompressesResponse(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create gzip reader: %v", err)
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	decompressed, err := io.ReadAll(reader)
 	if err != nil {
@@ -557,14 +557,14 @@ func TestGzipResponseWriter_WritesToGzipWriter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Write failed: %v", err)
 	}
-	gz.Close()
+	_ = gz.Close()
 
 	// Verify we can decompress
 	reader, err := gzip.NewReader(rr.Body)
 	if err != nil {
 		t.Fatalf("failed to create gzip reader: %v", err)
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	content, err := io.ReadAll(reader)
 	if err != nil {

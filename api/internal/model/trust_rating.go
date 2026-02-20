@@ -14,7 +14,7 @@ const (
 type TrustAnchorType string
 
 const (
-	TrustAnchorEvent    TrustAnchorType = "event"
+	TrustAnchorEvent     TrustAnchorType = "event"
 	TrustAnchorRideshare TrustAnchorType = "rideshare"
 )
 
@@ -29,33 +29,33 @@ const (
 // TrustRating represents an event-anchored trust assessment between users
 type TrustRating struct {
 	ID               string           `json:"id"`
-	RaterID          string           `json:"rater_id"`           // User who is rating
-	RateeID          string           `json:"ratee_id"`           // User being rated
-	AnchorType       TrustAnchorType  `json:"anchor_type"`        // event or rideshare
-	AnchorID         string           `json:"anchor_id"`          // ID of the event/rideshare
-	TrustLevel       TrustLevel       `json:"trust_level"`        // trust or distrust
-	TrustReview      string           `json:"trust_review"`       // Required review (max 240 chars)
-	ReviewVisibility ReviewVisibility `json:"review_visibility"`  // public or admin_only
+	RaterID          string           `json:"rater_id"`          // User who is rating
+	RateeID          string           `json:"ratee_id"`          // User being rated
+	AnchorType       TrustAnchorType  `json:"anchor_type"`       // event or rideshare
+	AnchorID         string           `json:"anchor_id"`         // ID of the event/rideshare
+	TrustLevel       TrustLevel       `json:"trust_level"`       // trust or distrust
+	TrustReview      string           `json:"trust_review"`      // Required review (max 240 chars)
+	ReviewVisibility ReviewVisibility `json:"review_visibility"` // public or admin_only
 	CreatedOn        time.Time        `json:"created_on"`
 	UpdatedOn        time.Time        `json:"updated_on"`
 	// Computed fields
-	EndorsementCount int  `json:"endorsement_count,omitempty"`
-	AgreeCount       int  `json:"agree_count,omitempty"`
-	DisagreeCount    int  `json:"disagree_count,omitempty"`
+	EndorsementCount int `json:"endorsement_count,omitempty"`
+	AgreeCount       int `json:"agree_count,omitempty"`
+	DisagreeCount    int `json:"disagree_count,omitempty"`
 	// Cooldown info
-	CanEdit          bool       `json:"can_edit,omitempty"`
-	NextEditableAt   *time.Time `json:"next_editable_at,omitempty"`
+	CanEdit        bool       `json:"can_edit,omitempty"`
+	NextEditableAt *time.Time `json:"next_editable_at,omitempty"`
 }
 
 // TrustRatingHistory represents an audit entry for trust rating changes
 type TrustRatingHistory struct {
-	ID             string     `json:"id"`
-	TrustRatingID  string     `json:"trust_rating_id"`
-	PreviousLevel  *string    `json:"previous_level,omitempty"`
-	NewLevel       string     `json:"new_level"`
-	PreviousReview *string    `json:"previous_review,omitempty"`
-	NewReview      string     `json:"new_review"`
-	ChangedOn      time.Time  `json:"changed_on"`
+	ID             string    `json:"id"`
+	TrustRatingID  string    `json:"trust_rating_id"`
+	PreviousLevel  *string   `json:"previous_level,omitempty"`
+	NewLevel       string    `json:"new_level"`
+	PreviousReview *string   `json:"previous_review,omitempty"`
+	NewReview      string    `json:"new_review"`
+	ChangedOn      time.Time `json:"changed_on"`
 }
 
 // EndorsementType represents whether an endorser agrees or disagrees
@@ -95,10 +95,10 @@ type TrustAggregate struct {
 
 // TrustRatingWithContext includes anchor context
 type TrustRatingWithContext struct {
-	TrustRating   TrustRating `json:"trust_rating"`
-	AnchorTitle   string      `json:"anchor_title,omitempty"`   // Event/rideshare title
-	AnchorDate    *time.Time  `json:"anchor_date,omitempty"`    // When it occurred
-	RaterName     string      `json:"rater_name,omitempty"`     // Display name of rater
+	TrustRating TrustRating `json:"trust_rating"`
+	AnchorTitle string      `json:"anchor_title,omitempty"` // Event/rideshare title
+	AnchorDate  *time.Time  `json:"anchor_date,omitempty"`  // When it occurred
+	RaterName   string      `json:"rater_name,omitempty"`   // Display name of rater
 }
 
 // Constraints
@@ -197,11 +197,11 @@ func (r *CreateEndorsementRequest) Validate() []FieldError {
 
 // DistrustSignal represents a user with significant distrust for admin review
 type DistrustSignal struct {
-	UserID        string    `json:"user_id"`
-	Username      string    `json:"username,omitempty"`
-	DistrustCount int       `json:"distrust_count"`
-	TrustCount    int       `json:"trust_count"`
-	NetTrust      int       `json:"net_trust"`
-	LatestReason  string    `json:"latest_reason,omitempty"` // Most recent distrust review
+	UserID         string    `json:"user_id"`
+	Username       string    `json:"username,omitempty"`
+	DistrustCount  int       `json:"distrust_count"`
+	TrustCount     int       `json:"trust_count"`
+	NetTrust       int       `json:"net_trust"`
+	LatestReason   string    `json:"latest_reason,omitempty"` // Most recent distrust review
 	LatestRatingOn time.Time `json:"latest_rating_on"`
 }

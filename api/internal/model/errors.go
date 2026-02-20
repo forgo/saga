@@ -11,43 +11,43 @@ type ErrorCode int
 
 const (
 	// Authentication errors (1xxx)
-	ErrCodeUnauthorized   ErrorCode = 1001
-	ErrCodeTokenExpired   ErrorCode = 1002
-	ErrCodeTokenInvalid   ErrorCode = 1003
-	ErrCodeLoginFailed    ErrorCode = 1004
+	ErrCodeUnauthorized ErrorCode = 1001
+	ErrCodeTokenExpired ErrorCode = 1002
+	ErrCodeTokenInvalid ErrorCode = 1003
+	ErrCodeLoginFailed  ErrorCode = 1004
 
 	// Authorization errors (2xxx)
-	ErrCodeForbidden      ErrorCode = 2001
-	ErrCodeNotMember      ErrorCode = 2002
+	ErrCodeForbidden ErrorCode = 2001
+	ErrCodeNotMember ErrorCode = 2002
 
 	// Resource errors (3xxx)
-	ErrCodeNotFound       ErrorCode = 3001
-	ErrCodeAlreadyExists  ErrorCode = 3002
-	ErrCodeConflict       ErrorCode = 3003
+	ErrCodeNotFound      ErrorCode = 3001
+	ErrCodeAlreadyExists ErrorCode = 3002
+	ErrCodeConflict      ErrorCode = 3003
 
 	// Validation errors (4xxx)
-	ErrCodeValidation     ErrorCode = 4001
-	ErrCodeInvalidInput   ErrorCode = 4002
-	ErrCodeLimitExceeded  ErrorCode = 4003
+	ErrCodeValidation    ErrorCode = 4001
+	ErrCodeInvalidInput  ErrorCode = 4002
+	ErrCodeLimitExceeded ErrorCode = 4003
 
 	// Internal errors (5xxx)
-	ErrCodeInternal       ErrorCode = 5001
-	ErrCodeDatabase       ErrorCode = 5002
-	ErrCodeExternalAPI    ErrorCode = 5003
+	ErrCodeInternal    ErrorCode = 5001
+	ErrCodeDatabase    ErrorCode = 5002
+	ErrCodeExternalAPI ErrorCode = 5003
 )
 
 // ProblemDetails represents RFC 9457 Problem Details for HTTP APIs
 type ProblemDetails struct {
-	Type     string          `json:"type"`
-	Title    string          `json:"title"`
-	Status   int             `json:"status"`
-	Detail   string          `json:"detail,omitempty"`
-	Instance string          `json:"instance,omitempty"`
-	Errors   []FieldError    `json:"errors,omitempty"`
+	Type     string       `json:"type"`
+	Title    string       `json:"title"`
+	Status   int          `json:"status"`
+	Detail   string       `json:"detail,omitempty"`
+	Instance string       `json:"instance,omitempty"`
+	Errors   []FieldError `json:"errors,omitempty"`
 	// Extension fields
-	Code     ErrorCode       `json:"code,omitempty"`
-	Limit    *int            `json:"limit,omitempty"`
-	Current  *int            `json:"current,omitempty"`
+	Code    ErrorCode `json:"code,omitempty"`
+	Limit   *int      `json:"limit,omitempty"`
+	Current *int      `json:"current,omitempty"`
 }
 
 // FieldError represents a validation error on a specific field

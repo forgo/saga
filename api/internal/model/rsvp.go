@@ -151,11 +151,11 @@ type RSVPStats struct {
 
 // Constraints
 const (
-	MaxRSVPNote      = 500
-	MaxHostNote      = 500
-	MaxPlusOnes      = 5
-	MaxHelpfulTags   = 5
-	MaxTagLength     = 50
+	MaxRSVPNote    = 500
+	MaxHostNote    = 500
+	MaxPlusOnes    = 5
+	MaxHelpfulTags = 5
+	MaxTagLength   = 50
 )
 
 // Validate validates a CreateRSVPRequest

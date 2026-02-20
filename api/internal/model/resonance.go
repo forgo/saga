@@ -32,9 +32,9 @@ const (
 	ReasonQuestingCheckinBonus = "CHECKIN_BONUS"
 
 	// Mana reasons
-	ReasonManaSupport       = "SUPPORT_HELPFUL"
-	ReasonManaEarlyConfirm  = "MANA_EARLY_CONFIRM"
-	ReasonManaFeedbackTag   = "MANA_FEEDBACK_TAG"
+	ReasonManaSupport      = "SUPPORT_HELPFUL"
+	ReasonManaEarlyConfirm = "MANA_EARLY_CONFIRM"
+	ReasonManaFeedbackTag  = "MANA_FEEDBACK_TAG"
 
 	// Wayfinder reasons
 	ReasonWayfinderHosting   = "HOSTING_VERIFIED"
@@ -42,7 +42,7 @@ const (
 	ReasonWayfinderEarly     = "WAYFINDER_EARLY"
 
 	// Attunement reasons
-	ReasonAttunementQuestion      = "QUESTION_ANSWERED"
+	ReasonAttunementQuestion       = "QUESTION_ANSWERED"
 	ReasonAttunementProfileRefresh = "PROFILE_REFRESH"
 
 	// Nexus reasons
@@ -87,7 +87,7 @@ type SupportPairCount struct {
 	ID          string    `json:"id"`
 	HelperID    string    `json:"helper_id"`
 	ReceiverID  string    `json:"receiver_id"`
-	Count       int       `json:"count"`       // Sessions in last 30 days
+	Count       int       `json:"count"` // Sessions in last 30 days
 	LastSession time.Time `json:"last_session"`
 }
 
@@ -106,9 +106,9 @@ func GetManaMultiplier(count int) float64 {
 // Point values (configurable)
 const (
 	// Questing
-	PointsQuestingBase        = 10
+	PointsQuestingBase         = 10
 	PointsQuestingEarlyConfirm = 2
-	PointsQuestingCheckin     = 2
+	PointsQuestingCheckin      = 2
 
 	// Mana
 	PointsManaBase         = 12
@@ -116,8 +116,8 @@ const (
 	PointsManaFeedbackTag  = 2
 
 	// Wayfinder
-	PointsWayfinderBase        = 8
-	PointsWayfinderPerAttendee = 2
+	PointsWayfinderBase         = 8
+	PointsWayfinderPerAttendee  = 2
 	PointsWayfinderMaxAttendees = 4
 	PointsWayfinderEarlyConfirm = 2
 
@@ -154,12 +154,12 @@ func (r HelpfulnessRating) IsHelpful() bool {
 
 // ResonanceDisplay is what users see on profiles
 type ResonanceDisplay struct {
-	Total      int    `json:"total"`
-	Questing   int    `json:"questing"`
-	Mana       int    `json:"mana"`
-	Wayfinder  int    `json:"wayfinder"`
-	Attunement int    `json:"attunement"`
-	Nexus      int    `json:"nexus"`
+	Total      int `json:"total"`
+	Questing   int `json:"questing"`
+	Mana       int `json:"mana"`
+	Wayfinder  int `json:"wayfinder"`
+	Attunement int `json:"attunement"`
+	Nexus      int `json:"nexus"`
 }
 
 // ResonanceLedgerEntry is used for creating and reading ledger entries

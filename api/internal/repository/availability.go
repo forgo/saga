@@ -447,12 +447,12 @@ func (r *AvailabilityRepository) parseAvailabilityResult(result interface{}) (*m
 	}
 
 	av := &model.Availability{
-		ID:         convertSurrealID(data["id"]),
-		UserID:     convertSurrealID(data["user"]),
-		Status:     model.AvailabilityStatus(getString(data, "status")),
+		ID:          convertSurrealID(data["id"]),
+		UserID:      convertSurrealID(data["user"]),
+		Status:      model.AvailabilityStatus(getString(data, "status")),
 		HangoutType: model.HangoutType(getString(data, "hangout_type")),
-		MaxPeople:  getInt(data, "max_people"),
-		Visibility: getString(data, "visibility"),
+		MaxPeople:   getInt(data, "max_people"),
+		Visibility:  getString(data, "visibility"),
 	}
 
 	if startTime := getTime(data, "start_time"); startTime != nil {

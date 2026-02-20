@@ -1001,9 +1001,10 @@ func TestProcessScheduledTransitions_OpensAndCloses(t *testing.T) {
 			return []*model.Vote{{ID: "vote-to-close"}}, nil
 		},
 		updateStatusFunc: func(ctx context.Context, id string, status model.VoteStatus) error {
-			if status == model.VoteStatusOpen {
+			switch status {
+			case model.VoteStatusOpen:
 				openedIDs[id] = true
-			} else if status == model.VoteStatusClosed {
+			case model.VoteStatusClosed:
 				closedIDs[id] = true
 			}
 			return nil

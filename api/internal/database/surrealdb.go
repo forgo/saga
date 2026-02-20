@@ -35,13 +35,13 @@ func (s *SurrealDB) Connect(ctx context.Context) error {
 		Password: s.config.Password,
 	})
 	if err != nil {
-		db.Close(ctx)
+		_ = db.Close(ctx)
 		return fmt.Errorf("%w: signin failed: %v", ErrConnection, err)
 	}
 
 	// Use namespace and database
 	if err := db.Use(ctx, s.config.Namespace, s.config.Database); err != nil {
-		db.Close(ctx)
+		_ = db.Close(ctx)
 		return fmt.Errorf("%w: use failed: %v", ErrConnection, err)
 	}
 

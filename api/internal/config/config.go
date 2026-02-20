@@ -198,12 +198,12 @@ func (c *Config) Validate() error {
 	// OAuth validation - if any provider field is set, validate required fields
 	if c.OAuth.Google.IsConfigured() {
 		if err := c.OAuth.Google.Validate(); err != nil {
-			errs = append(errs, fmt.Errorf("Google OAuth: %w", err))
+			errs = append(errs, fmt.Errorf("google OAuth: %w", err))
 		}
 	}
 	if c.OAuth.Apple.IsConfigured() {
 		if err := c.OAuth.Apple.Validate(); err != nil {
-			errs = append(errs, fmt.Errorf("Apple OAuth: %w", err))
+			errs = append(errs, fmt.Errorf("apple OAuth: %w", err))
 		}
 	}
 

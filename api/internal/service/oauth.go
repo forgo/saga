@@ -317,7 +317,7 @@ func (s *OAuthService) exchangeGoogleCode(ctx context.Context, code, codeVerifie
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrProviderError, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -387,7 +387,7 @@ func (s *OAuthService) exchangeAppleCode(ctx context.Context, code, codeVerifier
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrProviderError, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -458,7 +458,7 @@ func (s *OAuthService) generateAppleClientSecret() (string, error) {
 	// Signed with ES256 using the private key
 
 	// For now, return a placeholder - implement full JWT signing in production
-	return "", fmt.Errorf("Apple client secret generation not implemented")
+	return "", fmt.Errorf("apple client secret generation not implemented")
 }
 
 // generateLinkToken generates a short-lived token for account linking

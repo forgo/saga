@@ -27,8 +27,8 @@ github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjR
 github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/surrealdb/surrealdb.go v1.3.0 h1:/ccM9zQnx+SXYjQh1eFxcc0UagDd3VDHNUzmbyU/QEc=
-github.com/surrealdb/surrealdb.go v1.3.0/go.mod h1:ju3vn9OHXde9Ulvc7/fP9I8ylkiapOdBSdrEs2PmTtA=
+github.com/surrealdb/surrealdb.go v1.4.0 h1:c3Tump5z+b1j27M6Puj0By59axd13ME2NFYptHiIdRw=
+github.com/surrealdb/surrealdb.go v1.4.0/go.mod h1:ju3vn9OHXde9Ulvc7/fP9I8ylkiapOdBSdrEs2PmTtA=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 golang.org/x/crypto v0.48.0 h1:/VRzVqiRSggnhY7gNRxPauEQ5Drw9haKdM0jqfcCFts=

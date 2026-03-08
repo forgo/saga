@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.11.1
-	github.com/surrealdb/surrealdb.go v1.3.0
+	github.com/surrealdb/surrealdb.go v1.4.0
 	golang.org/x/crypto v0.48.0
 )
 
